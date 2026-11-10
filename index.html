@@ -889,6 +889,15 @@ function gChoose(rd,ru){return new Promise(res=>{const L=gW(S),R=gW(rd);const o=
 async function gApply(r,f,ru){const d=clean(r.d);if(!d)throw new Error('arquivo do Google inválido');const keep=gKeep();Object.assign(d,keep);d.gd=Object.assign({},keep.gd,{on:1,base:ru,at:Date.now(),id:f.id});d.upd=ru;
   V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;save(1);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
 async function gPull(f,ru){const r=await gOpenRemote(f);if(!r)return false;await gApply(r,f,ru);return true}
+/* junta duas versões sem perder nada: itens pelo id, registros por dia, lançamentos sem repetir; o mais recente vence nos ajustes */
+function gMerge(a,b){const cp=o=>JSON.parse(JSON.stringify(o||{})),wa=gW(a).w,wb=gW(b).w,na=Math.abs(wa-wb)>Math.max(wa,wb)*.2?wa>wb:(a.upd||0)>=(b.upd||0),N=cp(na?a:b),O=cp(na?b:a),out=Object.assign(cp(O),cp(N));
+  ['h','v','n','bl','sh','yd'].forEach(k=>{const m=new Map();(O[k]||[]).forEach(x=>m.set(String(x.id),x));(N[k]||[]).forEach(x=>m.set(String(x.id),x));out[k]=[...m.values()]});
+  ['x','o','c','md','sl'].forEach(k=>{const r={};[O[k]||{},N[k]||{}].forEach(src=>Object.keys(src).forEach(d=>{const v=src[d];r[d]=v&&typeof v=='object'&&!Array.isArray(v)?Object.assign({},r[d],v):v}));out[k]=r});
+  const f={};[O.f||{},N.f||{}].forEach(src=>Object.keys(src).forEach(m=>{f[m]=f[m]||[];const seen=new Set(f[m].map(t=>JSON.stringify([t.d,t.x,t.v])));(src[m]||[]).forEach(t=>{const k=JSON.stringify([t.d,t.x,t.v]);if(!seen.has(k)){seen.add(k);f[m].push(t)}})}));out.f=f;
+  out.bg=Object.assign({},O.bg,N.bg);if(O.cy||N.cy){out.cy=Object.assign({},O.cy,N.cy);out.cy.st=[...new Set([...((O.cy||{}).st||[]),...((N.cy||{}).st||[])])].sort()}
+  return out}
+async function gJoin(r,f){const keep=gKeep(),d=clean(gMerge(S,r.d));if(!d)throw new Error('não consegui juntar os dados');Object.assign(d,keep);if(!V.key&&r.key){V.key=r.key;V.salt=r.salt;V.it=r.it}
+  d.upd=Date.now();S=d;save(1);await V.idle();lsD('gt3h');await gPush(f);if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
 async function gPush(f){const blob=V.key?await V.enc(S):{hrc:1,plain:1,d:S};const id=await gPut(blob,S.upd||Date.now(),f&&f.id);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);return id}
 async function gSync(manual){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
   if(!gLive()){if(manual)return gAuth();return}
@@ -896,7 +905,8 @@ async function gSync(manual){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
   try{await gVerify();const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0,base=S.gd.base||0,lu=S.upd||0;
     if(f&&ru&&ru!==base&&ru!==lu){
       const r=await gOpenRemote(f);if(!r)return;const L=gW(S).w,R=gW(r.d).w;
-      let pick='R';if(lu>base||!base||(R*2<L&&L>8))pick=await gChoose(r.d,ru);
+      if(lu>base||!base){if(L<=3){await gApply(r,f,ru);toast('☁️ Seus dados da conta chegaram neste aparelho.',5000);return}await gJoin(r,f);toast('☁️ Dados juntados: tudo deste aparelho e da sua conta agora está aqui e no Google.',6000);return}
+      let pick='R';if(R*2<L&&L>8)pick=await gChoose(r.d,ru);
       if(!pick)return;
       if(pick=='R'){await gApply(r,f,ru);toast('☁️ Dados atualizados com a cópia do Google.',5000);return}
       await gPush(f);toast('☁️ Dados deste aparelho enviados ao Google.');return}
@@ -909,10 +919,8 @@ async function gAfterBoot(){
   try{await gVerify()}catch(e){return toast('Login do Google recusado: '+e.message,7000)}
   if(pend){gBusy=true;try{const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0;
       if(f){const r=await gOpenRemote(f);if(!r){gBusy=false;return}
-        const pick=gW(S).w<=3?'R':await gChoose(r.d,ru);if(!pick){gBusy=false;return}
-        if(pick=='R'){await gApply(r,f,ru);gBusy=false;return toast('☁️ Pronto! Seus dados vieram do Google e estão protegidos pelo cofre.',7000)}
-        if(!V.key){V.key=r.key;V.salt=r.salt;V.it=r.it}
-        S.gd=Object.assign({},S.gd,{on:1,base:ru});save(1);await V.idle();lsD('gt3h');await gPush(f);gBusy=false;render();return toast('☁️ Dados deste aparelho enviados ao Google. Use a mesma senha do cofre nos outros aparelhos.',7000)}
+        if(gW(S).w<=3){await gApply(r,f,ru);gBusy=false;return toast('☁️ Pronto! Todos os dados da sua conta foram transferidos para este aparelho.',7000)}
+        S.gd=Object.assign({},S.gd,{on:1,base:ru});await gJoin(r,f);gBusy=false;return toast('☁️ Pronto! Os dados da sua conta foram transferidos e juntados com os deste aparelho.',7000)}
       
       S.gd=Object.assign({},S.gd,{on:1,base:0});save(1);gBusy=false;return gSync(true)}
     catch(e){gBusy=false;return toast('Google: '+(e.message||e),7000)}}
