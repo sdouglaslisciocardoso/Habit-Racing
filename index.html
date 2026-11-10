@@ -345,6 +345,7 @@ body{isolation:isolate}body::before{content:"";position:fixed;inset:0;z-index:-1
 .ngmo{margin:0 0 12px;border:1px dashed var(--bd);border-radius:14px;padding:10px 12px}.ngmo summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--mu)}.ngmo[open] summary{margin-bottom:10px}
 .ngq{width:100%;margin:0 0 10px}.ngr{cursor:pointer}
 .fxr{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--bd);cursor:pointer}.fxr input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--acc)}.fxr span{display:grid;gap:2px}.fxc .b{margin-top:2px}
+.ggo{display:flex;align-items:center;justify-content:center;gap:10px}.gg{width:24px;height:24px;border-radius:50%;background:#fff;color:#4285f4;font-weight:900;display:grid;place-items:center;font-size:15px}
 .tu-lb{font-weight:800;font-size:17px;margin-top:4px}.tu-in{width:100%;font-size:20px;text-align:center;padding:14px;border-radius:14px}.tu-in.sm{font-size:15px;padding:12px}
 .tu-o{display:grid;gap:8px}.tu-o button{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:14px;border:2px solid var(--bd);background:var(--p);color:var(--tx);font:inherit;font-weight:700;cursor:pointer}.tu-o em{font-style:normal;font-size:24px;width:30px;text-align:center;flex:none}.tu-o small{display:block;font-weight:500;color:var(--mu);font-size:13px}.tu-o button.on,.tu-o button:hover{border-color:var(--acc)}
 .tu-ob{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.tu-ob button{padding:10px 14px;border-radius:999px;border:2px solid var(--bd);background:var(--p);color:var(--tx);font:inherit;font-weight:700;cursor:pointer}.tu-ob button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 20%,var(--p))}
@@ -366,7 +367,7 @@ const R=[[0,'BRONZE','#cd7f32'],[300,'SILVER','#c0c8d6'],[800,'GOLD','#ffc83d'],
 const SG=[['Beber água','08:00'],['Alongar','07:15'],['Caminhada','17:30'],['Revisão do dia','22:00'],['Dormir cedo','23:00']];
 let S=null;try{S=window.__S0||JSON.parse(localStorage.getItem('gt3h'))}catch(e){}S=S&&clean(S);delete window.__S0;
 S=S||{h:[{id:1,n:'Beber água',t:'07:00',d:ALL},{id:2,n:'Treino',t:'18:00',d:[0,2,4]},{id:3,n:'Ler 20 minutos',t:'21:00',d:ALL}],x:{},v:[],k:''};
-S.o=S.o||{};S.n=S.n||[];S.f=S.f||{};S.c=S.c||{};S.md=S.md||{};S.bg=S.bg||{};S.bl=S.bl||[];S.sh=S.sh||[];S.yd=S.yd||[];S.cl=S.cl||[];S.rn=S.rn||[];S.sl=S.sl||{};S.slp=S.slp||{g:8,off:''};S.cy=S.cy||{st:[],len:5,sy:{}};S.cy.sy=S.cy.sy||{};let nq='',dr={},fm='';S.m=S.m||{on:1,t:'07:00',last:''};let tab='hoje',chat=[],adj=false;
+function fixS(){S.h=S.h||[];S.x=S.x||{};S.v=S.v||[];S.o=S.o||{};S.n=S.n||[];S.f=S.f||{};S.c=S.c||{};S.md=S.md||{};S.bg=S.bg||{};S.bl=S.bl||[];S.sh=S.sh||[];S.yd=S.yd||[];S.cl=S.cl||[];S.rn=S.rn||[];S.sl=S.sl||{};S.slp=S.slp||{g:8,off:''};S.cy=S.cy||{st:[],len:5,sy:{}};S.cy.sy=S.cy.sy||{};S.m=S.m||{on:1,t:'07:00',last:''}}fixS();let nq='',dr={},fm='';let tab='hoje',chat=[],adj=false;
 const on=(h,d)=>{const o=(S.o||{})[ymd(d)];return o&&o[h.id]!==undefined?!!o[h.id]:h.dt?h.dt==ymd(d):h.d.includes(dow(d))};
 const sched=d=>{const mv=(S.mv||{})[ymd(d)]||{};return S.h.filter(h=>on(h,d)).map(h=>mv[h.id]?{...h,t:mv[h.id],mv:1}:h).sort((a,b)=>a.t.localeCompare(b.t))};
 const isDone=(d,id)=>!!(S.x[ymd(d)]||{})[id];
@@ -651,9 +652,12 @@ dr.dmp='';render();sheet(`${shT('Despejo organizado')}${r.txt?`<p class="mu sm">
 const famOf=t=>(TH.find(x=>x[0]==t)||[])[5];
 function setFam(f){S.fam=f;if(S.cy.on===undefined)S.cy.on=f=='f';if(famOf(S.th)!=f)S.th=f=='f'?'rose':'classico';applyTh();applyIcon();save();render();if(document.querySelector('.md'))cfg()}
 const sw=t=>`background:linear-gradient(135deg,${t[2]} 0 48%,${t[3]} 48% 74%,${t[4]} 74%)`;
-function onb(){let o=$('#onb');if(!o){o=document.createElement('div');o.id='onb';o.className='onb';document.body.appendChild(o)}o.innerHTML=`<div class="onc"><img src="ic-${icId()}.png" class="onl" alt=""><h2>Boas-vindas ao RC Life</h2><p class="mu">Para deixar o app com a sua cara, escolha uma opção. Dá para trocar quando quiser em Ajustes.</p><div class="ong">${[['m','Homem','classico','Painel digital'],['f','Mulher','rose','Painéis digital e anel']].map(([k,l,t,d])=>`<button class="onbb" onclick="onbPick('${k}')"><span class="onsw" style="${sw(TH.find(x=>x[0]==t))}"></span><b>${l}</b><small class="mu">${d}</small></button>`).join('')}</div></div>`}
+function onb(){let o=$('#onb');if(!o){o=document.createElement('div');o.id='onb';o.className='onb';document.body.appendChild(o)}if(!(S.gd&&S.gd.on)&&lsG('gt3gskip')!=='1'){o.innerHTML=`<div class="onc"><img src="ic-${icId()}.png" class="onl" alt=""><h2>Boas-vindas ao RC Life</h2><p class="mu">Entre com sua conta Google para seus dados ficarem guardados e você usar o app em qualquer aparelho. Se você já usa o RC Life, tudo volta na hora.</p><button class="b wide ggo" onclick="onbG()"><span class="gg">G</span>Entrar com Google</button><p class="mu sm">O app só acessa uma pasta oculta e exclusiva dele no seu Google Drive. E-mails, fotos e outros arquivos ficam de fora.</p><button class="lnk" onclick="lsS('gt3gskip','1');onb()">Continuar sem login</button></div>`;return}o.innerHTML=`<div class="onc"><img src="ic-${icId()}.png" class="onl" alt=""><h2>Boas-vindas ao RC Life</h2><p class="mu">Para deixar o app com a sua cara, escolha uma opção. Dá para trocar quando quiser em Ajustes.</p><div class="ong">${[['m','Homem','classico','Painel digital'],['f','Mulher','rose','Painéis digital e anel']].map(([k,l,t,d])=>`<button class="onbb" onclick="onbPick('${k}')"><span class="onsw" style="${sw(TH.find(x=>x[0]==t))}"></span><b>${l}</b><small class="mu">${d}</small></button>`).join('')}</div></div>`}
 function onbPick(k){S.fam=k;if(S.cy.on===undefined)S.cy.on=k=='f';S.th=k=='f'?'rose':'classico';applyTh();applyIcon();save();onb2()}
 function onb2(){const o=$('#onb');o.innerHTML=`<div class="onc"><h2>Escolha seu tema</h2><p class="mu">Toque para ver ao vivo.${S.fam=='f'?' O acompanhamento do ciclo fica em Saúde.':''}</p><div class="ong">${TH.filter(t=>t[5]==S.fam).map(t=>`<button class="onbb ${S.th==t[0]?'on':''}" onclick="S.th='${t[0]}';applyTh();save();onb2()"><span class="onsw" style="${sw(t)}"></span><b>${t[1]}</b></button>`).join('')}</div><button class="b wide" onclick="onbDone()">Começar</button><button class="lnk" onclick="onb()">Voltar</button></div>`}
+function onbG(){if(!navigator.onLine)return toast('Sem internet agora. Conecte-se ou continue sem login.');const b=document.querySelector('.ggo');if(b){b.disabled=true;b.lastChild.textContent='Abrindo o Google…'}gConnect()}
+function onbSync(){const o=$('#onb');if(!o||document.getElementById('lock'))return;if(S.fam&&S.tut){o.remove();render();return}if(!S.fam)onb()}
+const gReBn=()=>{let lv=true;try{lv=gLive()}catch(e){}if(!(S.gd&&S.gd.on)||lv||!S.tut)return'';const late=(S.upd||0)-(S.gd.at||0)>3e5;if(!GSIL&&!late)return'';return`<div class="bn">${I('cloud')}<span>Seus dados não estão sendo salvos no Google agora: o acesso expirou.</span><button class="b sm" onclick="gSync(1)">Reconectar</button></div>`};
 function onbDone(){const o=$('#onb');if(o)o.remove();render();scrollTo(0,0);if(!S.tut)tut(0)}
 
 /* ===== automações do dia a dia ===== */
@@ -1149,7 +1153,7 @@ function newH(){sheet(`${shT('Nova volta')}<div class="row" style="margin:0"><in
 function editH(id){const h=S.h.find(x=>x.id==id),n=new Date(),pit=!h.dt&&on(h,n)&&!isDone(n,h.id);sheet(`${shT(h.dt?'Volta rápida':'Hábito')}<div class="row" style="margin:0"><input id="en" value="${esc(h.n)}"><input id="et" type="time" value="${h.t}" style="max-width:130px;flex:none"></div>${tbox('e',h)}${h.mn&&on(h,n)&&!isDone(n,h.id)?`<button class="b t wide" id="emb">🛟 Fiz a versão mínima: ${esc(h.mn)}</button>`:''}${h.tm&&on(h,n)&&!isDone(n,h.id)?`<button class="b t wide" id="ef">${I('check')}Concluir sem timer</button>`:''}${pit?`<button class="b t wide" id="ep">${I('wrench')}Pit stop: folga só hoje</button>`:''}<button class="b wide" id="es">Salvar</button><button class="lnk dng" id="er">${I('trash')}Remover</button>`);tsel('e');
 if(pit)$('#ep').onclick=()=>{closeMd();skip(id)};if($('#emb'))$('#emb').onclick=()=>{closeMd();minH(id)};if($('#ef'))$('#ef').onclick=()=>{closeMd();if(S.tm&&S.tm.id==id){S.tm=null;save();tbar()}tog(id)};$('#er').onclick=()=>{closeMd();delH(id)};$('#es').onclick=()=>{const nm=$('#en').value.trim();if(!nm)return toast('Dê um nome ao hábito.');const r=tread('e');if(!r)return;h.n=nm;h.t=$('#et').value||h.t;h.d=r.d;if(r.dt)h.dt=r.dt;else delete h.dt;const m=Math.round(+$('#etm').value);if(m>0)h.tm=Math.min(600,m);else delete h.tm;const q=Math.round(+$('#eqt').value);if(q>1)h.q=Math.min(99,q);else delete h.q;const mn=$('#emn').value.trim();if(mn)h.mn=mn;else delete h.mn;save();closeMd();render()}}
 function perm(){if(isIOS()&&!isSA())return`<div class="bn">${I('bell')}<span>Para receber avisos, abra no Safari e use Compartilhar → Adicionar à Tela de Início.</span></div>`;if('Notification' in window&&Notification.permission=='default')return`<div class="bn">${I('bell')}<span>Ative os avisos de horário</span><button class="b sm" onclick="bell()">Ativar</button></div>`;return''}
-function hero(){return`<div class="c hero"><div class="hh"><small class="mu">${greet()} · mensagem do dia</small><button class="ib sm g" onclick="newMsg()" aria-label="Outra mensagem">${I('refresh')}</button></div><p>${esc(todayMsg())}</p></div>${pfBn()}${rpBn()}${bdBn()}${negBn()}${perm()}${alertsBn()}${cyBn()}`}
+function hero(){return`<div class="c hero"><div class="hh"><small class="mu">${greet()} · mensagem do dia</small><button class="ib sm g" onclick="newMsg()" aria-label="Outra mensagem">${I('refresh')}</button></div><p>${esc(todayMsg())}</p></div>${gReBn()}${pfBn()}${rpBn()}${bdBn()}${negBn()}${perm()}${alertsBn()}${cyBn()}`}
 function vHoje(){const n=new Date(),k=ymd(n),l=sched(n),s=stats(n),pc=s.t?s.d/s.t:0,pos=s.t?Math.max(1,20-Math.round(pc*19)):20,nx=l.find(h=>!isDone(n,h.id)&&h.t>=hm(n))||l.find(h=>!isDone(n,h.id)),p=pts();let r=R[0],nl=R[1];R.forEach((x,i)=>{if(p>=x[0]){r=x;nl=R[i+1]}});const lp=nl?Math.min(100,(p-r[0])/(nl[0]-r[0])*100):100;
 const lit=Math.round(pc*10),led=Array.from({length:10},(_,i)=>`<i class="${i<lit?(i<4?'g':i<7?'y':'r'):''}"></i>`).join(''),arc='M40 168A115 115 0 1 1 260 168';
 const now=hm(n),mins=t=>{const[a,b]=t.split(':').map(Number);return a*60+b},inT=t=>{const m=mins(t)-mins(now);return m<60?m+' min':Math.floor(m/60)+'h'+(m%60?String(m%60).padStart(2,'0'):'')};
@@ -1249,12 +1253,14 @@ const V={key:null,salt:null,it:KIT,busy:false,dirty:false,hid:0,
   persist(o){if(!this.key){lsS('gt3h',JSON.stringify(o));return}this.dirty=true;if(!this.busy)this.flush()},
   async flush(){if(!this.key)return;this.busy=true;try{while(this.dirty){this.dirty=false;const b=await this.enc(S);lsS('gt3e',JSON.stringify(b));lsD('gt3h')}}catch(e){}this.busy=false},
   async idle(){while(this.busy||this.dirty){await this.flush();await new Promise(r=>setTimeout(r,30))}}};
-function save(raw){if(!raw)S.upd=Date.now();V.persist(S);lsS('gt3t',S.th||'');if(!raw){if(typeof pxQueue=='function')pxQueue();gdQueue()}}
+function save(raw){if(!raw)S.upd=Date.now();V.persist(S);lsS('gt3t',S.th||'');if(S.gd&&S.gd.on)lsS('gt3gon','1');else lsD('gt3gon');if(!raw){if(typeof pxQueue=='function')pxQueue();gdQueue()}}
 
 /* ---------- retorno do login Google (token só na memória) ---------- */
-let GT=null,GERR='';
+let GT=null,GERR='',GSIL=0;
+let gBusy=false,gTm=null;
+const gLive=()=>GT&&Date.now()<GT.exp;
 (()=>{if(!/access_token=|error=/.test(location.hash))return;const h=new URLSearchParams(location.hash.slice(1)),st=(lsG('gt3st')||'').split('|');lsD('gt3st');history.replaceState(null,'',location.pathname+location.search);
-  if(h.get('error')){GERR=h.get('error');return}
+  if(h.get('error')){if(st[2]=='s'){GSIL=1;return}GERR=h.get('error');return}
   if(!st[0]||h.get('state')!==st[0]||Date.now()-Number(st[1])>9e5){GERR='state';return}
   if(!(h.get('scope')||'').split(' ').includes(GSC)){GERR='scope';return}
   GT={tk:h.get('access_token'),exp:Date.now()+(Number(h.get('expires_in'))||3600)*1e3-9e4,ok:false}})();
@@ -1276,7 +1282,7 @@ function lockScreen(){const th=lsG('gt3t');if(th&&/^[a-z0-9-]+$/.test(th))docume
 /* ---------- inicialização ---------- */
 function boot(){if(window.__booted)return;window.__booted=1;const s=document.createElement('script');s.textContent=document.getElementById('app').textContent;document.body.appendChild(s);setTimeout(gAfterBoot,400)}
 if(top!==self){document.documentElement.innerHTML='';throw new Error('frame')}
-if(lsG('gt3e'))lockScreen();else boot();
+if(!gSilent()){if(lsG('gt3e'))lockScreen();else boot()}
 
 /* trancar sozinho depois de um tempo em segundo plano */
 document.addEventListener('visibilitychange',()=>{if(document.hidden){V.hid=Date.now();V.flush()}else if(V.key&&V.hid&&Date.now()-V.hid>((typeof S!=='undefined'&&S&&S.lk)||5)*6e4){lockNow()}});
@@ -1307,8 +1313,10 @@ async function bkpFile(){S.bk=Date.now();save(1);const d=Object.assign({},S);del
 async function bkpRead(f){let d=JSON.parse(await f.text());if(d&&d.hrc&&d.ct){const pw=await askPass('Backup criptografado','Digite a senha do cofre de quando este backup foi feito.');if(!pw)return 0;try{d=(await V.open(pw,d)).d}catch(e){toast('Senha incorreta para este backup.');return 0}}return clean(d)}
 
 /* ---------- Google Drive (pasta oculta do app) ---------- */
-function gAuth(){V.flush();const st=b64e(rnd(24)).replace(/[^a-zA-Z0-9]/g,'');lsS('gt3st',st+'|'+Date.now());
-  location.href='https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:GID,redirect_uri:location.origin+location.pathname.replace(/index\.html$/,''),response_type:'token',scope:GSC,state:st,include_granted_scopes:'false'})}
+function gAuth(sil){V.flush();const st=b64e(rnd(24)).replace(/[^a-zA-Z0-9]/g,'');lsS('gt3st',st+'|'+Date.now()+(sil?'|s':''));const q={client_id:GID,redirect_uri:location.origin+location.pathname.replace(/index\.html$/,''),response_type:'token',scope:GSC,state:st,include_granted_scopes:'false'};if(sil)q.prompt='none';
+  location[sil?'replace':'assign']('https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams(q))}
+/* ao abrir: se o Google está ligado e o acesso venceu, renova sem perguntar nada (no máximo a cada 10 min) */
+function gSilent(){if(lsG('gt3gon')!=='1'||GT||GERR||GSIL||!navigator.onLine)return false;const last=Number(lsG('gt3sr'))||0;if(Date.now()-last<6e5)return false;lsS('gt3sr',String(Date.now()));gAuth(1);return true}
 async function gVerify(){if(!GT||GT.ok)return!!GT;const r=await fetch('https://oauth2.googleapis.com/tokeninfo?access_token='+encodeURIComponent(GT.tk));const j=await r.json().catch(()=>({}));
   if(!r.ok||j.aud!==GID||!String(j.scope||'').split(' ').includes(GSC)){GT=null;throw new Error('token inválido')}GT.ok=true;return true}
 async function gApi(path,opt){opt=opt||{};const r=await fetch('https://www.googleapis.com/'+path,Object.assign({},opt,{headers:Object.assign({Authorization:'Bearer '+GT.tk},opt.headers||{})}));if(r.status==401){GT=null;throw new Error('login expirou')}if(!r.ok){const j=await r.json().catch(()=>({})),why=((j.error||{}).errors||[{}])[0].reason||'';if(why=='storageQuotaExceeded')throw new Error('o armazenamento da sua conta Google está cheio. Libere espaço em one.google.com/storage (Gmail, Fotos ou Drive) e toque na nuvem de novo');throw new Error('Google respondeu '+r.status+(why?' ('+why+')':''))}return r}
@@ -1317,8 +1325,6 @@ async function gGet(id){return(await gApi('drive/v3/files/'+encodeURIComponent(i
 async function gPut(blob,upd,id){const meta={name:GFN,mimeType:'application/json',appProperties:{upd:String(upd)}};if(!id)meta.parents=['appDataFolder'];const bd='hrc'+b64e(rnd(12)).replace(/[^a-zA-Z0-9]/g,'');
   const body=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(blob)}\r\n--${bd}--`;
   const r=await gApi('upload/drive/v3/files'+(id?'/'+encodeURIComponent(id):'')+'?uploadType=multipart&fields=id',{method:id?'PATCH':'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body});return(await r.json()).id}
-let gBusy=false,gTm=null;
-const gLive=()=>GT&&Date.now()<GT.exp;
 function gdQueue(){if(!(S.gd&&S.gd.on&&gLive()))return;clearTimeout(gTm);gTm=setTimeout(()=>gSync(),5000)}
 function gKeep(){return{gd:S.gd,px:S.px,lk:S.lk,tm:S.tm}}
 const gW=d=>{const tx=Object.values(d.f||{}).reduce((n,a)=>n+(a||[]).length,0),x=Object.keys(d.x||{}).length,h=(d.h||[]).length,n=(d.n||[]).length;return{h,n,tx,x,w:h+n+tx+x+(d.bl||[]).length+(d.sh||[]).length+(d.yd||[]).length+(d.v||[]).length}};
@@ -1328,7 +1334,7 @@ async function gOpenRemote(f){const b=await gGet(f.id);if(b&&b.plain)return{d:b.
 function gChoose(rd,ru){return new Promise(res=>{const L=gW(S),R=gW(rd);const o=sheet(`${shT('Qual versão manter?')}<p class="mu sm">Os dados deste aparelho e os do Google estão diferentes. Escolha qual manter: a outra versão será substituída.</p><button class="chv" id="gcL"><b>Manter os deste aparelho</b><small>${gWTxt(L)}</small>${L.w>=R.w?'<em>tem mais dados</em>':''}</button><button class="chv" id="gcR"><b>Usar os do Google</b><small>${gWTxt(R)} · salvo em ${new Date(ru).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small>${R.w>L.w?'<em>tem mais dados</em>':''}</button>`);
   const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#gcL').onclick=()=>done('L');o.querySelector('#gcR').onclick=()=>done('R')})}
 async function gApply(r,f,ru){const d=clean(r.d);if(!d)throw new Error('arquivo do Google inválido');const keep=gKeep();Object.assign(d,keep);d.gd=Object.assign({},keep.gd,{on:1,base:ru,at:Date.now(),id:f.id});d.upd=ru;
-  V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;save(1);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
+  V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;if(typeof fixS=='function')fixS();save(1);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
 async function gPull(f,ru){const r=await gOpenRemote(f);if(!r)return false;await gApply(r,f,ru);return true}
 /* junta duas versões sem perder nada: itens pelo id, registros por dia, lançamentos sem repetir; o mais recente vence nos ajustes */
 function gMerge(a,b){const cp=o=>JSON.parse(JSON.stringify(o||{})),wa=gW(a).w,wb=gW(b).w,na=Math.abs(wa-wb)>Math.max(wa,wb)*.2?wa>wb:(a.upd||0)>=(b.upd||0),N=cp(na?a:b),O=cp(na?b:a),out=Object.assign(cp(O),cp(N));
@@ -1354,7 +1360,8 @@ async function gSync(manual){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
     if(!f||lu!==ru){await gPush(f);if(manual)toast('☁️ Salvo no seu Google Drive.')}else{S.gd.at=Date.now();save(1);if(manual)toast('☁️ Tudo em dia com o Google.')}}
   catch(e){toast('Sincronização: '+(e.message||e),7000)}finally{gBusy=false;gUI();if(S.gd&&S.gd.on&&!document.getElementById('gdb')&&typeof render=='function')render()}}
 function gConnect(){lsS('gt3go','1');gAuth()}
-async function gAfterBoot(){
+async function gAfterBoot(){await gAB();if(typeof onbSync=='function')onbSync();if(GSIL&&typeof render=='function')render()}
+async function gAB(){
   if(GERR){toast(GERR=='access_denied'?'Login do Google cancelado.':'Não consegui confirmar o login do Google ('+GERR+'). Tente de novo.',7000);lsD('gt3go');return}
   if(!GT)return;const pend=lsG('gt3go');lsD('gt3go');
   try{await gVerify()}catch(e){return toast('Login do Google recusado: '+e.message,7000)}
