@@ -30,7 +30,7 @@ ul{padding-left:20px}a{color:var(--acc)}.box{background:var(--p);border:1px soli
 </ul>
 
 <h2>4. Avisos com o app fechado</h2>
-<p>Se você ativar essa função, o app envia ao nosso servidor de avisos (hospedado na Cloudflare) a agenda dos próximos dias, para que as notificações cheguem na hora certa. O texto de cada aviso vai <b>criptografado com uma chave que fica só no seu aparelho</b>: o servidor guarda apenas o horário e um conteúdo embaralhado que ele não consegue ler. Também guardamos o endereço técnico de notificação fornecido pelo seu navegador. Ao desligar os avisos, a agenda é apagada.</p>
+<p>Se você ativar essa função, o app envia ao nosso servidor de avisos (hospedado na Cloudflare) a agenda dos próximos 7 dias: horário, título e texto curto de cada aviso (por exemplo, "Hora de Treino"), para que a notificação chegue na hora certa. O servidor não recebe o resto dos seus dados, identifica seu aparelho apenas por um código aleatório e apaga a agenda quando você desliga os avisos ou fica 30 dias sem abrir o app. A entrega até o celular é criptografada pelo serviço de notificações da Apple, do Google ou do navegador.</p>
 
 <h2>5. Engenheiro IA</h2>
 <p>A função de IA é opcional e usa uma chave da API da Anthropic que <b>você</b> coloca no app. Quando você conversa com o engenheiro, o app envia sua pergunta e os dados necessários para responder diretamente à Anthropic, sob a política de privacidade dela. Sem chave, o engenheiro funciona no modo offline, sem enviar nada.</p>
