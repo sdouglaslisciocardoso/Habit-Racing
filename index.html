@@ -852,12 +852,12 @@ function askPass(title,txt){return passSheet(title,`<p class="mu sm">${txt}</p>`
 
 /* ---------- ações do cofre ---------- */
 async function vaultNew(next){const v=await askNew('Criar senha do cofre','<p class="mu sm">Tudo no app passa a ficar criptografado (AES-256) com uma chave que só sai da sua senha. <b>Se você esquecer a senha, ninguém consegue recuperar os dados</b>, então escolha números que você lembre. Use <b>pelo menos 6 números</b>; com 8 ou mais fica muito mais difícil de quebrar. Evite datas de aniversário e sequências.</p>');if(!v)return false;
-  toast('Criando o cofre…');V.salt=rnd(16);V.it=KIT;V.key=await V.derive(v[0],V.salt,KIT);V.persist(S);await V.idle();lsD('gt3h');save(1);toast('🔒 Cofre ativado. O app vai pedir a senha ao abrir.',6000);if(next)await next();else cfg();return true}
+  toast('Criando o cofre…');V.salt=rnd(16);V.it=KIT;V.key=await V.derive(v[0],V.salt,KIT);V.persist(S);await V.idle();lsD('gt3h');save(1);toast('🔒 Cofre ativado. O app vai pedir a senha ao abrir.',6000);S.upd=Date.now();save(1);gdQueue();if(next)await next();else cfg();return true}
 async function vaultCheck(t){const pw=await askPass(t||'Confirme a senha','Digite a senha atual do cofre.');if(!pw)return null;try{return await V.open(pw,JSON.parse(lsG('gt3e')))}catch(e){toast('Senha incorreta.');return null}}
 async function vaultChange(){const r=await vaultCheck('Trocar senha');if(!r)return;const v=await askNew('Nova senha');if(!v)return;toast('Trocando a senha…');V.salt=rnd(16);V.key=await V.derive(v[0],V.salt,KIT);save();await V.idle();toast('Senha trocada.'+(S.gd&&S.gd.on?' Os outros aparelhos vão pedir a nova senha na próxima sincronização.':''),6000);cfg()}
-async function vaultOff(){const r=await vaultCheck('Desativar cofre');if(!r)return;if(!confirm('Sem o cofre os dados ficam sem criptografia neste aparelho e a sincronização com o Google é desligada. Continuar?'))return;V.key=null;if(S.gd)S.gd.on=0;lsD('gt3e');save(1);toast('Cofre desativado.');cfg()}
+async function vaultOff(){const r=await vaultCheck('Desativar cofre');if(!r)return;if(!confirm('Sem o cofre, os dados ficam sem criptografia neste aparelho e na cópia do Google. Continuar?'))return;V.key=null;lsD('gt3e');save(1);toast('Cofre desativado.');gdQueue();cfg()}
 const lkSec=()=>V.key?`<div class="set"><span>🔒 Cofre ativo<br><small class="mu">AES-256 · senha nunca é guardada</small></span><button class="b sm t" onclick="lockNow()" style="white-space:nowrap">Trancar agora</button></div><div class="set"><span>Trancar sozinho após</span><select onchange="S.lk=+this.value;save()" style="max-width:130px">${[1,5,15,60].map(m=>`<option value="${m}" ${(S.lk||5)==m?'selected':''}>${m} min</option>`).join('')}</select></div><div class="row"><button class="b sm t" onclick="vaultChange()">Trocar senha</button><button class="b sm t" onclick="vaultOff()">Desativar cofre</button></div>`
-  :`<p class="mu sm">Crie uma senha e tudo no app (hábitos, finanças, notas, chave da IA) fica criptografado. Sem a senha, nem quem pegar seu celular destravado, nem o Google, nem eu conseguimos ler.</p><div class="row"><button class="b" onclick="vaultNew()">${I('lock')}Criar senha do cofre</button></div>`;
+  :`<p class="mu sm"><b>Opcional.</b> Crie uma senha e tudo no app (hábitos, finanças, notas, chave da IA) fica criptografado. Sem a senha, nem quem pegar seu celular destravado, nem o Google, nem eu conseguimos ler.</p><div class="row"><button class="b" onclick="vaultNew()">${I('lock')}Criar senha do cofre</button></div>`;
 
 /* ---------- backup criptografado ---------- */
 async function bkpFile(){S.bk=Date.now();save(1);const d=Object.assign({},S);delete d.k;const nm='habit-rc-backup-'+ymd(new Date());
@@ -878,19 +878,19 @@ async function gPut(blob,upd,id){const meta={name:GFN,mimeType:'application/json
   const r=await gApi('upload/drive/v3/files'+(id?'/'+encodeURIComponent(id):'')+'?uploadType=multipart&fields=id',{method:id?'PATCH':'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body});return(await r.json()).id}
 let gBusy=false,gTm=null;
 const gLive=()=>GT&&Date.now()<GT.exp;
-function gdQueue(){if(!(S.gd&&S.gd.on&&gLive()&&V.key))return;clearTimeout(gTm);gTm=setTimeout(()=>gSync(),5000)}
+function gdQueue(){if(!(S.gd&&S.gd.on&&gLive()))return;clearTimeout(gTm);gTm=setTimeout(()=>gSync(),5000)}
 function gKeep(){return{gd:S.gd,px:S.px,ic:S.ic,lk:S.lk,tm:S.tm}}
 const gW=d=>{const tx=Object.values(d.f||{}).reduce((n,a)=>n+(a||[]).length,0),x=Object.keys(d.x||{}).length,h=(d.h||[]).length,n=(d.n||[]).length;return{h,n,tx,x,w:h+n+tx+x+(d.bl||[]).length+(d.sh||[]).length+(d.yd||[]).length+(d.v||[]).length}};
 const gWTxt=c=>`${c.h} hábitos · ${c.x} dias registrados · ${c.n} notas e tarefas · ${c.tx} lançamentos`;
-async function gOpenRemote(f){const b=await gGet(f.id);try{return{d:await V.dec(b,V.key),key:V.key,salt:V.salt,it:V.it}}catch(e){}
+async function gOpenRemote(f){const b=await gGet(f.id);if(b&&b.plain)return{d:b.d,key:V.key,salt:V.salt,it:V.it};try{return{d:await V.dec(b,V.key),key:V.key,salt:V.salt,it:V.it}}catch(e){}
   const pw=await askPass('Senha da cópia do Google','Digite a senha do cofre usada no aparelho que salvou estes dados no Google.');if(!pw)return null;try{return await V.open(pw,b)}catch(x){toast('Senha incorreta.');return null}}
 function gChoose(rd,ru){return new Promise(res=>{const L=gW(S),R=gW(rd);const o=sheet(`${shT('Qual versão manter?')}<p class="mu sm">Os dados deste aparelho e os do Google estão diferentes. Escolha qual manter: a outra versão será substituída.</p><button class="chv" id="gcL"><b>Manter os deste aparelho</b><small>${gWTxt(L)}</small>${L.w>=R.w?'<em>tem mais dados</em>':''}</button><button class="chv" id="gcR"><b>Usar os do Google</b><small>${gWTxt(R)} · salvo em ${new Date(ru).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small>${R.w>L.w?'<em>tem mais dados</em>':''}</button>`);
   const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#gcL').onclick=()=>done('L');o.querySelector('#gcR').onclick=()=>done('R')})}
 async function gApply(r,f,ru){const d=clean(r.d);if(!d)throw new Error('arquivo do Google inválido');const keep=gKeep();Object.assign(d,keep);d.gd=Object.assign({},keep.gd,{on:1,base:ru,at:Date.now(),id:f.id});d.upd=ru;
   V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;save(1);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
 async function gPull(f,ru){const r=await gOpenRemote(f);if(!r)return false;await gApply(r,f,ru);return true}
-async function gPush(f){const blob=await V.enc(S);const id=await gPut(blob,S.upd||Date.now(),f&&f.id);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);return id}
-async function gSync(manual){if(gBusy)return;if(!(S.gd&&S.gd.on))return;if(!V.key){if(manual)toast('Crie a senha do cofre primeiro.');return}
+async function gPush(f){const blob=V.key?await V.enc(S):{hrc:1,plain:1,d:S};const id=await gPut(blob,S.upd||Date.now(),f&&f.id);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);return id}
+async function gSync(manual){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
   if(!gLive()){if(manual)return gAuth();return}
   gBusy=true;gUI('…');
   try{await gVerify();const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0,base=S.gd.base||0,lu=S.upd||0;
@@ -913,7 +913,7 @@ async function gAfterBoot(){
         if(pick=='R'){await gApply(r,f,ru);gBusy=false;return toast('☁️ Pronto! Seus dados vieram do Google e estão protegidos pelo cofre.',7000)}
         if(!V.key){V.key=r.key;V.salt=r.salt;V.it=r.it}
         S.gd=Object.assign({},S.gd,{on:1,base:ru});save(1);await V.idle();lsD('gt3h');await gPush(f);gBusy=false;render();return toast('☁️ Dados deste aparelho enviados ao Google. Use a mesma senha do cofre nos outros aparelhos.',7000)}
-      if(!V.key){gBusy=false;toast('Ainda não há cópia no Google. Crie a senha do cofre para enviar os dados deste aparelho.',7000);return vaultNew(async()=>{S.gd={on:1};save(1);await gSync(true)})}
+      
       S.gd=Object.assign({},S.gd,{on:1,base:0});save(1);gBusy=false;return gSync(true)}
     catch(e){gBusy=false;return toast('Google: '+(e.message||e),7000)}}
   if(S.gd&&S.gd.on)gSync()}
@@ -922,8 +922,8 @@ async function gOff(){if(!confirm('Desconectar o Google? Os dados continuam nest
   if(GT){fetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(GT.tk),{method:'POST'}).catch(()=>{});GT=null}
   S.gd={on:0};save(1);render();toast(del?'Google desconectado e cópia apagada.':'Google desconectado.');cfg()}
 function gUI(s){const b=document.getElementById('gdb');if(b)b.classList.toggle('spin',!!s)}
-const gdSec=()=>{const on=S.gd&&S.gd.on;return on?`<div class="set"><span>☁️ Google Drive conectado<br><small class="mu">${S.gd.at?'Última sincronização: '+new Date(S.gd.at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'Ainda não sincronizado'}${gLive()?' · automática ligada':''}</small></span></div><div class="row"><button class="b sm" onclick="gSync(1)">Sincronizar agora</button><button class="b sm t" onclick="gOff()">Desconectar</button></div><p class="mu sm" style="margin-top:6px">Os dados vão criptografados para uma pasta oculta do app no seu Drive: o Google guarda, mas não consegue ler. Enquanto o app está aberto e conectado, cada mudança é enviada sozinha.</p>`
-  :`<p class="mu sm">Guarde tudo na sua conta Google e use o mesmo Habit RC no iPhone e no PC. Os dados vão criptografados com a senha do cofre, numa pasta oculta que só este app acessa.</p><div class="row"><button class="b" onclick="gConnect()">${I('cloud')}Conectar Google</button></div>`};
+const gdSec=()=>{const on=S.gd&&S.gd.on;return on?`<div class="set"><span>☁️ Google Drive conectado<br><small class="mu">${S.gd.at?'Última sincronização: '+new Date(S.gd.at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'Ainda não sincronizado'}${gLive()?' · automática ligada':''}</small></span></div><div class="row"><button class="b sm" onclick="gSync(1)">Sincronizar agora</button><button class="b sm t" onclick="gOff()">Desconectar</button></div><p class="mu sm" style="margin-top:6px">${V.key?'Os dados vão criptografados para uma pasta oculta do app no seu Drive: o Google guarda, mas não consegue ler.':'Os dados vão para uma pasta oculta do app no seu Drive. Dica: crie uma senha do cofre para que eles vão criptografados.'} Enquanto o app está aberto e conectado, cada mudança é enviada sozinha.</p>`
+  :`<p class="mu sm">Guarde tudo na sua conta Google e use o mesmo Habit RC no iPhone e no PC. Os dados ficam numa pasta oculta que só este app acessa${V.key?', criptografados com a senha do cofre':''}.</p><div class="row"><button class="b" onclick="gConnect()">${I('cloud')}Conectar Google</button></div>`};
 
 /* ---------- avisos com criptografia de ponta a ponta (o servidor só vê texto embaralhado) ---------- */
 function idbK(){return new Promise((res,rej)=>{const r=indexedDB.open('hrc',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
