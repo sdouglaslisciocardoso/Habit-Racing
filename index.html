@@ -277,6 +277,7 @@ details.adv>summary::before,details.icx>summary::before{content:'›';display:in
 details.icx>summary{color:var(--tx)}
 #lkp:placeholder-shown,#psf input:placeholder-shown{letter-spacing:normal!important;font-size:17px!important}
 .kbt{background:none;border:0;color:var(--mu);font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer;justify-self:center;padding:6px;margin-top:2px}#psf .kbt{display:block;margin:6px auto 0}
+.chv{display:grid;gap:3px;width:100%;text-align:left;padding:14px;margin-top:10px;border-radius:14px;border:2px solid var(--bd);background:var(--well);cursor:pointer;color:inherit}.chv b{font-size:16px}.chv small{color:var(--mu);font-size:13px}.chv em{font-style:normal;color:var(--ok);font-size:12px;font-weight:800}.chv:hover{border-color:var(--acc)}
 </style></head><body>
 <header><div class="lgw"><img class="lgi" src="ic-volante.png" alt=""><div class="lg">Habit<b>RC</b></div></div><div class="hbt" id="hbt"></div></header>
 <div id="hero"></div><nav id="nav"></nav><main id="m"></main><div id="tmr" style="display:none"></div><button id="fab" class="fab" onclick="newH()" aria-label="Novo hábito"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -879,19 +880,26 @@ let gBusy=false,gTm=null;
 const gLive=()=>GT&&Date.now()<GT.exp;
 function gdQueue(){if(!(S.gd&&S.gd.on&&gLive()&&V.key))return;clearTimeout(gTm);gTm=setTimeout(()=>gSync(),5000)}
 function gKeep(){return{gd:S.gd,px:S.px,ic:S.ic,lk:S.lk,tm:S.tm}}
-async function gPull(f,ru){const b=await gGet(f.id);let r;
-  try{r={d:await V.dec(b,V.key),key:V.key,salt:V.salt,it:V.it}}catch(e){const pw=await askPass('Senha do outro aparelho','Os dados no Google foram trancados com outra senha do cofre (talvez você trocou a senha em outro aparelho). Digite essa senha.');if(!pw)return false;try{r=await V.open(pw,b)}catch(x){toast('Senha incorreta.');return false}}
-  const d=clean(r.d);if(!d)throw new Error('arquivo do Google inválido');const keep=gKeep();Object.assign(d,keep);d.gd=Object.assign({},keep.gd,{on:1,base:ru,at:Date.now(),id:f.id});d.upd=ru;
-  V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;save(1);await V.idle();if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}return true}
+const gW=d=>{const tx=Object.values(d.f||{}).reduce((n,a)=>n+(a||[]).length,0),x=Object.keys(d.x||{}).length,h=(d.h||[]).length,n=(d.n||[]).length;return{h,n,tx,x,w:h+n+tx+x+(d.bl||[]).length+(d.sh||[]).length+(d.yd||[]).length+(d.v||[]).length}};
+const gWTxt=c=>`${c.h} hábitos · ${c.x} dias registrados · ${c.n} notas e tarefas · ${c.tx} lançamentos`;
+async function gOpenRemote(f){const b=await gGet(f.id);try{return{d:await V.dec(b,V.key),key:V.key,salt:V.salt,it:V.it}}catch(e){}
+  const pw=await askPass('Senha da cópia do Google','Digite a senha do cofre usada no aparelho que salvou estes dados no Google.');if(!pw)return null;try{return await V.open(pw,b)}catch(x){toast('Senha incorreta.');return null}}
+function gChoose(rd,ru){return new Promise(res=>{const L=gW(S),R=gW(rd);const o=sheet(`${shT('Qual versão manter?')}<p class="mu sm">Os dados deste aparelho e os do Google estão diferentes. Escolha qual manter: a outra versão será substituída.</p><button class="chv" id="gcL"><b>Manter os deste aparelho</b><small>${gWTxt(L)}</small>${L.w>=R.w?'<em>tem mais dados</em>':''}</button><button class="chv" id="gcR"><b>Usar os do Google</b><small>${gWTxt(R)} · salvo em ${new Date(ru).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small>${R.w>L.w?'<em>tem mais dados</em>':''}</button>`);
+  const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#gcL').onclick=()=>done('L');o.querySelector('#gcR').onclick=()=>done('R')})}
+async function gApply(r,f,ru){const d=clean(r.d);if(!d)throw new Error('arquivo do Google inválido');const keep=gKeep();Object.assign(d,keep);d.gd=Object.assign({},keep.gd,{on:1,base:ru,at:Date.now(),id:f.id});d.upd=ru;
+  V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;save(1);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
+async function gPull(f,ru){const r=await gOpenRemote(f);if(!r)return false;await gApply(r,f,ru);return true}
 async function gPush(f){const blob=await V.enc(S);const id=await gPut(blob,S.upd||Date.now(),f&&f.id);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);return id}
 async function gSync(manual){if(gBusy)return;if(!(S.gd&&S.gd.on))return;if(!V.key){if(manual)toast('Crie a senha do cofre primeiro.');return}
   if(!gLive()){if(manual)return gAuth();return}
   gBusy=true;gUI('…');
   try{await gVerify();const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0,base=S.gd.base||0,lu=S.upd||0;
     if(f&&ru&&ru!==base&&ru!==lu){
-      const mine=lu>base;let pull=!mine;
-      if(mine)pull=confirm('Seus dados mudaram aqui e também em outro aparelho.\n\nOK = usar os dados do Google ('+new Date(ru).toLocaleString('pt-BR')+')\nCancelar = manter os deste aparelho e enviar para o Google');
-      if(pull){if(await gPull(f,ru))toast('☁️ Dados atualizados com a cópia do Google.',5000);return}}
+      const r=await gOpenRemote(f);if(!r)return;const L=gW(S).w,R=gW(r.d).w;
+      let pick='R';if(lu>base||!base||(R*2<L&&L>8))pick=await gChoose(r.d,ru);
+      if(!pick)return;
+      if(pick=='R'){await gApply(r,f,ru);toast('☁️ Dados atualizados com a cópia do Google.',5000);return}
+      await gPush(f);toast('☁️ Dados deste aparelho enviados ao Google.');return}
     if(!f||lu!==ru){await gPush(f);if(manual)toast('☁️ Salvo no seu Google Drive.')}else{S.gd.at=Date.now();save(1);if(manual)toast('☁️ Tudo em dia com o Google.')}}
   catch(e){toast('Sincronização: '+(e.message||e),7000)}finally{gBusy=false;gUI();if(S.gd&&S.gd.on&&!document.getElementById('gdb')&&typeof render=='function')render()}}
 function gConnect(){lsS('gt3go','1');gAuth()}
@@ -900,11 +908,13 @@ async function gAfterBoot(){
   if(!GT)return;const pend=lsG('gt3go');lsD('gt3go');
   try{await gVerify()}catch(e){return toast('Login do Google recusado: '+e.message,7000)}
   if(pend){gBusy=true;try{const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0;
-      if(f&&!V.key){const pw=await askPass('Dados encontrados no Google','Achei uma cópia do Habit RC no seu Google. Digite a senha do cofre para baixar. Os dados deste aparelho serão substituídos.');if(!pw){gBusy=false;return}
-        let r;try{r=await V.open(pw,await gGet(f.id))}catch(x){gBusy=false;return toast('Senha incorreta.')}V.key=r.key;V.salt=r.salt;V.it=r.it;const keep=gKeep(),d=clean(r.d);Object.assign(d,keep);d.gd={on:1,base:ru,at:Date.now(),id:f.id};d.upd=ru;S=d;save(1);await V.idle();lsD('gt3h');applyTh();applyIcon();tbar();render();toast('☁️ Pronto! Seus dados vieram do Google e estão protegidos pelo cofre.',7000);gBusy=false;return}
-      if(!V.key){gBusy=false;return vaultNew(async()=>{S.gd={on:1};save(1);await gSync(true)})}
-      if(f&&ru!==S.upd){const useG=confirm('Já existe uma cópia do Habit RC no seu Google ('+new Date(ru).toLocaleString('pt-BR')+').\n\nOK = usar a cópia do Google (substitui os dados deste aparelho)\nCancelar = enviar os dados deste aparelho para o Google');S.gd=Object.assign({},S.gd,{on:1,base:useG?0:ru});save(1);gBusy=false;if(useG){gBusy=true;try{await gPull(f,ru);toast('☁️ Dados do Google carregados.')}finally{gBusy=false}return}return gSync(true)}
-      S.gd=Object.assign({},S.gd,{on:1,base:f?ru:0});save(1);gBusy=false;return gSync(true)}
+      if(f){const r=await gOpenRemote(f);if(!r){gBusy=false;return}
+        const pick=gW(S).w<=3?'R':await gChoose(r.d,ru);if(!pick){gBusy=false;return}
+        if(pick=='R'){await gApply(r,f,ru);gBusy=false;return toast('☁️ Pronto! Seus dados vieram do Google e estão protegidos pelo cofre.',7000)}
+        if(!V.key){V.key=r.key;V.salt=r.salt;V.it=r.it}
+        S.gd=Object.assign({},S.gd,{on:1,base:ru});save(1);await V.idle();lsD('gt3h');await gPush(f);gBusy=false;render();return toast('☁️ Dados deste aparelho enviados ao Google. Use a mesma senha do cofre nos outros aparelhos.',7000)}
+      if(!V.key){gBusy=false;toast('Ainda não há cópia no Google. Crie a senha do cofre para enviar os dados deste aparelho.',7000);return vaultNew(async()=>{S.gd={on:1};save(1);await gSync(true)})}
+      S.gd=Object.assign({},S.gd,{on:1,base:0});save(1);gBusy=false;return gSync(true)}
     catch(e){gBusy=false;return toast('Google: '+(e.message||e),7000)}}
   if(S.gd&&S.gd.on)gSync()}
 async function gOff(){if(!confirm('Desconectar o Google? Os dados continuam neste aparelho.'))return;let del=false;
