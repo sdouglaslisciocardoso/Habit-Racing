@@ -271,10 +271,11 @@ nav button .ic{margin:0}nav button .ic .i{width:25px;height:25px}
 .grp .gc{color:var(--mu);transition:transform .2s}.grp[open] .gc{transform:rotate(90deg)}
 .grp .gb{padding:0 14px 16px;border-top:1px solid var(--bd)}.grp .gb>h4:first-child,.grp .gb>.set:first-child{margin-top:12px}
 .sheet .grp h4{margin:18px 0 8px}
-.ver{text-align:center;color:var(--mu);font-size:12px;margin:18px 0 4px;letter-spacing:.04em}
+.ver{text-align:center;color:var(--mu);font-size:12px;margin:18px 0 4px;letter-spacing:.04em}.ver a{color:inherit}
 details.adv{margin-top:10px}details.adv>summary,details.icx>summary{cursor:pointer;color:var(--mu);font-size:13px;font-weight:700;list-style:none}details.adv>summary::-webkit-details-marker,details.icx>summary::-webkit-details-marker{display:none}
 details.adv>summary::before,details.icx>summary::before{content:'›';display:inline-block;margin-right:6px;transition:transform .2s}details.adv[open]>summary::before,details.icx[open]>summary::before{transform:rotate(90deg)}
 details.icx>summary{color:var(--tx)}
+#lkp:placeholder-shown,#psf input:placeholder-shown{letter-spacing:normal!important;font-size:17px!important}
 .kbt{background:none;border:0;color:var(--mu);font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer;justify-self:center;padding:6px;margin-top:2px}#psf .kbt{display:block;margin:6px auto 0}
 </style></head><body>
 <header><div class="lgw"><img class="lgi" src="ic-volante.png" alt=""><div class="lg">Habit<b>RC</b></div></div><div class="hbt" id="hbt"></div></header>
@@ -619,10 +620,10 @@ if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification'
 const perm=await Notification.requestPermission();if(perm!='granted')return toast('Permissão negada. Libere em Ajustes do iPhone → Notificações → Habit RC.',8000);
 try{toast('Conectando ao servidor…');const vr=await fetch(u+'/vapid'),v=await vr.json();if(!vr.ok||!v.publicKey)throw new Error(v.erro||'servidor sem resposta');const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();if(sub&&S.px&&S.px.pk&&S.px.pk!=v.publicKey){await sub.unsubscribe();sub=null}if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ua(v.publicKey)});
 S.px={url:u,tk:(S.px&&S.px.tk)||rndTok(),on:1,sub:sub.toJSON(),pk:v.publicKey};const r=await pxPost('/sync',{tk:S.px.tk,sub:S.px.sub,origin:location.origin,items:await pxSeal(pxBuild())});const j=await r.json().catch(()=>({}));
-if(r.status==403){S.px.on=0;save();return toast('Este servidor já está ligado a outro app. Crie outro servidor ou use o backup do app original.',9000)}if(!r.ok)throw new Error(j.erro||'HTTP '+r.status);
+if(!r.ok)throw new Error(j.erro||'HTTP '+r.status);
 S.px.last=Date.now();save();toast('✅ Avisos com o app fechado ativados ('+j.avisos+' agendados).',7000);cfg()}catch(e){toast('Não consegui conectar: '+(e.message||e),9000)}}
 async function pxTest(){try{const r=await pxPost('/test',{tk:S.px.tk}),j=await r.json();toast(j.ok?'Teste enviado. O aviso deve chegar em instantes.':'O servidor não conseguiu enviar (código '+(j.status||r.status)+'). Tente Reconectar.',8000)}catch(e){toast('Sem conexão com o servidor.')}}
-async function pxOff(){if(!S.px)return;S.px.on=0;try{await pxPost('/sync',{tk:S.px.tk,sub:S.px.sub,items:[]})}catch(e){}save();toast('Avisos com o app fechado desligados.');cfg()}
+async function pxOff(){if(!S.px)return;S.px.on=0;try{await pxPost('/sync',{tk:S.px.tk,sub:S.px.sub,items:[],off:1})}catch(e){}save();toast('Avisos com o app fechado desligados.');cfg()}
 const PXU='https://habit-rc-avisos.sdouglaslisciocardoso.workers.dev';
 const pxSec=()=>{const on=S.px&&S.px.on;return`<div class="set"><span>Avisos com o app fechado<br><small class="mu">${on?(S.px.last?'Agenda enviada às '+new Date(S.px.last).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'Ativos'):'Hábitos, contas e datas chegam como notificação'}</small></span>${on?'<span class="okt">Ativos</span>':'<button class="b sm" onclick="pxConnect()">Ativar</button>'}</div>${on?`<div class="row" style="margin-top:8px"><button class="b sm t" onclick="pxTest()">Enviar teste</button><button class="b sm t" onclick="pxOff()">Desligar</button></div>`:''}<details class="adv"><summary>Servidor de avisos (avançado)</summary><div class="row" style="margin-top:8px"><input id="pxu" placeholder="${PXU}" value="${esc(S.px&&S.px.url||PXU)}"><button class="b sm t" onclick="pxConnect()">${on?'Reconectar':'Conectar'}</button></div></details>`};
 
@@ -749,7 +750,7 @@ ${grp('conta','lock','Conta e segurança',[V.key?'Cofre ativo':'Sem senha',gon?'
 ${grp('avisos','bell','Avisos',pon?'Chegam mesmo com o app fechado':'Só com o app aberto',avisos)}
 ${grp('visu','paint','Perfil e aparência',[(S.fam=='f'?'Mulher':'Homem'),thn].join(' · '),visu)}
 ${grp('ia','spark','Engenheiro IA',S.k?'Claude conectado':'Modo offline',ia)}
-<p class="ver">Habit RC · versão 3.0${V.key?' · dados criptografados':''}</p>`);
+<p class="ver">Habit RC · versão 3.1${V.key?' · dados criptografados':''} · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a></p>`);
 o.querySelectorAll('details.grp').forEach(d=>d.addEventListener('toggle',()=>{cfgOpen[d.dataset.g]=d.open}));
 if($('#bx'))$('#bx').onclick=async()=>{await bkpFile();closeMd();render()};
 if($('#bi'))$('#bi').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=await bkpRead(f);if(d===0)return;if(!d)throw 0;if(!confirm('Substituir todos os dados deste aparelho pelos do backup?'))return;d.k=S.k;Object.assign(d,gKeep());S=d;save();await V.idle();location.reload()}catch(x){toast('Este arquivo não é um backup válido do Habit RC.')}}}

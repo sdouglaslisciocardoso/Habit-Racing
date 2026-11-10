@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'"><meta name="referrer" content="no-referrer">
+<title>Política de Privacidade · Habit RC</title>
+<style>
+:root{--bg:#0b0b0e;--p:#141418;--tx:#f3f3f5;--mu:#9a9aa5;--acc:#ffd400;--bd:#2a2a31}
+@media (prefers-color-scheme:light){:root{--bg:#f6f6f8;--p:#fff;--tx:#141418;--mu:#5d5d68;--acc:#b38f00;--bd:#e2e2e8}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 -apple-system,'Segoe UI',system-ui,sans-serif;padding:32px 16px 64px}
+main{max-width:720px;margin:0 auto}header{display:flex;align-items:center;gap:14px;margin-bottom:24px}header img{width:56px;height:56px;border-radius:14px}
+h1{font-size:26px;margin:0;line-height:1.2}h2{font-size:18px;margin:28px 0 6px;color:var(--acc)}p,li{color:var(--tx)}small,.mu{color:var(--mu)}
+ul{padding-left:20px}a{color:var(--acc)}.box{background:var(--p);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin-top:16px}
+</style></head><body><main>
+<header><img src="icon-192.png" alt=""><div><h1>Política de Privacidade</h1><small>Habit RC · atualizada em 9 de novembro de 2026</small></div></header>
+
+<div class="box"><b>Resumo:</b> seus dados são seus. Eles ficam no seu aparelho e, se você quiser, no seu próprio Google Drive, sempre criptografados com uma senha que só você conhece. O criador do Habit RC não tem acesso a eles.</div>
+
+<h2>1. Quem somos</h2>
+<p>O Habit RC é um aplicativo gratuito de organização de hábitos, tarefas, finanças pessoais e rotina, criado por Samuel Douglas e disponível em <a href="https://sdouglaslisciocardoso.github.io/Habit-Racing/">sdouglaslisciocardoso.github.io/Habit-Racing</a>.</p>
+
+<h2>2. Que dados o app guarda</h2>
+<p>Tudo o que você digita no app: hábitos, tarefas, anotações, contas, gastos, lista de compras, datas importantes, sono e demais registros. Esses dados ficam guardados <b>no próprio aparelho</b>. Quando você cria a senha do cofre, eles são criptografados (AES-256) com uma chave gerada a partir da sua senha, que nunca é salva nem enviada a ninguém.</p>
+
+<h2>3. Login com o Google</h2>
+<p>A conexão com o Google é opcional. Ao conectar, o app pede apenas a permissão <b>drive.appdata</b>, que dá acesso somente a uma pasta oculta e exclusiva do Habit RC no seu Google Drive. O app <b>não</b> consegue ver, abrir ou alterar seus outros arquivos, e-mails, contatos ou qualquer outro dado da sua conta Google.</p>
+<ul>
+<li>O app salva nessa pasta uma cópia <b>criptografada</b> dos seus dados, para você usar o mesmo Habit RC em vários aparelhos.</li>
+<li>O acesso do Google fica apenas na memória do aparelho e expira em cerca de 1 hora. Ele nunca é enviado a servidores do Habit RC.</li>
+<li>O uso de informações recebidas das APIs do Google segue a <a href="https://developers.google.com/terms/api-services-user-data-policy">Política de Dados do Usuário dos Serviços de API do Google</a>, incluindo os requisitos de Uso Limitado.</li>
+<li>Você pode desconectar quando quiser em Ajustes, com a opção de apagar a cópia do Drive, ou remover o acesso em <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
+</ul>
+
+<h2>4. Avisos com o app fechado</h2>
+<p>Se você ativar essa função, o app envia ao nosso servidor de avisos (hospedado na Cloudflare) a agenda dos próximos dias, para que as notificações cheguem na hora certa. O texto de cada aviso vai <b>criptografado com uma chave que fica só no seu aparelho</b>: o servidor guarda apenas o horário e um conteúdo embaralhado que ele não consegue ler. Também guardamos o endereço técnico de notificação fornecido pelo seu navegador. Ao desligar os avisos, a agenda é apagada.</p>
+
+<h2>5. Engenheiro IA</h2>
+<p>A função de IA é opcional e usa uma chave da API da Anthropic que <b>você</b> coloca no app. Quando você conversa com o engenheiro, o app envia sua pergunta e os dados necessários para responder diretamente à Anthropic, sob a política de privacidade dela. Sem chave, o engenheiro funciona no modo offline, sem enviar nada.</p>
+
+<h2>6. O que não fazemos</h2>
+<ul>
+<li>Não vendemos, alugamos ou compartilhamos seus dados.</li>
+<li>Não usamos anúncios, rastreadores ou cookies de terceiros.</li>
+<li>Não usamos seus dados para treinar inteligência artificial.</li>
+<li>Não temos acesso à sua senha do cofre e não conseguimos recuperá-la.</li>
+</ul>
+
+<h2>7. Seus direitos (LGPD)</h2>
+<p>Você tem controle total: pode ver, corrigir, exportar e apagar seus dados a qualquer momento dentro do app. Para apagar tudo, remova o app do aparelho, desconecte o Google (apagando a cópia do Drive) e desligue os avisos. Dúvidas sobre privacidade: <a href="mailto:sdouglaslisciocardoso@gmail.com">sdouglaslisciocardoso@gmail.com</a>.</p>
+
+<h2>8. Mudanças</h2>
+<p>Se esta política mudar, a nova versão será publicada nesta página com a data de atualização.</p>
+
+<p class="mu" style="margin-top:32px"><a href="./">← Voltar ao Habit RC</a></p>
+</main></body></html>
