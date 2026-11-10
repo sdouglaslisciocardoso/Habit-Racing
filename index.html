@@ -278,6 +278,31 @@ details.icx>summary{color:var(--tx)}
 #lkp:placeholder-shown,#psf input:placeholder-shown{letter-spacing:normal!important;font-size:17px!important}
 .kbt{background:none;border:0;color:var(--mu);font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer;justify-self:center;padding:6px;margin-top:2px}#psf .kbt{display:block;margin:6px auto 0}
 .chv{display:grid;gap:3px;width:100%;text-align:left;padding:14px;margin-top:10px;border-radius:14px;border:2px solid var(--bd);background:var(--well);cursor:pointer;color:inherit}.chv b{font-size:16px}.chv small{color:var(--mu);font-size:13px}.chv em{font-style:normal;color:var(--ok);font-size:12px;font-weight:800}.chv:hover{border-color:var(--acc)}
+
+/* ===== hábitos de hoje (cartões grandes) ===== */
+.hbl{display:grid;gap:10px}
+.hb-tp{height:6px;border-radius:6px;background:var(--well);overflow:hidden;margin:-2px 0 12px}.hb-tp i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--ok));border-radius:6px;transition:width .5s}
+.hb-g{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mu);margin:8px 2px -2px}
+.hb{display:flex;align-items:center;gap:14px;min-height:88px;padding:14px 10px 14px 14px;background:var(--p);border:1.5px solid var(--bd);border-radius:calc(var(--rad)*1.1);cursor:pointer;transition:transform .15s,border-color .2s,background .3s;-webkit-tap-highlight-color:transparent}
+.hb:active{transform:scale(.985)}
+.hb.nx{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 18%,transparent)}
+.hb.lt{border-color:color-mix(in srgb,var(--bad) 55%,var(--bd))}
+.hb.d{background:color-mix(in srgb,var(--ok) 8%,var(--p));border-color:color-mix(in srgb,var(--ok) 35%,var(--bd))}.hb.d .hb-i b{color:var(--mu)}
+.hb-b{width:62px;height:62px;flex:none;border-radius:18px;border:2.5px solid var(--bd);background:var(--well);display:grid;place-items:center;cursor:pointer;color:var(--acc);transition:.2s}
+.hb-b .i{width:28px;height:28px;stroke-width:3}.hb.nx .hb-b{border-color:var(--acc)}
+.hb-b.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.hb-b.tm{border-color:var(--acc)}.hb-b.tm .i{width:24px;height:24px;margin-left:3px}
+.hb.run .hb-b{background:var(--acc);border-color:var(--acc);color:var(--onacc);animation:pulse 1.6s ease-in-out infinite}
+.hb-t{font:900 14px/1 var(--fn);font-variant-numeric:tabular-nums}
+.hb-b.q{border-color:var(--acc)}.hb-q{display:grid;line-height:1.05;text-align:center}.hb-q b{font:900 18px var(--fn)}.hb-q small{font:800 11px var(--fn);color:var(--mu)}
+.hb-i{flex:1;min-width:0}.hb-i>b{display:block;font-size:19px;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.hb-m{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:5px;color:var(--mu);font-size:14px}
+.hb-h{font:900 italic 15px var(--fn);color:var(--acc2)}:root[data-theme=pitwall] .hb-h{font-style:normal;color:var(--acc)}
+.hb-c{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:800;padding:3px 9px;border-radius:99px;letter-spacing:.02em}.hb-c .i{width:13px;height:13px;stroke-width:3}
+.hb-c.nx{background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc)}.hb-c.lt{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}.hb-c.ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.hb-p{height:6px;border-radius:6px;background:var(--well);margin-top:8px;overflow:hidden}.hb-p i{display:block;height:100%;background:var(--acc);border-radius:6px;transition:width .4s}
+.hb .pill.mn{margin-top:8px}
+.hb-all{text-align:center;padding:14px;border-radius:calc(var(--rad)*1.1);background:color-mix(in srgb,var(--ok) 10%,transparent);color:var(--ok);font-weight:800}
 </style></head><body>
 <header><div class="lgw"><img class="lgi" src="ic-volante.png" alt=""><div class="lg">Habit<b>RC</b></div></div><div class="hbt" id="hbt"></div></header>
 <div id="hero"></div><nav id="nav"></nav><main id="m"></main><div id="tmr" style="display:none"></div><button id="fab" class="fab" onclick="newH()" aria-label="Novo hábito"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -734,14 +759,25 @@ function perm(){if(isIOS()&&!isSA())return`<div class="bn">${I('bell')}<span>Par
 function hero(){return`<div class="c hero"><div class="hh"><small class="mu">Mensagem do dia</small><button class="ib sm g" onclick="newMsg()" aria-label="Outra mensagem">${I('refresh')}</button></div><p>${esc(todayMsg())}</p></div>${perm()}${alertsBn()}${cyBn()}`}
 function vHoje(){const n=new Date(),k=ymd(n),l=sched(n),s=stats(n),pc=s.t?s.d/s.t:0,pos=s.t?Math.max(1,20-Math.round(pc*19)):20,nx=l.find(h=>!isDone(n,h.id)&&h.t>=hm(n))||l.find(h=>!isDone(n,h.id)),p=pts();let r=R[0],nl=R[1];R.forEach((x,i)=>{if(p>=x[0]){r=x;nl=R[i+1]}});const lp=nl?Math.min(100,(p-r[0])/(nl[0]-r[0])*100):100;
 const lit=Math.round(pc*10),led=Array.from({length:10},(_,i)=>`<i class="${i<lit?(i<4?'g':i<7?'y':'r'):''}"></i>`).join(''),arc='M40 168A115 115 0 1 1 260 168';
-const row=h=>{const d=isDone(n,h.id),c=(S.c[k]||{})[h.id]||0;return`<div class="h ${d?'d':''}">${h.q&&!d?`<button class="ck qt" onclick="inc(${h.id})" aria-label="Mais uma">${c}/${h.q}</button>`:h.tm&&!d?(S.tm&&S.tm.id==h.id?`<button class="ck run ${S.tm.p?'ps':''}" onclick="pauseT()" aria-label="${S.tm.p?'Retomar':'Pausar'} timer"><span data-tl>${tfmt()}</span></button>`:`<button class="ck play" onclick="startT(${h.id})" aria-label="Iniciar timer de ${h.tm} minutos">${I('play')}</button>`):`<button class="ck ${d?'on':''}" onclick="tog(${h.id})" aria-label="${d?'Desmarcar':'Concluir'}">${d?I('check'):''}</button>`}<div class="hi"><b>${esc(h.n)}</b><small><span class="hr">${h.t}</span> · ${h.dt?'Volta rápida · some em '+left(h):h.d.length==7?'Todos os dias':h.d.map(i=>DN[i]).join(', ')}${h.tm?' · '+h.tm+' min':''}${(S.x[k]||{})[h.id]==2?' · versão mínima':''}</small>${h.mn&&!d&&(h.t<hm(n)||n.getHours()>=19)?`<button class="pill mn" onclick="minH(${h.id})">🛟 Dia difícil? ${esc(h.mn)}</button>`:''}</div><button class="ib g" onclick="editH(${h.id})" aria-label="Opções">${I('more')}</button></div>`};
+const now=hm(n),mins=t=>{const[a,b]=t.split(':').map(Number);return a*60+b},inT=t=>{const m=mins(t)-mins(now);return m<60?m+' min':Math.floor(m/60)+'h'+(m%60?String(m%60).padStart(2,'0'):'')};
+const row=h=>{const d=isDone(n,h.id),c=(S.c[k]||{})[h.id]||0,run=S.tm&&S.tm.id==h.id,isNx=nx&&nx.id==h.id&&!d,late=!d&&h.t<now&&!isNx,mn=(S.x[k]||{})[h.id]==2;
+  const act=h.q&&!d?`inc(${h.id})`:h.tm&&!d?(run?'pauseT()':`startT(${h.id})`):`tog(${h.id})`;
+  const btn=h.q&&!d?`<span class="hb-q"><b>+1</b><small>${c}/${h.q}</small></span>`:h.tm&&!d?(run?`<span class="hb-t" data-tl>${tfmt()}</span>`:I('play')):d?I('check'):'';
+  const chip=d?`<span class="hb-c ok">${I('check')}${mn?'Versão mínima':'Feita'}</span>`:run?`<span class="hb-c nx">${S.tm.p?'Pausado':'Rodando'}</span>`:isNx?`<span class="hb-c nx">${h.t>=now?'Próxima · em '+inT(h.t):'Agora'}</span>`:late?`<span class="hb-c lt">Atrasada</span>`:'';
+  const meta=[`<span class="hb-h">${h.t}</span>`,h.tm?h.tm+' min':'',h.dt?'Volta rápida · some em '+left(h):h.d.length==7?'':h.d.map(i=>DN[i]).join(', ')].filter(Boolean).join(' · ');
+  return`<div class="hb ${d?'d':''} ${isNx?'nx':''} ${late?'lt':''} ${run?'run':''}" onclick="if(!event.target.closest('button'))${act}">
+<button class="hb-b ${d?'on':''} ${h.q&&!d?'q':''} ${h.tm&&!d?'tm':''}" onclick="${act}" aria-label="${d?'Desmarcar '+esc(h.n):h.q?'Mais uma: '+esc(h.n):h.tm?(run?'Pausar timer':'Iniciar timer de '+h.tm+' min'):'Concluir '+esc(h.n)}">${btn}</button>
+<div class="hb-i"><b>${esc(h.n)}</b><div class="hb-m">${meta}${chip}</div>${h.q&&!d?`<div class="hb-p"><i style="width:${Math.min(100,c/h.q*100)}%"></i></div>`:''}${h.mn&&!d&&(h.t<now||n.getHours()>=19)?`<button class="pill mn" onclick="minH(${h.id})">🛟 Dia difícil? ${esc(h.mn)}</button>`:''}</div>
+<button class="ib g" onclick="editH(${h.id})" aria-label="Opções de ${esc(h.n)}">${I('more')}</button></div>`};
+const per=[['Manhã',h=>h.t<'12:00'],['Tarde',h=>h.t>='12:00'&&h.t<'18:00'],['Noite',h=>h.t>='18:00']],open_=l.filter(h=>!isDone(n,h.id)),done_=l.filter(h=>isDone(n,h.id));
+const habList=!l.length?'':per.map(([nm,f])=>{const g=open_.filter(f);return g.length?`<div class="hb-g">${nm}</div>${g.map(row).join('')}`:''}).join('')+(done_.length?`<div class="hb-g">Concluídas · ${done_.length}</div>${done_.map(row).join('')}`:'')+(!open_.length?`<div class="hb-all">🏆 Bandeira quadriculada! Todos os hábitos de hoje concluídos.</div>`:'');
 const fut=S.h.filter(h=>h.dt&&h.dt>k).sort((a,b)=>(a.dt+a.t).localeCompare(b.dt+b.t)),tn=S.n.filter(m=>m.k!='t'&&ymd(new Date(m.ts))==k);
 return`<div class="c dash">${gauge(pc,pos,lp)}
 <div class="ds"><div><b>${s.d}/${s.t}</b><small>Voltas</small></div><div><b>${streak()}</b><small>Sequência</small></div><div><b>${nx?nx.t:'—'}</b><small>Próxima</small></div></div>
 <div class="lv"><span class="chip" style="--c:${r[2]}">${r[1]}</span><div class="pb"><i style="width:${lp}%"></i></div><small class="mu">${p} pts</small></div></div>
 ${dumpBox()}
-<div class="sh"><b>Voltas de hoje</b><small class="mu">${n.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'})}</small></div>
-<div class="c lst">${l.map(row).join('')||`<div class="emp"><b>Pista livre</b><span class="mu sm">Toque em + para adicionar um hábito ou comece com uma rotina pronta.</span><div><button class="b sm" onclick="rots()" style="margin-top:8px">${I('flag')}Ver rotinas de campeões</button></div></div>`}</div>
+<div class="sh"><b>Hábitos de hoje</b><small class="mu">${s.d} de ${s.t} feitos</small></div>${l.length?`<div class="hb-tp"><i style="width:${Math.round(pc*100)}%"></i></div>`:''}
+<div class="hbl">${habList||`<div class="emp"><b>Pista livre</b><span class="mu sm">Toque em + para adicionar um hábito ou comece com uma rotina pronta.</span><div><button class="b sm" onclick="rots()" style="margin-top:8px">${I('flag')}Ver rotinas de campeões</button></div></div>`}</div>
 ${vTasks()}
 <button class="rbn" onclick="rots()"><span>${I('flag')}</span><div><b>Rotinas de campeões</b><small class="mu">14 rotinas por período ou por perfil</small></div>${I('play')}</button>
 ${fut.length?`<div class="sh"><b>Próximas voltas rápidas</b></div><div class="c lst">${fut.map(h=>`<div class="h"><div class="hi"><b>${esc(h.n)}</b><small><span class="hr">${h.t}</span> · ${h.dt.split('-').reverse().slice(0,2).join('/')}</small></div><button class="ib g" onclick="editH(${h.id})" aria-label="Opções">${I('more')}</button></div>`).join('')}</div>`:''}
