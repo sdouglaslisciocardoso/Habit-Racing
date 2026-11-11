@@ -397,7 +397,15 @@ nav{overflow:visible}.nvr{flex:none!important;width:62px;display:flex;flex-direc
 .cd.miss{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--bad) 35%,transparent);color:var(--tx)}.cd.td{box-shadow:inset 0 0 0 2px var(--hc);color:var(--tx)}.cd.off{opacity:.35}.cd.fu{opacity:.3;cursor:default}
 .hp-a{display:flex;flex-wrap:wrap;gap:8px}.hp-a .b{flex:1}
 .pk-l{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:12px 2px 6px}
-.pki{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}.pki button{aspect-ratio:1;border-radius:12px;border:1.5px solid var(--bd);background:var(--well);font-size:20px;cursor:pointer}.pki button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 18%,var(--well))}
+.pki{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px;max-width:100%}.pki button{min-width:0;width:100%;height:42px;padding:0;margin:0;display:grid;place-items:center;border-radius:12px;border:1.5px solid var(--bd);background:var(--well);font-size:20px;line-height:1;cursor:pointer;overflow:hidden}
+.pkc{max-width:100%}.pkc button{flex:none;padding:0;margin:0}.sheet{overflow-x:hidden}.nh-sg button{min-width:0;padding:10px}.nh-sg b{overflow-wrap:anywhere}
+.hjsg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:2px 0 12px;background:var(--p);border:1px solid var(--bd);border-radius:999px}
+.hjsg button{border:0;background:none;padding:10px 8px;border-radius:999px;font-weight:800;font-size:15px;cursor:pointer;color:var(--mu)}.hjsg button small{font:700 12px var(--fn);opacity:.8;margin-left:2px}
+.hjsg button.on{background:var(--acc);color:var(--onacc)}
+.hjtip{text-align:center;font-size:12px;color:var(--mu);margin:10px 0 0}
+.c.hjbx{padding:0;margin-top:12px;overflow:hidden}.hjbx>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}.hjbx>summary::-webkit-details-marker{display:none}
+.hjbx-i{font-size:22px}.hjbx-t{flex:1;min-width:0;display:grid}.hjbx-t b{font-size:15px}.hjbx-t small{font-size:12.5px}.hjbx>summary>.i{width:16px;height:16px;color:var(--mu);transition:transform .2s}.hjbx[open]>summary>.i{transform:rotate(90deg)}
+.hjbx-m{display:flex;gap:8px;align-items:flex-start;padding:0 14px}.hjbx-m p{flex:1;font-weight:800;font-style:italic;font-size:16px;line-height:1.35}.hjbx .dash{padding:6px 12px 14px}.pki button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 18%,var(--well))}
 .pkc{display:flex;gap:10px;flex-wrap:wrap}.pkc button{width:34px;height:34px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;box-shadow:0 0 0 1px var(--bd)}.pkc button.on{border-color:var(--bg);box-shadow:0 0 0 2.5px var(--c)}
 .nh-top{display:flex;gap:8px;align-items:center}.nh-top #ht{max-width:112px;flex:none}.nh-ic{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;font-size:24px}
 .nh-th{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.nh-th::-webkit-scrollbar{display:none}.nh-th button{flex:none;padding:8px 12px;border-radius:999px;border:1.5px solid var(--bd);background:var(--well);font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}.nh-th button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 18%,var(--well))}
@@ -1241,7 +1249,7 @@ if(pit)$('#ep').onclick=()=>{closeMd();skip(id)};if($('#emb'))$('#emb').onclick=
 function perm(){if(isIOS()&&!isSA())return`<div class="bn">${I('bell')}<span>Para receber avisos, abra no Safari e use Compartilhar → Adicionar à Tela de Início.</span></div>`;if('Notification' in window&&Notification.permission=='default')return`<div class="bn">${I('bell')}<span>Ative os avisos de horário</span><button class="b sm" onclick="bell()">Ativar</button></div>`;return''}
 /* topo da Hoje: saudação, % do dia e semana; avisos urgentes logo abaixo. A mensagem do dia e os outros avisos vão depois dos hábitos */
 function hero(){if(hjD&&hjD!=ymd(new Date()))return hjTop();return hjTop()+gReBn()+rpBn()}
-function hjMsg(){return`<div class="c hero"><div class="hh"><small class="mu">📻 Mensagem do dia</small><button class="ib sm g" onclick="newMsg()" aria-label="Outra mensagem">${I('refresh')}</button></div><p>${esc(todayMsg())}</p></div>${pfBn()}${bdBn()}${negBn()}${perm()}${alertsBn()}${cyBn()}`}
+function hjMsg(){return`${pfBn()}${bdBn()}${negBn()}${perm()}${alertsBn()}${cyBn()}`}
 /* ===== Hoje no estilo Rabit: semana no topo, cartões coloridos, deslizar para concluir, garagem que evolui ===== */
 const PAL=['#ff5a5f','#ff9f1c','#2ec4b6','#3a86ff','#8338ec','#ff4fa3','#22c55e','#eab308'];
 const ICS=['🏁','💧','🏃','🏋️','🧘','📚','📖','📝','🥁','🎸','🙏','😴','☀️','🥗','💊','🧹','💰','🎯','📵','🚭','🧠','❤️','🐶','⭐'];
@@ -1261,7 +1269,7 @@ function wkStrip(){const t=new Date(),td=ymd(t),b=new Date(t);b.setDate(t.getDat
   o+=`<button class="hjw ${k==sd?'on':''} ${k==td?'td':''} ${fu?'fu':''} ${pc==100?'ok':''}" onclick="hjD=${k==td?'null':`'${k}'`};render()" aria-label="${DN[i]} ${d.getDate()}${s.t&&!fu?': '+s.d+' de '+s.t:''}"><small>${DN[i]}</small><span class="hjwr" style="--p:${pc}"><b>${d.getDate()}</b></span></button>`}
  return`<div class="hjws">${o}</div>`}
 function hjTop(){const n=new Date(),s=stats(n),pc=s.t?Math.round(s.d/s.t*100):0,dd=n.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
- return`<div class="hjh"><div class="hjh-t"><small>${dd}</small><b>${greet()}</b><span class="mu sm">${s.t?(s.t-s.d?`Faltam ${s.t-s.d} de ${s.t} hábitos hoje`:'Bandeira quadriculada! Tudo feito hoje 🏁'):'Nenhum hábito para hoje'}</span></div><div class="hjh-r" style="--p:${pc}" role="img" aria-label="${pc}% do dia"><b>${pc}<small>%</small></b></div></div>${wkStrip()}`}
+ return`<div class="hjh"><div class="hjh-t"><small>${dd}</small><b>${greet()}</b></div><div class="hjh-r" style="--p:${pc}" role="img" aria-label="${pc}% do dia"><b>${pc}<small>%</small></b></div></div>${wkStrip()}`}
 function hjCard(h,n,k,today,nx){const now=hm(n),d=isDone(n,h.id),fu=k>ymd(new Date()),c=(S.c[k]||{})[h.id]||0,run=today&&S.tm&&S.tm.id==h.id,isNx=today&&nx&&nx.id==h.id&&!d,late=today&&!d&&h.t<now&&!isNx,mn=(S.x[k]||{})[h.id]==2;
  const mins=t=>{const[a,b]=t.split(':').map(Number);return a*60+b},inT=t=>{const m=mins(t)-mins(now);return m<60?m+' min':Math.floor(m/60)+'h'+(m%60?String(m%60).padStart(2,'0'):'')};
  const act=fu?'':!today?`tog(${h.id},'${k}')`:h.q&&!d?`inc(${h.id})`:h.tm&&!d?(run?'pauseT()':`startT(${h.id})`):`tog(${h.id})`;
@@ -1271,6 +1279,8 @@ function hjCard(h,n,k,today,nx){const now=hm(n),d=isDone(n,h.id),fu=k>ymd(new Da
  return`<div class="hbw"><div class="hbsw">${I('check')}<span>${d?'Desfazer':today&&h.q?'+1':'Feito'}</span></div><div class="hb ${d?'d':''} ${isNx?'nx':''} ${late?'lt':''} ${run?'run':''}" data-h="${h.id}" style="--hc:${hCo(h)}" onclick="if(!event.target.closest('button')&&Date.now()-(+this.dataset.sw||0)>450)habPg(${h.id})">
 <span class="hb-ic" aria-hidden="true">${esc(hIc(h))}</span><div class="hb-i"><b>${esc(h.n)}</b><div class="hb-m">${meta}${chip}</div>${today&&h.q&&!d?`<div class="hb-p"><i style="width:${Math.min(100,c/h.q*100)}%"></i></div>`:''}${today&&h.mn&&!d&&(h.t<now||n.getHours()>=19)?`<button class="pill mn" onclick="minH(${h.id})">🛟 Dia difícil? ${esc(h.mn)}</button>`:''}</div>
 <button class="hb-b ${d?'on':''} ${today&&h.q&&!d?'q':''} ${today&&h.tm&&!d?'tm':''}" ${fu?'disabled':''} onclick="${act}" aria-label="${fu?'Ainda não chegou':d?'Desmarcar '+esc(h.n):today&&h.q?'Mais uma: '+esc(h.n):today&&h.tm?(run?'Pausar timer':'Iniciar timer de '+h.tm+' min'):'Concluir '+esc(h.n)}">${btn}</button></div></div>`}
+let hjS=(()=>{try{return localStorage.getItem('gt3hs')=='t'?'t':'h'}catch(e){return'h'}})();
+function hjSeg(k){hjS=k;try{localStorage.setItem('gt3hs',k)}catch(e){}render()}
 function vHoje(){const n=new Date(),k=ymd(n);
  if(hjD&&hjD!=k){const D=new Date(hjD+'T12:00'),l=sched(D),fu=hjD>k,s=stats(D);
   return`<div class="sh"><b>${D.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'short'})}</b><button class="pill" style="margin:0" onclick="hjD=null;render()">Voltar para hoje</button></div>
@@ -1278,17 +1288,19 @@ function vHoje(){const n=new Date(),k=ymd(n);
 <div class="hbl">${l.length?l.map(h=>hjCard(h,D,hjD,0)).join(''):'<div class="emp"><b>Dia livre</b><span class="mu sm">Nenhum hábito programado.</span></div>'}</div>`}
  const l=sched(n),s=stats(n),pc=s.t?s.d/s.t:0,pos=s.t?Math.max(1,20-Math.round(pc*19)):20,nx=l.find(h=>!isDone(n,h.id)&&h.t>=hm(n))||l.find(h=>!isDone(n,h.id)),p=pts();let r=R[0],nl=R[1];R.forEach((x,i)=>{if(p>=x[0]){r=x;nl=R[i+1]}});const lp=nl?Math.min(100,(p-r[0])/(nl[0]-r[0])*100):100;
  const card=h=>hjCard(h,n,k,1,nx),per=[['Manhã','☀️',h=>h.t<'12:00'],['Tarde','🌤️',h=>h.t>='12:00'&&h.t<'18:00'],['Noite','🌙',h=>h.t>='18:00']],open_=l.filter(h=>!isDone(n,h.id)),done_=l.filter(h=>isDone(n,h.id));
+ const TA=S.n.filter(m=>m.k=='t'&&(m.tp==k||(m.due&&m.due<=k&&(!m.d||m.dd==k)))),tD=TA.filter(m=>m.d).length,seg=document.body.classList.contains('tour')?'h':hjS;
  const habList=!l.length?'':per.map(([nm,ic,f])=>{const g=open_.filter(f);return g.length?`<div class="hb-g">${ic} ${nm}</div>${g.map(card).join('')}`:''}).join('')+(!open_.length?`<div class="hb-all">🏆 Bandeira quadriculada! Todos os hábitos de hoje concluídos.</div>`:'');
- const fut=S.h.filter(h=>h.dt&&h.dt>k&&h.dt<=addD(k,3)).sort((a,b)=>(a.dt+a.t).localeCompare(b.dt+b.t)),N=24,lit=Math.round(pc*N);
- return`<details class="c rk" ${hjG?'open':''} ontoggle="hjG=this.open"><summary><div class="rk-b" aria-hidden="true">${Array.from({length:N},(_,i)=>`<i class="${i<lit?(i<N*.58?'g':i<N*.83?'y':'r'):''}" style="height:${(30+70*i/(N-1)).toFixed(0)}%"></i>`).join('')}</div>
-<div class="rk-s"><div><b>P${pos}</b><small>Posição</small></div><div><b>🔥 ${streak()}</b><small>Sequência</small></div><div><b>${nx?esc(nx.t):'—'}</b><small>Próxima</small></div><div><span class="chip" style="--c:${r[2]}">${r[1]}</span><small>${p} pts</small></div></div><span class="rk-x">${I('chev')}</span></summary><div class="dash">${gauge(pc,pos,lp)}<div class="lv"><span class="chip" style="--c:${r[2]}">${r[1]}</span><div class="pb"><i style="width:${lp}%"></i></div><small class="mu">${p} pts</small></div></div></details>
-<div class="sh"><b>Hábitos de hoje</b><small class="mu">${l.length?'deslize ← para concluir':''}</small></div>
-<div class="hbl">${habList||`<div class="emp"><b>Pista livre</b><span class="mu sm">Toque em + para criar seu primeiro hábito ou comece com uma rotina pronta.</span><div><button class="b sm" onclick="rots()" style="margin-top:8px">${I('flag')}Ver rotinas de campeões</button></div></div>`}</div>
-<div class="hjm">${hjMsg()}</div>
-${vTasks()}
+ const fut=S.h.filter(h=>h.dt&&h.dt>k&&h.dt<=addD(k,3)).sort((a,b)=>(a.dt+a.t).localeCompare(b.dt+b.t));
+ const habs=`<div class="hbl">${habList||`<div class="emp"><b>Pista livre</b><span class="mu sm">Toque em + para criar seu primeiro hábito ou comece com uma rotina pronta.</span><div><button class="b sm" onclick="rots()" style="margin-top:8px">${I('flag')}Ver rotinas de campeões</button></div></div>`}</div>
+${open_.length?'<p class="hjtip">Dica: deslize o cartão ← para concluir</p>':''}
 ${S.h.length<4?`<button class="rbn" onclick="rots()"><span>${I('flag')}</span><div><b>Rotinas de campeões</b><small class="mu">${ROT.length} rotinas por período ou por perfil</small></div>${I('play')}</button>`:''}
-${fut.length?`<div class="sh"><b>Próximas voltas rápidas</b></div><div class="c lst">${fut.map(h=>`<div class="h"><div class="hi"><b>${esc(hIc(h))} ${esc(h.n)}</b><small><span class="hr">${esc(h.t)}</span> · ${esc(dfmt(h.dt))}</small></div><button class="ib g" onclick="habPg(${h.id})" aria-label="Abrir">${I('more')}</button></div>`).join('')}</div>`:''}
-${doneBox(done_,card)}`}
+${fut.length?`<div class="sh"><b>Próximas voltas rápidas</b></div><div class="c lst">${fut.map(h=>`<div class="h"><div class="hi"><b>${esc(hIc(h))} ${esc(h.n)}</b><small><span class="hr">${esc(h.t)}</span> · ${esc(dfmt(h.dt))}</small></div><button class="ib g" onclick="habPg(${h.id})" aria-label="Abrir">${I('more')}</button></div>`).join('')}</div>`:''}`;
+ return`<div class="hjsg" role="tablist" aria-label="O que ver hoje"><button role="tab" aria-selected="${seg=='h'}" class="${seg=='h'?'on':''}" onclick="hjSeg('h')">🏁 Hábitos <small>${s.d}/${s.t}</small></button><button role="tab" aria-selected="${seg=='t'}" class="${seg=='t'?'on':''}" onclick="hjSeg('t')">✅ Tarefas <small>${tD}/${TA.length}</small></button></div>
+${seg=='t'?vTasks():habs}
+${doneBox(done_,card)}
+<details class="c hjbx" ${hjG?'open':''} ontoggle="hjG=this.open"><summary><span class="hjbx-i">📻</span><span class="hjbx-t"><b>Mensagem e painel do dia</b><small class="mu">P${pos} · 🔥 ${streak()} ${streak()==1?'dia':'dias'} · ${r[1]} ${p} pts</small></span>${I('chev')}</summary>
+<div class="hjbx-m"><p>${esc(todayMsg())}</p><button class="ib sm g" onclick="newMsg()" aria-label="Outra mensagem">${I('refresh')}</button></div><div class="dash">${gauge(pc,pos,lp)}<div class="lv"><span class="chip" style="--c:${r[2]}">${r[1]}</span><div class="pb"><i style="width:${lp}%"></i></div><small class="mu">${p} pts</small></div></div></details>
+<div class="hjm">${hjMsg()}</div>`}
 /* deslizar o cartão para a esquerda conclui (ou soma +1 / inicia o timer) */
 (()=>{let st=null;const lim=80;
  document.addEventListener('pointerdown',e=>{const c=e.target.closest('.hbw>.hb');if(!c||e.target.closest('button')||e.button>0)return;st={c,x:e.clientX,y:e.clientY,dx:0,on:0}},{passive:true});
