@@ -67,6 +67,8 @@ function draw(j){$('#out').hidden=false;
   <div class="c"><span class="mu sm">30 dias</span><b>${n(j.d30)}</b></div>
   <div class="c"><span class="mu sm">Aparelhos no total</span><b>${n(j.total)}</b></div>
   <div class="c"><span class="mu sm">Visitas no total</span><b>${n(j.visitas)}</b></div>
+  <div class="c"><span class="mu sm">Contas criadas</span><b>${n(j.contas)}</b></div>
+  <div class="c"><span class="mu sm">Sincronizaram (24h)</span><b>${n(j.sinc)}</b></div>
  </div>
  <div class="sec"><h2>Pessoas por dia · 14 dias</h2><div class="bars">${days.map((d,i)=>{const c=S[d]||0;return`<div class="bar ${i==13?'hj':''}" title="${dd(d)}: ${c} pessoas, ${N[d]||0} novas"><em>${c||''}</em><i style="height:${Math.round(c/mx*100)}%"></i><small>${dd(d).slice(0,2)}</small></div>`}).join('')}</div></div>
  <div class="sec"><h2>Aparelhos · 7 dias</h2>${Object.keys(pl).sort((a,b)=>pl[b]-pl[a]).map(k=>`<div class="row"><span>${P[k]||k}</span><span>${n(pl[k])}</span></div>`).join('')||'<p class="mu sm">Ninguém ainda.</p>'}${tot7?`<div class="row"><span>Com o app instalado</span><span>${n(inst)} de ${n(tot7)}</span></div>`:''}</div>

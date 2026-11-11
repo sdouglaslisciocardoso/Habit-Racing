@@ -520,6 +520,9 @@ nav{overflow:visible}.nvr{flex:none!important;width:62px;display:flex;flex-direc
 .tkemp{padding:28px 0}.tkn{display:flex;gap:8px;align-items:center}.tkn input{flex:1}
 .tktop{display:flex;gap:10px;align-items:center;margin-top:12px;padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--well)}.tktop span{font-weight:600}
 #tqr{margin-top:10px}
+
+/* senha do cofre e escolha de versão aparecem por cima das boas-vindas */
+.md.mdtop{z-index:150}
 </style></head><body>
 <header><div class="lgw"><img class="lgi" src="ic-rc.png" alt=""><div class="lg"><svg class="wm" viewBox="3 -710 3655 730" aria-label="RC Life" role="img"><path fill="currentColor" d="M387 -700Q483 -700 547.0 -680.0Q611 -660 639.0 -612.5Q667 -565 656 -482Q651 -443 635.5 -409.5Q620 -376 588.0 -354.0Q556 -332 500 -326L499 -319Q516 -317 535.5 -306.5Q555 -296 570.5 -273.0Q586 -250 590 -208L616 0H392L374 -209Q373 -238 365.0 -245.0Q357 -252 334 -252Q257 -253 209.0 -253.0Q161 -253 128.5 -254.0Q96 -255 65 -257L81 -405H355Q385 -405 401.5 -411.0Q418 -417 426.5 -434.5Q435 -452 440 -484Q444 -508 440.0 -522.0Q436 -536 423.0 -541.5Q410 -547 385 -547Q278 -547 206.5 -545.5Q135 -544 110 -541L108 -690Q153 -695 192.5 -697.0Q232 -699 278.0 -699.5Q324 -700 387 -700ZM320 -690 223 0H11L108 -690ZM1070 -702Q1122 -702 1160.5 -699.0Q1199 -696 1231.5 -690.0Q1264 -684 1297 -674L1272 -517Q1236 -518 1204.5 -518.0Q1173 -518 1139.0 -518.5Q1105 -519 1059 -519Q1032 -519 1014.0 -513.0Q996 -507 983.5 -489.0Q971 -471 962.5 -434.5Q954 -398 946 -337Q937 -269 936.5 -233.0Q936 -197 951.0 -184.0Q966 -171 1003 -171Q1078 -171 1127.0 -173.0Q1176 -175 1224 -179L1232 -20Q1177 -3 1123.0 4.5Q1069 12 993 12Q878 12 811.5 -22.5Q745 -57 723.0 -137.0Q701 -217 720 -353Q735 -457 759.5 -525.0Q784 -593 823.5 -631.5Q863 -670 923.5 -686.0Q984 -702 1070 -702ZM1895 -690 1824 -212Q1822 -190 1829.5 -181.0Q1837 -172 1860 -172H2088L2084 -9Q2015 0 1927.0 2.0Q1839 4 1753 4Q1703 4 1667.0 -17.0Q1631 -38 1613.5 -74.5Q1596 -111 1603 -157L1677 -690ZM2459 -690 2362 0H2146L2243 -690ZM2727 -694Q2816 -694 2908.0 -692.0Q3000 -690 3069 -679L3045 -528H2815Q2788 -528 2776.0 -519.5Q2764 -511 2761 -488L2693 0H2475L2551 -541Q2561 -612 2609.0 -653.0Q2657 -694 2727 -694ZM2551 -411H2991L2973 -267H2530ZM3302 -694Q3363 -694 3425.5 -693.0Q3488 -692 3546.0 -689.5Q3604 -687 3650 -680L3626 -528H3386Q3361 -528 3349.5 -519.5Q3338 -511 3335 -488L3295 -201Q3292 -182 3301.0 -172.0Q3310 -162 3332 -162H3572L3568 -8Q3520 -1 3462.0 1.0Q3404 3 3344.0 3.5Q3284 4 3230 4Q3145 4 3105.0 -49.0Q3065 -102 3075 -184L3125 -541Q3135 -611 3180.5 -652.5Q3226 -694 3302 -694ZM3128 -425H3575L3557 -281H3105Z"/><path class="wmd" d="M1437 -425L1597 -425L1565 -265L1405 -265Z"/></svg></div></div><div class="hbt" id="hbt"></div></header>
 <div id="hero"></div><nav id="nav"></nav><main id="m"></main><div id="tmr" style="display:none"></div><button id="fab" class="fab" onclick="tab=='sem'?addDay(selD||ymd(new Date())):tab=='neg'?negAdd():tab=='hoje'&&hjS=='t'&&!(hjD&&hjD!=ymd(new Date()))?newT():newH()" aria-label="Adicionar"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -861,12 +864,12 @@ dr.dmp='';render();sheet(`${shT('Estratégia montada')}${r.txt?`<p class="mu sm"
 const famOf=t=>(TH.find(x=>x[0]==t)||[])[5];
 function setFam(f){S.fam=f;if(S.cy.on===undefined)S.cy.on=f=='f';if(famOf(S.th)!=f)S.th=f=='f'?'rose':'classico';applyTh();applyIcon();save();render();if(document.querySelector('.md'))cfg()}
 const sw=t=>`background:linear-gradient(135deg,${t[2]} 0 48%,${t[3]} 48% 74%,${t[4]} 74%)`;
-function onb(){let o=$('#onb');if(!o){o=document.createElement('div');o.id='onb';o.className='onb';document.body.appendChild(o)}if(!(S.gd&&S.gd.on)&&lsG('gt3gskip')!=='1'){o.innerHTML=`<div class="onc"><img src="ic-${icId()}.png" class="onl" alt=""><h2>Boas-vindas ao RC Life</h2><p class="mu">Entre com sua conta Google para seus dados ficarem guardados e você usar o app em qualquer aparelho. Se você já usa o RC Life, tudo volta na hora.</p><button class="b wide ggo" onclick="onbG()"><span class="gg">G</span>Entrar com Google</button><p class="mu sm">O app só acessa uma pasta oculta e exclusiva dele no seu Google Drive. E-mails, fotos e outros arquivos ficam de fora.</p><button class="lnk" onclick="lsS('gt3gskip','1');onb()">Continuar sem login</button></div>`;return}o.innerHTML=`<div class="onc"><img src="ic-${icId()}.png" class="onl" alt=""><h2>Boas-vindas ao RC Life</h2><p class="mu">Para deixar o app com a sua cara, escolha uma opção. Dá para trocar quando quiser em Ajustes.</p><div class="ong">${[['m','Homem','classico','Painel digital'],['f','Mulher','rose','Painéis digital e anel']].map(([k,l,t,d])=>`<button class="onbb" onclick="onbPick('${k}')"><span class="onsw" style="${sw(TH.find(x=>x[0]==t))}"></span><b>${l}</b><small class="mu">${d}</small></button>`).join('')}</div></div>`}
+function onb(){let o=$('#onb');if(!o){o=document.createElement('div');o.id='onb';o.className='onb';document.body.appendChild(o)}if(!(S.gd&&S.gd.on)&&lsG('gt3gskip')!=='1'){o.innerHTML=`<div class="onc"><img src="ic-${icId()}.png" class="onl" alt=""><h2>Boas-vindas ao RC Life</h2><p class="mu">Entre com sua conta Google para seus dados ficarem guardados e você usar o app em qualquer aparelho. Se você já usa o RC Life, tudo volta na hora.</p><button class="b wide ggo" onclick="onbG()"><span class="gg">G</span>Entrar com Google</button><p class="mu sm">O Google só confirma quem é você: o app não acessa seus e-mails, fotos nem arquivos. Você entra uma vez e fica conectado.</p><button class="lnk" onclick="lsS('gt3gskip','1');onb()">Continuar sem login</button></div>`;return}o.innerHTML=`<div class="onc"><img src="ic-${icId()}.png" class="onl" alt=""><h2>Boas-vindas ao RC Life</h2><p class="mu">Para deixar o app com a sua cara, escolha uma opção. Dá para trocar quando quiser em Ajustes.</p><div class="ong">${[['m','Homem','classico','Painel digital'],['f','Mulher','rose','Painéis digital e anel']].map(([k,l,t,d])=>`<button class="onbb" onclick="onbPick('${k}')"><span class="onsw" style="${sw(TH.find(x=>x[0]==t))}"></span><b>${l}</b><small class="mu">${d}</small></button>`).join('')}</div></div>`}
 function onbPick(k){S.fam=k;if(S.cy.on===undefined)S.cy.on=k=='f';S.th=k=='f'?'rose':'classico';applyTh();applyIcon();save();onb2()}
 function onb2(){const o=$('#onb');o.innerHTML=`<div class="onc"><h2>Escolha seu tema</h2><p class="mu">Toque para ver ao vivo.${S.fam=='f'?' O acompanhamento do ciclo fica em Saúde.':''}</p><div class="ong">${TH.filter(t=>t[5]==S.fam).map(t=>`<button class="onbb ${S.th==t[0]?'on':''}" onclick="S.th='${t[0]}';applyTh();save();onb2()"><span class="onsw" style="${sw(t)}"></span><b>${t[1]}</b></button>`).join('')}</div><button class="b wide" onclick="onbDone()">Começar</button><button class="lnk" onclick="onb()">Voltar</button></div>`}
 function onbG(){if(!navigator.onLine)return toast('Sem internet agora. Conecte-se ou continue sem login.');const b=document.querySelector('.ggo');if(b){b.disabled=true;b.lastChild.textContent='Abrindo o Google…'}gConnect()}
 function onbSync(){const o=$('#onb');if(!o||document.getElementById('lock'))return;if(S.fam&&S.tut){o.remove();render();return}if(!S.fam)onb()}
-const gReBn=()=>{let lv=true;try{lv=gLive()}catch(e){}if(!(S.gd&&S.gd.on)||lv||!S.tut)return'';const late=(S.upd||0)-(S.gd.at||0)>3e5;if(!GSIL&&!late)return'';return`<div class="bn">${I('cloud')}<span>Seus dados não estão sendo salvos no Google agora: o acesso expirou.</span><button class="b sm" onclick="gSync(1)">Reconectar</button></div>`};
+const gReBn=()=>{let lv=true;try{lv=gLive()}catch(e){}if(!(S.gd&&S.gd.on)||lv||!S.tut)return'';return`<div class="bn">${I('cloud')}<span>A sincronização ficou mais rápida e não pede mais login toda hora. Entre com o Google uma última vez para continuar sincronizando.</span><button class="b sm" onclick="gConnect()">Entrar</button></div>`};
 function onbDone(){const o=$('#onb');if(o)o.remove();render();scrollTo(0,0);if(!S.tut)tut(0)}
 
 /* ===== automações do dia a dia ===== */
@@ -1596,14 +1599,18 @@ const V={key:null,salt:null,it:KIT,busy:false,dirty:false,hid:0,
 function save(raw){if(!raw)S.upd=Date.now();V.persist(S);lsS('gt3t',S.th||'');if(S.gd&&S.gd.on)lsS('gt3gon','1');else lsD('gt3gon');if(!raw){if(typeof pxQueue=='function')pxQueue();gdQueue()}}
 
 /* ---------- retorno do login Google (token só na memória) ---------- */
-let GT=null,GERR='',GSIL=0;
+let GT=null,GERR='',GSIL=0,IDT=null;
 let gBusy=false,gTm=null;
-const gLive=()=>GT&&Date.now()<GT.exp;
-(()=>{if(!/access_token=|error=/.test(location.hash))return;const h=new URLSearchParams(location.hash.slice(1)),st=(lsG('gt3st')||'').split('|');lsD('gt3st');history.replaceState(null,'',location.pathname+location.search);
-  if(h.get('error')){if(st[2]=='s'){GSIL=1;return}GERR=h.get('error');return}
+/* servidor do RC Life: o Google só confirma quem é você; a sessão do app dura meses e se renova sozinha */
+const SRV='https://habit-rc-avisos.sdouglaslisciocardoso.workers.dev';
+let SS=(()=>{try{const v=JSON.parse(lsG('gt3ss')||'null');return v&&/^[a-f0-9]{64}$/.test(v.tk)?v:null}catch(e){return null}})();
+const gLive=()=>!!(SS&&SS.tk);
+(()=>{if(!/id_token=|access_token=|error=/.test(location.hash))return;const h=new URLSearchParams(location.hash.slice(1)),st=(lsG('gt3st')||'').split('|');lsD('gt3st');history.replaceState(null,'',location.pathname+location.search);
+  if(h.get('error')){GERR=h.get('error');return}
   if(!st[0]||h.get('state')!==st[0]||Date.now()-Number(st[1])>9e5){GERR='state';return}
-  if(!(h.get('scope')||'').split(' ').includes(GSC)){GERR='scope';return}
-  GT={tk:h.get('access_token'),exp:Date.now()+(Number(h.get('expires_in'))||3600)*1e3-9e4,ok:false}})();
+  const t=h.get('id_token');if(!t){GERR='token';return}
+  try{let b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');b+='==='.slice((b.length+3)%4);const c=JSON.parse(decodeURIComponent(escape(atob(b))));if(!st[2]||c.nonce!==st[2]){GERR='nonce';return}}catch(e){GERR='token';return}
+  IDT=t})();
 
 /* ---------- tela de bloqueio ---------- */
 function failInfo(){try{return JSON.parse(lsG('gt3f'))||{n:0,u:0}}catch(e){return{n:0,u:0}}}
@@ -1630,7 +1637,7 @@ async function lockNow(){await V.idle();location.replace(location.pathname)}
 
 /* ---------- janelas de senha ---------- */
 function passSheet(title,html,fields,okLabel){return new Promise(res=>{const o=sheet(`${shT(title)}<form id="psf" autocomplete="off" novalidate>${html}${fields.map((f,i)=>`<input id="ps${i}" type="password" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="${f[1]}" placeholder="${hx(f[0])}" aria-label="${hx(f[0])}" style="width:100%;margin-top:10px;font-size:20px;letter-spacing:.2em;text-align:center">`).join('')}${fields[0][1]=='current-password'?'<button type="button" class="kbt" id="psk">Minha senha tem letras</button>':''}<p class="mu sm" id="psm" role="status" style="min-height:18px;margin-top:8px"></p><div class="row"><button class="b" type="submit">${okLabel}</button><button class="b t" type="button" id="psc">Cancelar</button></div></form>`);
-  const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#psc').onclick=()=>done(null);setTimeout(()=>{const f=o.querySelector('#ps0');if(f)f.focus()},60);
+  o.classList.add('mdtop');const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#psc').onclick=()=>done(null);setTimeout(()=>{const f=o.querySelector('#ps0');if(f)f.focus()},60);
   o.querySelector('#psf').onsubmit=e=>{e.preventDefault();const v=fields.map((f,i)=>o.querySelector('#ps'+i).value);const msg=t=>o.querySelector('#psm').textContent=t;const r=(o.check||(()=>''))(v);if(r)return msg(r);done(v)};const k=o.querySelector('#psk');if(k)k.onclick=()=>{const p=o.querySelector('#ps0'),t=p.inputMode=='numeric';p.inputMode=t?'text':'numeric';if(t)p.removeAttribute('pattern');else p.setAttribute('pattern','[0-9]*');k.textContent=t?'Usar teclado numérico':'Minha senha tem letras';p.blur();setTimeout(()=>p.focus(),50)};o.check=null;passSheet.cur=o})}
 const pwWeak=p=>/^(\d)\1+$/.test(p)||'01234567890123456789'.includes(p)||'98765432109876543210'.includes(p);
 const pwRule=v=>!/^\d+$/.test(v[0])?'Use apenas números.':v[0].length<6?'Use pelo menos 6 números (8 ou mais é bem mais seguro).':pwWeak(v[0])?'Evite sequências como 123456 ou 000000.':v[1]!==undefined&&v[0]!==v[1]?'As senhas não são iguais.':'';
@@ -1653,18 +1660,20 @@ async function bkpFile(){S.bk=Date.now();save(1);const d=Object.assign({},S);del
 async function bkpRead(f){let d=JSON.parse(await f.text());if(d&&d.hrc&&d.ct){const pw=await askPass('Backup criptografado','Digite a senha do cofre de quando este backup foi feito.');if(!pw)return 0;try{d=(await V.open(pw,d)).d}catch(e){toast('Senha incorreta para este backup.');return 0}}return clean(d)}
 
 /* ---------- Google Drive (pasta oculta do app) ---------- */
-function gAuth(sil){V.flush();const st=b64e(rnd(24)).replace(/[^a-zA-Z0-9]/g,'');lsS('gt3st',st+'|'+Date.now()+(sil?'|s':''));const q={client_id:GID,redirect_uri:location.origin+location.pathname.replace(/index\.html$/,''),response_type:'token',scope:GSC,state:st,include_granted_scopes:'false'};if(sil)q.prompt='none';
-  location[sil?'replace':'assign']('https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams(q))}
-/* ao abrir: se o Google está ligado e o acesso venceu, renova sem perguntar nada (no máximo a cada 10 min) */
-function gSilent(){if(lsG('gt3gon')!=='1'||GT||GERR||GSIL||!navigator.onLine)return false;const last=Number(lsG('gt3sr'))||0;if(Date.now()-last<6e5)return false;lsS('gt3sr',String(Date.now()));gAuth(1);return true}
-async function gVerify(){if(!GT||GT.ok)return!!GT;const r=await fetch('https://oauth2.googleapis.com/tokeninfo?access_token='+encodeURIComponent(GT.tk));const j=await r.json().catch(()=>({}));
-  if(!r.ok||j.aud!==GID||!String(j.scope||'').split(' ').includes(GSC)){GT=null;throw new Error('token inválido')}GT.ok=true;return true}
-async function gApi(path,opt){opt=opt||{};const r=await fetch('https://www.googleapis.com/'+path,Object.assign({},opt,{headers:Object.assign({Authorization:'Bearer '+GT.tk},opt.headers||{})}));if(r.status==401){GT=null;throw new Error('login expirou')}if(!r.ok){const j=await r.json().catch(()=>({})),why=((j.error||{}).errors||[{}])[0].reason||'';if(why=='storageQuotaExceeded')throw new Error('o armazenamento da sua conta Google está cheio. Libere espaço em one.google.com/storage (Gmail, Fotos ou Drive) e toque na nuvem de novo');throw new Error('Google respondeu '+r.status+(why?' ('+why+')':''))}return r}
-async function gFind(){const q=encodeURIComponent(`name='${GFN}' and trashed=false`);const j=await(await gApi('drive/v3/files?spaces=appDataFolder&fields=files(id,modifiedTime,appProperties)&q='+q)).json();return(j.files||[]).sort((a,b)=>String(b.modifiedTime).localeCompare(a.modifiedTime))[0]||null}
-async function gGet(id){return(await gApi('drive/v3/files/'+encodeURIComponent(id)+'?alt=media')).json()}
-async function gPut(blob,upd,id){const meta={name:GFN,mimeType:'application/json',appProperties:{upd:String(upd)}};if(!id)meta.parents=['appDataFolder'];const bd='hrc'+b64e(rnd(12)).replace(/[^a-zA-Z0-9]/g,'');
-  const body=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(blob)}\r\n--${bd}--`;
-  const r=await gApi('upload/drive/v3/files'+(id?'/'+encodeURIComponent(id):'')+'?uploadType=multipart&fields=id',{method:id?'PATCH':'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body});return(await r.json()).id}
+function gAuth(){V.flush();const st=b64e(rnd(24)).replace(/[^a-zA-Z0-9]/g,''),nc=b64e(rnd(18)).replace(/[^a-zA-Z0-9]/g,'');lsS('gt3st',st+'|'+Date.now()+'|'+nc);
+  const q={client_id:GID,redirect_uri:location.origin+location.pathname.replace(/index\.html$/,''),response_type:'id_token',scope:'openid email profile',state:st,nonce:nc,prompt:'select_account'};
+  location.assign('https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams(q))}
+function gSilent(){return false}
+async function gVerify(){return gLive()}
+async function srv(path,b){if(!gLive())throw new Error('entre com sua conta');const r=await fetch(SRV+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({tk:SS.tk},b||{}))});const j=await r.json().catch(()=>({}));
+  if(r.status==401){SS=null;lsD('gt3ss');throw new Error('sessão encerrada: entre de novo')}
+  if(r.status==409){const e=new Error('conflito');e.conflict=1;throw e}
+  if(!r.ok)throw new Error(j.erro||('servidor respondeu '+r.status));return j}
+async function zip(o){const t=JSON.stringify(o);if(typeof CompressionStream=='undefined')return'j:'+t;const z=await new Response(new Blob([t]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();const u=new Uint8Array(z);let s='';for(let i=0;i<u.length;i+=32768)s+=String.fromCharCode.apply(null,u.subarray(i,i+32768));return'z:'+btoa(s)}
+async function unzip(b){b=String(b||'');if(b.startsWith('j:'))return JSON.parse(b.slice(2));if(!b.startsWith('z:'))throw new Error('dados da conta inválidos');const u=b64d(b.slice(2));const t=await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text();return JSON.parse(t)}
+async function gFind(){const j=await srv('/data/head');return j.upd?{id:'srv',appProperties:{upd:String(j.upd)}}:null}
+async function gGet(){const j=await srv('/data/get');if(!j.b)throw new Error('sem dados na conta');return unzip(j.b)}
+async function gPut(blob,upd,id,base){await srv('/data/put',{upd,base:base||0,b:await zip(blob)});return'srv'}
 function gdQueue(){if(!(S.gd&&S.gd.on&&gLive()))return;clearTimeout(gTm);gTm=setTimeout(()=>gSync(0,1),1500)}
 function gKeep(){return{gd:S.gd,px:S.px,lk:S.lk,tm:S.tm}}
 const gW=d=>{const tx=Object.values(d.f||{}).reduce((n,a)=>n+(a||[]).length,0),x=Object.keys(d.x||{}).length,h=(d.h||[]).length,n=(d.n||[]).length;return{h,n,tx,x,w:h+n+tx+x+(d.bl||[]).length+(d.sh||[]).length+(d.yd||[]).length+(d.v||[]).length}};
@@ -1672,7 +1681,7 @@ const gWTxt=c=>`${c.h} hábitos · ${c.x} dias registrados · ${c.n} notas e tar
 async function gOpenRemote(f){const b=await gGet(f.id);if(b&&b.plain)return{d:b.d,key:V.key,salt:V.salt,it:V.it};try{return{d:await V.dec(b,V.key),key:V.key,salt:V.salt,it:V.it}}catch(e){}
   const pw=await askPass('Senha da cópia do Google','Digite a senha do cofre usada no aparelho que salvou estes dados no Google.');if(!pw)return null;try{return await V.open(pw,b)}catch(x){toast('Senha incorreta.');return null}}
 function gChoose(rd,ru){return new Promise(res=>{const L=gW(S),R=gW(rd);const o=sheet(`${shT('Qual versão manter?')}<p class="mu sm">Os dados deste aparelho e os do Google estão diferentes. Escolha qual manter: a outra versão será substituída.</p><button class="chv" id="gcL"><b>Manter os deste aparelho</b><small>${gWTxt(L)}</small>${L.w>=R.w?'<em>tem mais dados</em>':''}</button><button class="chv" id="gcR"><b>Usar os do Google</b><small>${gWTxt(R)} · salvo em ${new Date(ru).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small>${R.w>L.w?'<em>tem mais dados</em>':''}</button>`);
-  const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#gcL').onclick=()=>done('L');o.querySelector('#gcR').onclick=()=>done('R')})}
+  o.classList.add('mdtop');const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#gcL').onclick=()=>done('L');o.querySelector('#gcR').onclick=()=>done('R')})}
 async function gApply(r,f,ru){const d=clean(r.d);if(!d)throw new Error('arquivo do Google inválido');const keep=gKeep();Object.assign(d,keep);d.gd=Object.assign({},keep.gd,{on:1,base:ru,at:Date.now(),id:f.id});d.upd=ru;
   V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;if(typeof fixS=='function')fixS();save(1);gBase(S);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
 async function gPull(f,ru){const r=await gOpenRemote(f);if(!r)return false;await gApply(r,f,ru);return true}
@@ -1685,7 +1694,7 @@ function gMerge(a,b){const cp=o=>JSON.parse(JSON.stringify(o||{})),wa=gW(a).w,wb
   return out}
 async function gJoin(r,f){const keep=gKeep(),d=clean(gPrune(gMerge(S,r.d),S,r.d));if(!d)throw new Error('não consegui juntar os dados');Object.assign(d,keep);if(!V.key&&r.key){V.key=r.key;V.salt=r.salt;V.it=r.it}
   d.upd=Date.now();S=d;save(1);await V.idle();lsD('gt3h');await gPush(f);if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
-async function gPush(f){const blob=V.key?await V.enc(S):{hrc:1,plain:1,d:S};const id=await gPut(blob,S.upd||Date.now(),f&&f.id);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);gBase(S);return id}
+async function gPush(f){const blob=V.key?await V.enc(S):{hrc:1,plain:1,d:S};const id=await gPut(blob,S.upd||Date.now(),f&&f.id,f?Number((f.appProperties||{}).upd)||0:0);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);gBase(S);return id}
 /* base da última sincronização (fica só neste aparelho): serve para saber o que foi APAGADO de um lado e não ressuscitar ao juntar */
 const GB_ARR=['h','v','n','bl','sh','yd','cl','rn'],GB_DAY=['x','o','c','xt'];
 function gBase(d){try{const b={};GB_ARR.forEach(k=>{b[k]=(d[k]||[]).map(x=>String(x.id))});const lim=new Date(Date.now()-120*864e5).toISOString().slice(0,10);GB_DAY.forEach(k=>{const a=[];Object.keys(d[k]||{}).forEach(dy=>{if(dy<lim)return;const v=d[k][dy];if(v&&typeof v=='object')Object.keys(v).forEach(id=>a.push(dy+'|'+id))});b[k]=a});lsS('gt3gb',JSON.stringify(b))}catch(e){}}
@@ -1696,7 +1705,7 @@ function gPrune(m,L,Rm){let b;try{b=JSON.parse(lsG('gt3gb')||'null')}catch(e){}i
 /* ocupado = a pessoa está escrevendo ou com uma janela aberta: não troca a tela debaixo dela */
 const gBusyUI=()=>{const a=document.activeElement;return!!(document.querySelector('.md,#onb,#lock')||document.body.classList.contains('tour')||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))};
 async function gSync(manual,bg){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
-  if(!gLive()){if(manual)return gAuth();return}
+  if(!gLive()){if(manual)return gConnect();return}
   gBusy=true;if(!bg)gUI('…');
   try{await gVerify();const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0,base=S.gd.base||0,lu=S.upd||0;
     if(f&&ru&&ru!==base&&ru!==lu){
@@ -1708,18 +1717,20 @@ async function gSync(manual,bg){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
       if(pick=='R'){await gApply(r,f,ru);toast(bg?'☁️ Atualizado com outro aparelho':'☁️ Dados atualizados com a cópia do Google.',bg?2500:5000);return}
       await gPush(f);toast('☁️ Dados deste aparelho enviados ao Google.');return}
     if(!f||lu!==ru){await gPush(f);if(manual)toast('☁️ Salvo no seu Google Drive.')}else{S.gd.at=Date.now();save(1);if(manual)toast('☁️ Tudo em dia com o Google.')}}
-  catch(e){if(!bg||!/login expirou|token/.test(e.message||''))toast('Sincronização: '+(e.message||e),7000)}finally{gBusy=false;if(!bg)gUI();if(S.gd&&S.gd.on&&!document.getElementById('gdb')&&typeof render=='function'&&!(bg&&gBusyUI()))render()}}
-/* tempo real: envia 1,5 s depois de qualquer mudança e confere o Google a cada 15 s (e ao voltar para o app) */
+  catch(e){if(e.conflict){setTimeout(()=>gSync(0,1),300)}else if(!bg||!/sessão|internet|fetch/i.test(e.message||''))toast('Sincronização: '+(e.message||e),7000)}finally{gBusy=false;if(!bg)gUI();if(S.gd&&S.gd.on&&!document.getElementById('gdb')&&typeof render=='function'&&!(bg&&gBusyUI()))render()}}
+/* tempo real: envia 1,5 s depois de qualquer mudança e confere o servidor a cada 5 s (e ao voltar para o app) */
 let gPollT=null;
-function gRT(){if(gPollT)return;gPollT=setInterval(()=>{if(!document.hidden&&navigator.onLine&&S&&S.gd&&S.gd.on&&gLive())gSync(0,1)},15000);
-  const wake=()=>{if(document.hidden||!S||!(S.gd&&S.gd.on))return;if(gLive())gSync(0,1);else if(!gBusyUI()&&typeof gSilent=='function')gSilent()};
+function gRT(){if(gPollT)return;gPollT=setInterval(()=>{if(!document.hidden&&navigator.onLine&&S&&S.gd&&S.gd.on&&gLive())gSync(0,1)},5000);
+  const wake=()=>{if(document.hidden||!S||!(S.gd&&S.gd.on))return;if(gLive())gSync(0,1)};
   document.addEventListener('visibilitychange',wake);addEventListener('focus',wake);addEventListener('online',wake)}
 function gConnect(){lsS('gt3go','1');gAuth()}
-async function gAfterBoot(){await gAB();if(typeof onbSync=='function')onbSync();if(GSIL&&typeof render=='function')render()}
+async function gAfterBoot(){await gAB();if(typeof onbSync=='function')onbSync();if(typeof render=='function'&&!document.getElementById('onb')&&!document.querySelector('.md'))render()}
 async function gAB(){gRT();
   if(GERR){toast(GERR=='access_denied'?'Login do Google cancelado.':'Não consegui confirmar o login do Google ('+GERR+'). Tente de novo.',7000);lsD('gt3go');return}
-  if(!GT)return;const pend=lsG('gt3go');lsD('gt3go');
-  try{await gVerify()}catch(e){return toast('Login do Google recusado: '+e.message,7000)}
+  let pend=lsG('gt3go');lsD('gt3go');
+  if(IDT){const t=IDT;IDT=null;try{const r=await fetch(SRV+'/auth',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({idt:t})});const j=await r.json().catch(()=>({}));if(!r.ok||!j.tk)throw new Error(j.erro||('servidor respondeu '+r.status));SS={tk:j.tk,em:j.em||'',nm:j.nm||''};lsS('gt3ss',JSON.stringify(SS));pend='1'}
+    catch(e){return toast('Login: '+e.message,7000)}}
+  if(!gLive())return;
   if(pend){gBusy=true;try{const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0;
       if(f){const r=await gOpenRemote(f);if(!r){gBusy=false;return}
         if(gW(S).w<=3){await gApply(r,f,ru);gBusy=false;return toast('☁️ Pronto! Todos os dados da sua conta foram transferidos para este aparelho.',7000)}
@@ -1728,13 +1739,13 @@ async function gAB(){gRT();
       S.gd=Object.assign({},S.gd,{on:1,base:0});save(1);gBusy=false;return gSync(true)}
     catch(e){gBusy=false;return toast('Google: '+(e.message||e),7000)}}
   if(S.gd&&S.gd.on)gSync()}
-async function gOff(){if(!confirm('Desconectar o Google? Os dados continuam neste aparelho.'))return;let del=false;
-  if(gLive()&&confirm('Apagar também a cópia guardada no seu Google Drive?')){try{const f=await gFind();if(f)await gApi('drive/v3/files/'+encodeURIComponent(f.id),{method:'DELETE'});del=true}catch(e){toast('Não consegui apagar no Google: '+e.message)}}
-  if(GT){fetch('https://oauth2.googleapis.com/revoke?token='+encodeURIComponent(GT.tk),{method:'POST'}).catch(()=>{});GT=null}
-  S.gd={on:0};save(1);render();toast(del?'Google desconectado e cópia apagada.':'Google desconectado.');cfg()}
+async function gOff(){if(!confirm('Sair da sua conta neste aparelho? Os dados continuam aqui.'))return;let del=false;
+  if(gLive()&&confirm('Apagar também os dados guardados na sua conta? Os outros aparelhos ficam só com o que já têm.')){try{await srv('/data/del');del=true}catch(e){toast('Não consegui apagar na conta: '+e.message)}}
+  try{if(gLive())await srv('/logout')}catch(e){}SS=null;lsD('gt3ss');lsD('gt3gb');
+  S.gd={on:0};save(1);render();toast(del?'Você saiu e os dados da conta foram apagados.':'Você saiu da conta neste aparelho.');cfg()}
 function gUI(s){const b=document.getElementById('gdb');if(b)b.classList.toggle('spin',!!s)}
-const gdSec=()=>{const on=S.gd&&S.gd.on;return on?`<div class="set"><span>☁️ Google Drive conectado<br><small class="mu">${S.gd.at?'Última sincronização: '+new Date(S.gd.at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'Ainda não sincronizado'}${gLive()?' · automática ligada':''}</small></span></div><div class="row"><button class="b sm" onclick="gSync(1)">Sincronizar agora</button><button class="b sm t" onclick="gOff()">Desconectar</button></div><p class="mu sm" style="margin-top:6px">${V.key?'Os dados vão criptografados para uma pasta oculta do app no seu Drive: o Google guarda, mas não consegue ler.':'Os dados vão para uma pasta oculta do app no seu Drive. Dica: crie uma senha do cofre para que eles vão criptografados.'} Enquanto o app está aberto e conectado, cada mudança é enviada sozinha.</p>`
-  :`<p class="mu sm">Guarde tudo na sua conta Google e use o mesmo RC Life no iPhone e no PC. Os dados ficam numa pasta oculta que só este app acessa${V.key?', criptografados com a senha do cofre':''}.</p><div class="row"><button class="b" onclick="gConnect()">${I('cloud')}Conectar Google</button></div>`};
+const gdSec=()=>{const on=S.gd&&S.gd.on;return on&&gLive()?`<div class="set"><span>☁️ Conta conectada${SS.em?': '+hx(SS.em):''}<br><small class="mu">${S.gd.at?'Última sincronização: '+new Date(S.gd.at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'Ainda não sincronizado'} · automática ligada</small></span></div><div class="row"><button class="b sm" onclick="gSync(1)">Sincronizar agora</button><button class="b sm t" onclick="gOff()">Sair da conta</button></div><p class="mu sm" style="margin-top:6px">Seus dados ficam guardados no servidor do RC Life, separados na sua conta, e aparecem em todos os aparelhos em que você entrar${V.key?' (criptografados com a senha do cofre)':''}. O Google só confirma quem é você. Cada mudança é enviada em segundos.</p>`
+  :`<p class="mu sm">Entre com sua conta Google uma vez e use o mesmo RC Life no celular e no computador, sempre atualizado. O Google só confirma quem é você; seus dados ficam guardados na sua conta do RC Life.</p><div class="row"><button class="b" onclick="gConnect()">${I('cloud')}Entrar com Google</button></div>`};
 
 /* ---------- avisos com criptografia de ponta a ponta (o servidor só vê texto embaralhado) ---------- */
 function idbK(){return new Promise((res,rej)=>{const r=indexedDB.open('hrc',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
