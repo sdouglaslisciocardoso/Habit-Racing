@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="livery"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://habit-rc-avisos.sdouglaslisciocardoso.workers.dev; worker-src 'self'; manifest-src 'self'; media-src 'self' blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'"><meta name="referrer" content="no-referrer"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>RC Life</title>
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="RC Life"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="theme-color" content="#07080b"><link rel="apple-touch-icon" href="icon.png"><link rel="icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest">
+<link rel="preload" href="bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+@font-face{font-family:"Bricolage Grotesque";src:url(bricolage-grotesque.woff2) format("woff2");font-weight:200 800;font-stretch:75% 100%;font-display:swap}
 /* RC Life · estilos
    Ordem: base e cabeçalho → abas e cartões → hábitos → semana e gráficos → avisos → temas → celular (barra flutuante)
    → botões e listas → painéis (sheets) → boas-vindas, ciclo, ajustes → Hoje (cartões, semana no topo, LOG do dia)
    As regras mais abaixo complementam as de cima: a ordem importa (a de baixo vence). */
-:root{--bg:#0b0b0e;--p:#141418;--p2:#1c1c21;--bd:#2a2a31;--tx:#f3f3f5;--mu:#8e8e99;--acc:#ffd400;--acc2:#ff2d3d;--onacc:#111;--ok:#1fe08a;--bad:#ff2d3d;--am:#ffc400;--red:var(--bad);--gr:var(--ok);--rad:18px;--ff:Bahnschrift,"DIN Alternate",-apple-system,"SF Pro Display","Segoe UI",system-ui,sans-serif;--fn:var(--ff);--bgx:radial-gradient(640px 360px at 88% -8%,#ff2d3d26,transparent),repeating-linear-gradient(45deg,#0d0d10 0 3px,#121216 3px 6px);--cut:none;--par:none}
+:root{--bg:#0b0b0e;--p:#141418;--p2:#1c1c21;--bd:#2a2a31;--tx:#f3f3f5;--mu:#8e8e99;--acc:#ffd400;--acc2:#ff2d3d;--onacc:#111;--ok:#1fe08a;--bad:#ff2d3d;--am:#ffc400;--red:var(--bad);--gr:var(--ok);--rad:18px;--ff:"Bricolage Grotesque",-apple-system,"Segoe UI",system-ui,sans-serif;--fn:var(--ff);--bgx:radial-gradient(640px 360px at 88% -8%,#ff2d3d26,transparent),repeating-linear-gradient(45deg,#0d0d10 0 3px,#121216 3px 6px);--cut:none;--par:none}
 *{box-sizing:border-box;margin:0}
 body{font:16px/1.45 var(--ff);color:var(--tx);min-height:100vh;background:var(--bgx),var(--bg);background-attachment:fixed;-webkit-font-smoothing:antialiased}
 button,input,textarea{font:inherit;color:inherit}
@@ -712,7 +714,7 @@ body.tour .toast{top:calc(12px + env(safe-area-inset-top));bottom:auto}
 .hp-g .pb{height:8px;border-radius:8px;background:color-mix(in srgb,var(--tx) 10%,transparent);overflow:hidden}
 .hp-g .pb i{display:block;height:100%;background:var(--hc);border-radius:8px}
 .hp-mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.hp-mh b{text-transform:capitalize}
+.hp-mh b::first-letter{text-transform:uppercase}
 .hp-mh .ib{font-size:22px;font-weight:800}
 .cdw,.cdg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;text-align:center}
 .cdw small{color:var(--mu);font-size:11px;font-weight:700}
@@ -925,6 +927,61 @@ body.tour .toast{top:calc(12px + env(safe-area-inset-top));bottom:auto}
 #tqr{margin-top:10px}
 /* senha do cofre e escolha de versão aparecem por cima das boas-vindas */
 .md.mdtop{z-index:150}
+
+/* ===== visual orgânico: letra própria (Bricolage Grotesque), velocidade na letra estreita em vez do itálico pesado,
+   rótulos em minúsculas, cartões sem a etiqueta vermelha repetida, mensagem do dia como nota do engenheiro ===== */
+body{font-variant-numeric:tabular-nums;font-optical-sizing:auto}
+.hlg{--mono:var(--ff)}
+/* a voz de corrida: títulos estreitos e firmes, como placa de box */
+.hjh-t b{font-size:30px;font-weight:720;font-stretch:76%;letter-spacing:-.005em;line-height:1.02}
+.hjh{margin-bottom:10px}
+.sht b{font-size:23px;font-weight:720;font-stretch:80%;letter-spacing:0}
+.sh b{font-weight:700;font-stretch:84%;letter-spacing:0;font-size:19px}
+.hb-i>b{font-weight:660;font-stretch:90%;font-size:18px}
+.hr,.tm,.tl b,.hero p,.big,.ov h1,.tmi b,.rn,.onc h2,.hb-h,.dy-t,.lg-rpm b,.hjsg button{font-style:normal}
+.hb-h{font:700 15.5px var(--fn);font-stretch:78%;color:var(--acc2)}
+.dy-t{font:700 18px var(--fn);font-stretch:78%}
+.tl b,.big,.tmi b,.rn,.onc h2,.ov h1{font-weight:740;font-stretch:78%}
+.hjsg button{font-weight:700;font-stretch:84%;font-size:18px}
+.hjsg button small{font-weight:500}
+.wd b,.hjwr b{font-weight:700;font-stretch:84%}
+.hjh-r b{font-weight:760;font-stretch:80%;font-size:15px}
+/* mensagem do dia: uma nota, não uma manchete */
+.hjmc p{font-style:normal;font-weight:480;font-size:15.5px;line-height:1.45}
+.hjmc{border-left-width:3px;padding:2px 2px 2px 14px;margin:6px 0}
+/* rótulos sem caixa alta espaçada */
+.sheet h4,.rtag,.rft,.hb-g,.wd small,.pk-l,.hjw small,.hjmc small,.ver{text-transform:none;letter-spacing:0}
+.sheet h4{font-size:14.5px;font-weight:640;color:var(--mu);margin:24px 0 10px}
+.hb-g{display:flex;align-items:center;gap:12px;font-size:14.5px;font-weight:640;color:var(--mu);margin:14px 2px 2px}
+.hb-g::after{content:"";flex:1;height:1px;background:var(--bd)}
+.wd small,.hjw small{font-size:12px;font-weight:560}
+.pk-l{font-size:13.5px;font-weight:640}
+.rft{font-size:13px}
+.rtag{font-size:12.5px;font-weight:700}
+/* LOG do dia na letra do app, sem fonte de máquina */
+.lg-tg,.lg-t small,.lg-h,.lg-lg,.lg-top small,.lg-rpm span,.lg-dl span,.lg-ch small{letter-spacing:0}
+.lg-top small,.lg-rpm span,.lg-dl span{font:560 12px var(--fn);color:var(--mu)}
+.lg-h{font:640 13.5px var(--fn);color:var(--mu);margin-top:6px}
+.lg-lg{font-weight:560;font-size:12.5px}
+.lg-rpm b{font:760 38px/1 var(--fn);font-stretch:76%}
+.lg-gear b{font:760 42px/1 var(--fn);font-stretch:76%}
+.lg-dl b{font:760 30px/1.05 var(--fn);font-stretch:76%}
+.lg-ax{font:560 9px var(--fn)}
+.lg-ch{grid-template-columns:repeat(3,1fr);gap:6px}
+.lg-ch>div{padding:8px 10px;text-align:left;border-radius:12px}
+.lg-ch small{font:560 12px var(--fn);color:var(--mu)}
+.lg-ch b{font:700 16px var(--fn);font-stretch:86%}
+.lg-ev{font:500 14px var(--fn)}
+.lg-ev time{font-weight:640;width:44px}
+.lg-ev span{font-weight:560}
+/* a etiqueta vermelha repetida em todo cartão não dizia nada: sai (a alça das janelas fica) */
+.c::before{display:none}
+/* blocos de números sem a faixa colorida no topo; o número fala por si */
+.tl{border-top-width:1px;border-top-color:var(--bd)}
+.tl b{font-size:22px}
+/* barra de baixo e logo com mais folga em telas estreitas */
+nav button{font-stretch:86%;font-weight:640}
+@media (max-width:380px){.lg .wm{height:17px}}
 </style></head><body>
 <header><div class="lgw"><img class="lgi" src="ic-rc.png" alt=""><div class="lg"><svg class="wm" viewBox="3 -710 3655 730" aria-label="RC Life" role="img"><path fill="currentColor" d="M387 -700Q483 -700 547.0 -680.0Q611 -660 639.0 -612.5Q667 -565 656 -482Q651 -443 635.5 -409.5Q620 -376 588.0 -354.0Q556 -332 500 -326L499 -319Q516 -317 535.5 -306.5Q555 -296 570.5 -273.0Q586 -250 590 -208L616 0H392L374 -209Q373 -238 365.0 -245.0Q357 -252 334 -252Q257 -253 209.0 -253.0Q161 -253 128.5 -254.0Q96 -255 65 -257L81 -405H355Q385 -405 401.5 -411.0Q418 -417 426.5 -434.5Q435 -452 440 -484Q444 -508 440.0 -522.0Q436 -536 423.0 -541.5Q410 -547 385 -547Q278 -547 206.5 -545.5Q135 -544 110 -541L108 -690Q153 -695 192.5 -697.0Q232 -699 278.0 -699.5Q324 -700 387 -700ZM320 -690 223 0H11L108 -690ZM1070 -702Q1122 -702 1160.5 -699.0Q1199 -696 1231.5 -690.0Q1264 -684 1297 -674L1272 -517Q1236 -518 1204.5 -518.0Q1173 -518 1139.0 -518.5Q1105 -519 1059 -519Q1032 -519 1014.0 -513.0Q996 -507 983.5 -489.0Q971 -471 962.5 -434.5Q954 -398 946 -337Q937 -269 936.5 -233.0Q936 -197 951.0 -184.0Q966 -171 1003 -171Q1078 -171 1127.0 -173.0Q1176 -175 1224 -179L1232 -20Q1177 -3 1123.0 4.5Q1069 12 993 12Q878 12 811.5 -22.5Q745 -57 723.0 -137.0Q701 -217 720 -353Q735 -457 759.5 -525.0Q784 -593 823.5 -631.5Q863 -670 923.5 -686.0Q984 -702 1070 -702ZM1895 -690 1824 -212Q1822 -190 1829.5 -181.0Q1837 -172 1860 -172H2088L2084 -9Q2015 0 1927.0 2.0Q1839 4 1753 4Q1703 4 1667.0 -17.0Q1631 -38 1613.5 -74.5Q1596 -111 1603 -157L1677 -690ZM2459 -690 2362 0H2146L2243 -690ZM2727 -694Q2816 -694 2908.0 -692.0Q3000 -690 3069 -679L3045 -528H2815Q2788 -528 2776.0 -519.5Q2764 -511 2761 -488L2693 0H2475L2551 -541Q2561 -612 2609.0 -653.0Q2657 -694 2727 -694ZM2551 -411H2991L2973 -267H2530ZM3302 -694Q3363 -694 3425.5 -693.0Q3488 -692 3546.0 -689.5Q3604 -687 3650 -680L3626 -528H3386Q3361 -528 3349.5 -519.5Q3338 -511 3335 -488L3295 -201Q3292 -182 3301.0 -172.0Q3310 -162 3332 -162H3572L3568 -8Q3520 -1 3462.0 1.0Q3404 3 3344.0 3.5Q3284 4 3230 4Q3145 4 3105.0 -49.0Q3065 -102 3075 -184L3125 -541Q3135 -611 3180.5 -652.5Q3226 -694 3302 -694ZM3128 -425H3575L3557 -281H3105Z"/><path class="wmd" d="M1437 -425L1597 -425L1565 -265L1405 -265Z"/></svg></div></div><div class="hbt" id="hbt"></div></header>
 <div id="hero"></div><nav id="nav"></nav><main id="m"></main><div id="tmr" style="display:none"></div><button id="fab" class="fab" onclick="tab=='sem'?addDay(selD||ymd(new Date())):tab=='neg'?negAdd():tab=='hoje'&&hjS=='t'&&!(hjD&&hjD!=ymd(new Date()))?newT():newH()" aria-label="Adicionar"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -1021,14 +1078,14 @@ const PIPCSS=`html,body{margin:0;min-height:100%}body.pipb{background:var(--bg);
 async function pipOpen(){if(PIP){PIP.close();return}if(!('documentPictureInPicture' in window))return toast('O mini painel funciona no Chrome ou no Edge do computador.');
   try{const w=await documentPictureInPicture.requestWindow({width:340,height:520});PIP=w;const d=w.document;
     [...document.styleSheets].forEach(ss=>{try{const st=d.createElement('style');st.textContent=[...ss.cssRules].map(r=>r.cssText).join('\n');d.head.appendChild(st)}catch(e){}});
-    const st=d.createElement('style');st.textContent=PIPCSS;d.head.appendChild(st);d.title='RC Life · Hoje';
+    const ff=d.createElement('style');ff.textContent=`@font-face{font-family:"Bricolage Grotesque";src:url(${new URL('bricolage-grotesque.woff2',location.href)}) format("woff2");font-weight:200 800;font-stretch:75% 100%}`;d.head.appendChild(ff);const st=d.createElement('style');st.textContent=PIPCSS;d.head.appendChild(st);d.title='RC Life · Hoje';
     Object.assign(d.documentElement.dataset,document.documentElement.dataset);d.documentElement.style.cssText=document.documentElement.style.cssText;d.body.className='pipb';
     d.body.addEventListener('click',pipClick);d.body.addEventListener('keydown',pipKey);w.addEventListener('pagehide',()=>{PIP=null;render()});pipDraw();render()}
   catch(e){toast('Não consegui abrir o mini painel: '+e.message)}}
 function pipDraw(){if(!PIP)return;try{const d=PIP.document,n=new Date(),k=ymd(n),now=hm(n),l=sched(n),s=stats(n),pc=s.t?Math.round(s.d/s.t*100):0,op=l.filter(h=>!isDone(n,h.id)),dn=l.length-op.length,nx=op.find(h=>h.t>=now)||op[0],
    TA=S.n.filter(m=>m.k=='t'&&!m.d&&(m.tp==k||(m.due&&m.due<=k))),inp=d.getElementById('pnt'),keep=inp?{v:inp.value,f:d.activeElement==inp}:null;
   Object.assign(d.documentElement.dataset,document.documentElement.dataset);
-  const row=h=>{const c=(S.c[k]||{})[h.id]||0,run=S.tm&&S.tm.id==h.id,isNx=nx&&nx.id==h.id;return`<div class="pr" style="--hc:${hCo(h)}"><span class="pi">${esc(hIc(h))}</span><div class="pn"><b>${esc(h.n)}</b><small>${esc(h.t)}${h.q?' · '+c+'/'+h.q:''}${h.tm?' · '+h.tm+' min':''}${isNx?' · próxima':h.t<now?' · atrasada':''}</small></div><button class="pb2" data-h="${h.id}" aria-label="${h.q?'Mais uma':h.tm?(run?'Pausar timer':'Iniciar timer'):'Concluir'}: ${esc(h.n)}">${h.q?'+1':h.tm?(run&&!S.tm.p?'<span data-tl>'+tfmt()+'</span>':I('play')):I('check')}</button></div>`};
+  const row=h=>{const c=(S.c[k]||{})[h.id]||0,run=S.tm&&S.tm.id==h.id,isNx=nx&&nx.id==h.id;return`<div class="pr" style="--hc:${hCo(h)}"><span class="pi">${esc(hIc(h))}</span><div class="pn"><b>${esc(h.n)}</b><small>${esc(h.t)}${h.q?', '+c+' de '+h.q:''}${h.tm?', '+h.tm+' min':''}${isNx?', a próxima':h.t<now?', atrasada':''}</small></div><button class="pb2" data-h="${h.id}" aria-label="${h.q?'Mais uma':h.tm?(run?'Pausar timer':'Iniciar timer'):'Concluir'}: ${esc(h.n)}">${h.q?'+1':h.tm?(run&&!S.tm.p?'<span data-tl>'+tfmt()+'</span>':I('play')):I('check')}</button></div>`};
   d.body.innerHTML=`<div class="pw"><div class="ph"><div><b>Hoje</b><small>${s.t?(op.length?'faltam '+op.length+' de '+s.t+' hábitos':'tudo feito, bandeira quadriculada 🏁'):'nenhum hábito hoje'}</small></div><div class="pring" style="--p:${pc}"><b>${pc}%</b></div></div>
 <div class="pl">${op.map(row).join('')||(s.t?'<p class="pe">🏆 Todos os hábitos de hoje concluídos.</p>':'')}</div>${dn?`<p class="pd">✓ ${dn} ${dn==1?'hábito feito':'hábitos feitos'}</p>`:''}
 <div class="psh">Tarefas de hoje</div><div class="pl">${TA.map(m=>`<label class="pt"><input type="checkbox" data-t="${m.id}"><span>${esc(m.x)}</span></label>`).join('')||'<p class="pe">Nenhuma tarefa pendente.</p>'}</div>
@@ -1101,7 +1158,7 @@ function vSem(){const now=new Date(),td=ymd(now),mon=new Date(now);mon.setDate(n
  const grid=`<div class="wg"><div class="wg-r wg-h"><span></span>${ds.map(d=>`<span class="${ymd(d)==td?'td':''} ${ymd(d)==selD?'sel':''}">${DN[dow(d)][0]}</span>`).join('')}</div>${S.h.filter(h=>!h.dt||ds.some(d=>on(h,d))).sort((a,b)=>a.t.localeCompare(b.t)).map(h=>`<div class="wg-r"><span class="wg-n">${h.dt?'⚡ ':''}${esc(h.n)}<small>${h.t}</small></span>${ds.map(d=>{const k=ymd(d),sc=on(h,d),dn=isDone(d,h.id);return adj?`<button class="wg-c ${sc?'sc':''}" onclick="slot(${h.id},'${k}')" aria-label="${sc?'Tirar':'Incluir'} neste dia">${sc?'●':'+'}</button>`:`<span class="wg-c ${sc?(dn?'ok':k<td?'miss':'sc'):''} ${k==selD?'sel':''}">${sc?(dn?'✓':''):''}</span>`}).join('')}</div>`).join('')||'<p class="mu sm">Nenhum hábito ainda.</p>'}</div>`;
  return`<div class="wk-h"><button class="ib" onclick="wkO--;selD=null;render()" aria-label="Semana anterior">${I('chev')}</button><div><b>${wkO==0?'Esta semana':wkO==1?'Próxima semana':wkO==-1?'Semana passada':wkO>0?'Daqui a '+wkO+' semanas':'Há '+(-wkO)+' semanas'}</b><small class="mu">${rng}</small></div><button class="ib" onclick="wkO++;selD=null;render()" aria-label="Próxima semana">${I('chev')}</button></div>
 <div class="wds">${strip}</div>
-<div class="c dyc"><div class="dy-h"><div><b>${DL[dow(sd)]}, ${sd.getDate()} de ${MES[sd.getMonth()]}</b><small class="mu">${selD==td?'Hoje':selD==addD(td,1)?'Amanhã':past?'Já passou':''}${l.length?(selD==td||selD==addD(td,1)||past?' · ':'')+(fut?l.length+(l.length==1?' compromisso':' compromissos'):st.d+' de '+st.t+' feitos'):''}</small></div></div>
+<div class="c dyc"><div class="dy-h"><div><b>${DL[dow(sd)]}, ${sd.getDate()} de ${MES[sd.getMonth()]}</b><small class="mu">${selD==td?'Hoje':selD==addD(td,1)?'Amanhã':past?'Já passou':''}${l.length?(selD==td||selD==addD(td,1)||past?', ':'')+(fut?l.length+(l.length==1?' compromisso':' compromissos'):st.d+' de '+st.t+' feitos'):''}</small></div></div>
 ${negDay(selD)}${l.length?l.map(item).join(''):S.rn&&negOn()&&S.rn.some(r=>r.d==selD)?'':`<p class="mu sm" style="margin:6px 0 2px">${past?'Nada marcado neste dia.':'Dia livre. Que tal adicionar algo?'}</p>`}
 ${past?'':`<button class="b wide dy-add" onclick="addDay('${selD}')">${I('plus')}Adicionar em ${DL[dow(sd)].toLowerCase()}, ${sd.getDate()}/${p2(sd.getMonth()+1)}</button>`}</div>
 <details class="c smx" ${smO.v||adj?'open':''} ontoggle="smO.v=this.open"><summary><b>🗓️ Visão da semana</b>${I('chev')}</summary><div class="wv-h"><button class="b sm ${adj?'gr':'ghost'}" onclick="adj=!adj;render()">${adj?I('check')+'Pronto':I('edit')+'Ajustar semana'}</button><button class="ib sm" onclick="expCal()" aria-label="Exportar para o calendário">${I('cal')}</button></div>${adj?'<p class="mu sm" style="margin:0 0 8px">Toque nos dias para incluir ou tirar um hábito só nesta semana. <button class="lnk" style="display:inline;padding:0" onclick="clearWeek()">Voltar à rotina padrão</button></p>':'<p class="mu sm" style="margin:0 0 8px"><span class="wlg ok"></span>feito <span class="wlg sc"></span>marcado <span class="wlg miss"></span>não feito</p>'}${grid}</details>
@@ -1159,14 +1216,14 @@ const topN=()=>{const td=ymd(new Date());return S.n.filter(m=>m.k=='t'&&m.tp==td
 function rollTasks(){const td=ymd(new Date());let c=0;S.n.forEach(m=>{if(m.k!='t'||m.d)return;if(m.due&&m.due<td){m.due=td;m.ro=(m.ro||0)+1;c++}if(m.tp&&m.tp<td){m.tp=td;c++}});if(c)save();return c}
 function togTop(id){const m=S.n.find(x=>x.id==id),td=ymd(new Date());if(m.tp==td)delete m.tp;else{if(topN()>=3)return toast('O Top 3 de hoje já está completo. Tire uma estrela antes.');m.tp=td;if(!m.due||m.due>td)m.due=td}save();render()}
 function togN(id){const m=S.n.find(x=>x.id==id);m.d=m.d?0:1;if(m.d){m.dd=ymd(new Date());beep([660,880])}else delete m.dd;save();render()}
-const noteH=m=>{const td=ymd(new Date()),t=m.k=='t',late=t&&!m.d&&m.due&&m.due<=td;return`<div class="nt ${m.d?'d':''}">${t?`<button class="ck sm ${m.d?'on':''}" onclick="togN(${m.id})" aria-label="${m.d?'Desmarcar':'Concluir'} tarefa">${m.d?I('check'):''}</button>`:`<span class="ni">${NK[m.k]}</span>`}<div class="hi"><span>${esc(m.x).replace(/\n/g,'<br>')}</span><small>${t?(m.due?`<span class="${late?'hr':''}">${m.due==td?'Hoje':m.due==addD(td,1)?'Amanhã':esc(dfmt(m.due))}${m.hr?' · '+esc(m.hr):''}</span>`:'Sem data'):hm(new Date(m.ts))}${t&&m.tp==td?' · Top 3':''}${t&&m.ro&&!m.d?' · adiada '+m.ro+'x':''}</small></div>${t&&!m.d?`<button class="ib g st ${m.tp==td?'sel':''}" onclick="togTop(${m.id})" aria-label="${m.tp==td?'Tirar do':'Pôr no'} Top 3">${I('star')}</button>`:''}<button class="ib g" onclick="editN(${m.id})" aria-label="Editar">${I('edit')}</button></div>`};
+const noteH=m=>{const td=ymd(new Date()),t=m.k=='t',late=t&&!m.d&&m.due&&m.due<=td;return`<div class="nt ${m.d?'d':''}">${t?`<button class="ck sm ${m.d?'on':''}" onclick="togN(${m.id})" aria-label="${m.d?'Desmarcar':'Concluir'} tarefa">${m.d?I('check'):''}</button>`:`<span class="ni">${NK[m.k]}</span>`}<div class="hi"><span>${esc(m.x).replace(/\n/g,'<br>')}</span><small>${t?(m.due?`<span class="${late?'hr':''}">${m.due==td?'Hoje':m.due==addD(td,1)?'Amanhã':esc(dfmt(m.due))}${m.hr?' às '+esc(m.hr):''}</span>`:'Sem data'):hm(new Date(m.ts))}${t&&m.tp==td?', no Top 3':''}${t&&m.ro&&!m.d?', adiada '+m.ro+'x':''}</small></div>${t&&!m.d?`<button class="ib g st ${m.tp==td?'sel':''}" onclick="togTop(${m.id})" aria-label="${m.tp==td?'Tirar do':'Pôr no'} Top 3">${I('star')}</button>`:''}<button class="ib g" onclick="editN(${m.id})" aria-label="Editar">${I('edit')}</button></div>`};
 function addN(k,p){const x=$('#'+p+'ni').value.trim();if(!x)return toast('Escreva algo primeiro.');const m={id:Date.now(),ts:Date.now(),k,x,d:0},dd=$('#'+p+'nd'),nh=$('#'+p+'nh');if(k=='t'&&nh&&nh.value&&!(dd&&dd.value))m.due=ymd(new Date());if(k=='t'&&dd&&dd.value)m.due=dd.value;if(k=='t'&&m.due&&nh&&nh.value)m.hr=nh.value;S.n.unshift(m);dr[p]='';save();render();toast(k=='t'?(m.due?'Tarefa para '+dfmt(m.due)+(m.hr?' às '+m.hr+'. Você será avisado.':''):'Tarefa sem data salva'):'Anotação salva');const e=$('#'+p+'ni');if(e)e.focus()}
 function editN(id){const m=S.n.find(x=>x.id==id),td=ymd(new Date());sheet(`${shT('Editar anotação')}<textarea id="enx" rows="3" style="width:100%">${esc(m.x)}</textarea><div class="chs">${[['i','💡 Ideia'],['n','📝 Nota'],['t','☑️ Tarefa']].map(([k,l])=>`<label class="ch"><input type="radio" name="ekt" value="${k}" ${m.k==k?'checked':''} onchange="$('#etd').style.display=this.value=='t'?'block':'none'"><span>${l}</span></label>`).join('')}</div><div id="etd" style="display:${m.k=='t'?'block':'none'}"><div class="set"><span>Prazo</span><input type="date" id="edue" value="${esc(m.due||'')}" style="max-width:150px;flex:none"></div><div class="set"><span>Horário do aviso</span><input type="time" id="ehr" value="${m.hr||''}" style="max-width:120px;flex:none"></div><label class="set tg"><input type="checkbox" id="etop" ${m.tp==td?'checked':''}><i></i>Top 3 de hoje</label></div><button class="b wide" id="ens">Salvar</button><button class="lnk dng" id="end">${I('trash')}Apagar</button>`);
 $('#ens').onclick=()=>{const x=$('#enx').value.trim();if(!x)return toast('Escreva algo.');const k=document.querySelector('input[name=ekt]:checked').value;if(k=='t'){const w=$('#etop').checked;if(w&&m.tp!=td&&topN()>=3)return toast('O Top 3 de hoje já está completo.');const d=$('#edue').value,hr=$('#ehr').value;if(d)m.due=d;else delete m.due;if(hr&&!m.due)m.due=td;if(hr)m.hr=hr;else delete m.hr;if(w&&m.tp!=td){m.tp=td;if(!m.due||m.due>td)m.due=td}if(!w&&m.tp==td)delete m.tp}else{delete m.due;delete m.tp;delete m.ro;delete m.hr}m.x=x;m.k=k;save();closeMd();render()};$('#end').onclick=()=>{closeMd();delN(id)}}
 const DNO={h:0,t:0,d:0};
 /* concluídos ficam separados: na aba Hábitos só hábitos, na aba Tarefas só tarefas */
 function doneBox(dh,row,only){const td=ymd(new Date());let dt=S.n.filter(m=>m.k=='t'&&m.d&&m.dd==td);if(only=='h')dt=[];if(only=='t')dh=[];if(!dh.length&&!dt.length)return'';const n=dh.length+dt.length;
- return`<details class="c dnall" ${DNO.a?'open':''} ontoggle="DNO.a=this.open"><summary><span class="dni">${I('check')}</span><span class="dnt"><b>${only=='h'?'Hábitos concluídos':only=='t'?'Tarefas concluídas':'Concluídas hoje'}</b><small class="mu">${[dh.length?dh.length+(dh.length==1?' hábito':' hábitos'):'',dt.length?dt.length+(dt.length==1?' tarefa':' tarefas'):''].filter(Boolean).join(' · ')}</small></span><span class="dnc">${n}</span>${I('chev')}</summary>${dh.length?`<div class="hb-g">Hábitos</div><div class="hbl">${dh.map(row).join('')}</div>`:''}${dt.length?`<div class="hb-g">Tarefas</div><div class="tk">${dt.map(noteH).join('')}</div>`:''}</details>`}
+ return`<details class="c dnall" ${DNO.a?'open':''} ontoggle="DNO.a=this.open"><summary><span class="dni">${I('check')}</span><span class="dnt"><b>${only=='h'?'Hábitos concluídos':only=='t'?'Tarefas concluídas':'Concluídas hoje'}</b><small class="mu">${[dh.length?dh.length+(dh.length==1?' hábito':' hábitos'):'',dt.length?dt.length+(dt.length==1?' tarefa':' tarefas'):''].filter(Boolean).join(' e ')}</small></span><span class="dnc">${n}</span>${I('chev')}</summary>${dh.length?`<div class="hb-g">Hábitos</div><div class="hbl">${dh.map(row).join('')}</div>`:''}${dt.length?`<div class="hb-g">Tarefas</div><div class="tk">${dt.map(noteH).join('')}</div>`:''}</details>`}
 function vTasks(){const td=ymd(new Date()),A=S.n.filter(m=>m.k=='t'&&(m.tp==td||(m.due&&m.due<=td&&(!m.d||m.dd==td)))).sort((a,b)=>(a.d-b.d)||((b.tp==td)-(a.tp==td))),T=A.filter(m=>!m.d),D=A.filter(m=>m.d);
 return T.length?`<div class="c tk">${T.map(noteH).join('')}</div>`:`<div class="emp tkemp">${D.length?'<b>✅ Tarefas de hoje concluídas</b>':'<b>Nenhuma tarefa para hoje</b>'}<span class="mu sm">Toque em + para criar uma tarefa.</span></div>`}
 /* nova tarefa pelo botão + (aba Tarefas da Hoje) */
@@ -1815,7 +1872,7 @@ const hjMsgC=()=>`<div class="hjmc"><span class="hjmc-i" title="Rádio da equipe
 function tachIc(pc){const c=20,r=15,pt=a=>[(c+r*Math.cos(a*Math.PI/180)).toFixed(1),(c+r*Math.sin(a*Math.PI/180)).toFixed(1)],arc=(a0,a1)=>{const[x0,y0]=pt(a0),[x1,y1]=pt(a1);return`M${x0} ${y0}A${r} ${r} 0 ${a1-a0>180?1:0} 1 ${x1} ${y1}`},na=135+270*Math.max(0,Math.min(1,pc)),[nx,ny]=[(c+11*Math.cos(na*Math.PI/180)).toFixed(1),(c+11*Math.sin(na*Math.PI/180)).toFixed(1)];
  return`<svg viewBox="0 0 40 40" width="40" height="40"><path d="${arc(135,345)}" class="tc-a"/><path d="${arc(352,405)}" class="tc-r"/>${[135,202.5,270,337.5].map(a=>{const[x0,y0]=pt(a),q=[(c+11.5*Math.cos(a*Math.PI/180)).toFixed(1),(c+11.5*Math.sin(a*Math.PI/180)).toFixed(1)];return`<line x1="${x0}" y1="${y0}" x2="${q[0]}" y2="${q[1]}" class="tc-t"/>`}).join('')}<line x1="${c}" y1="${c}" x2="${nx}" y2="${ny}" class="tc-n"/><circle cx="${c}" cy="${c}" r="2.6" class="tc-c"/></svg>`}
 function hjBox(){const n=new Date(),k=ymd(n),now=hm(n),l=sched(n),s=stats(n),pc=s.t?s.d/s.t:0,pos=s.t?Math.max(1,20-Math.round(pc*19)):20,sk=streak(),xt=(S.xt||{})[k]||{};
- const rpm=(0.8+pc*7.2).toFixed(1),gear=s.d?Math.min(8,s.d):'N',LED=10,lit=Math.round(pc*LED),leds=Array.from({length:LED},(_,i)=>`<i class="${i<lit?(i<5?'g':i<8?'y':'r'):''}"></i>`).join('');
+ const rpm=(0.8+pc*7.2).toFixed(1).replace('.',','),gear=s.d?Math.min(8,s.d):'N',LED=10,lit=Math.round(pc*LED),leds=Array.from({length:LED},(_,i)=>`<i class="${i<lit?(i<5?'g':i<8?'y':'r'):''}"></i>`).join('');
  const mm=t=>{const[a,b]=String(t).split(':').map(Number);return a*60+(b||0)},X=t=>10+Math.max(0,Math.min(1,(mm(t)-300)/1140))*300,Y=p=>104-p*92;
  /* plano: % que deveria estar feito em cada horário; real: % feito pela hora em que foi marcado */
  const tot=l.length||1,plan=l.map(h=>h.t),real=l.filter(h=>isDone(n,h.id)).map(h=>xt[h.id]||h.t).sort();
@@ -1826,14 +1883,14 @@ function hjBox(){const n=new Date(),k=ymd(n),now=hm(n),l=sched(n),s=stats(n),pc=
 ${['06:00','12:00','18:00','23:59'].map(t=>`<text x="${X(t)}" y="120" class="lg-ax">${t.slice(0,2)=='23'?'24h':t.slice(0,2)+'h'}</text>`).join('')}
 <path d="${step(plan)}" class="lg-pl"/><path d="${realPath}" class="lg-rl"/>${dots}<line x1="${X(now)}" x2="${X(now)}" y1="8" y2="106" class="lg-now"/></svg>`;
  const md=S.md[k],sl=S.sl[k],foco=l.filter(h=>h.tm&&isDone(n,h.id)).reduce((a,h)=>a+h.tm,0),TA=S.n.filter(m=>m.k=='t'&&(m.tp==k||(m.due&&m.due<=k&&(!m.d||m.dd==k)))),tD=TA.filter(m=>m.d);
- const ch=[['HAB',s.d+'/'+s.t],['TAR',tD.length+'/'+TA.length],['SEQ','🔥'+sk],['MOTOR',md?MD[md-1]:'—'],['SONO',sl?hfmt(slH(sl.a,sl.b)):'—'],['FOCO',foco?foco+'min':'—']].map(([a,b])=>`<div><small>${a}</small><b>${b}</b></div>`).join('');
+ const ch=[['Hábitos',s.d+' de '+s.t],['Tarefas',tD.length+' de '+TA.length],['Sequência',sk+(sk==1?' dia':' dias')],['Motor',md?MD[md-1]:'—'],['Sono',sl?hfmt(slH(sl.a,sl.b)):'—'],['Foco',foco?foco+' min':'—']].map(([a,b])=>`<div><small>${a}</small><b>${b}</b></div>`).join('');
  const ev=l.map(h=>{const d=isDone(n,h.id);return{t:d?(xt[h.id]||h.t):h.t,c:d?'ok':h.t<now?'lt':'pl',i:d?'✓':h.t<now?'!':'○',n:h.n,x:d?(xt[h.id]?'':'hora prevista'):h.t<now?'atrasada':''}}).concat(tD.map(m=>({t:'--:--',c:'ok',i:'✓',n:m.x,x:'tarefa'}))).sort((a,b)=>(a.t=='--:--'?'99':a.t).localeCompare(b.t=='--:--'?'99':b.t));
  const evH=ev.slice(0,9).map(e=>`<li class="${e.c}"><time>${esc(e.t)}</time><i>${e.i}</i><span>${esc(e.n)}</span>${e.x?`<small>${e.x}</small>`:''}</li>`).join('')+(ev.length>9?`<li class="pl"><time></time><i>+</i><span>mais ${ev.length-9}</span></li>`:'');
  return`<details class="c hjbx hlg" ${hjG?'open':''} ontoggle="hjG=this.open"><summary><span class="lg-tg" aria-hidden="true">${tachIc(pc)}</span><span class="lg-t"><b>LOG do dia</b></span>${I('chev')}</summary>
-<div class="lg-b"><div class="lg-top"><div class="lg-rpm"><b>${rpm}<small>k</small></b><span>RPM × 1000</span><div class="lg-sl lg-sl2">${leds}</div></div><div class="lg-gear"><small>MARCHA</small><b>${gear}</b></div><div class="lg-dl ${dlt>=0?'up':'dn'}"><small>VS. PLANO</small><b>${dlt>0?'+'+dlt:dlt}</b><span>${dlt>0?'à frente':dlt<0?'atrás':'no ritmo'}</span></div></div>
-<div class="lg-h"><span>MAPA DO MOTOR</span><span class="lg-lg"><i class="r"></i>real <i class="p"></i>plano</span></div>${map}
+<div class="lg-b"><div class="lg-top"><div class="lg-rpm"><b>${rpm}<small>k</small></b><span>mil rpm</span><div class="lg-sl lg-sl2">${leds}</div></div><div class="lg-gear"><small>Marcha</small><b>${gear}</b></div><div class="lg-dl ${dlt>=0?'up':'dn'}"><small>Ritmo</small><b>${dlt>0?'+'+dlt:dlt}</b><span>${dlt>0?'à frente':dlt<0?'atrás':'no ritmo'}</span></div></div>
+<div class="lg-h"><span>Mapa do motor</span><span class="lg-lg"><i class="r"></i>real <i class="p"></i>plano</span></div>${map}
 <div class="lg-ch">${ch}</div>
-<div class="lg-h"><span>REGISTRO</span><span>${ev.filter(e=>e.c=='ok').length} ✓</span></div><ol class="lg-ev">${evH||'<li class="pl"><span>Nada programado hoje.</span></li>'}</ol></div></details>`}
+<div class="lg-h"><span>Registro</span><span>${ev.filter(e=>e.c=='ok').length} feitos</span></div><ol class="lg-ev">${evH||'<li class="pl"><span>Nada programado hoje.</span></li>'}</ol></div></details>`}
 function hjMsg(){return`${pfBn()}${bdBn()}${negBn()}${perm()}${alertsBn()}${cyBn()}`}
 /* ===== Hoje no estilo Rabit: semana no topo, cartões coloridos, deslizar para concluir, garagem que evolui ===== */
 const PAL=['#ff5a5f','#ff9f1c','#2ec4b6','#3a86ff','#8338ec','#ff4fa3','#22c55e','#eab308'];
@@ -1864,8 +1921,8 @@ function hjCard(h,n,k,today,nx){const now=hm(n),d=isDone(n,h.id),fu=k>ymd(new Da
  const mins=t=>{const[a,b]=t.split(':').map(Number);return a*60+b},inT=t=>{const m=mins(t)-mins(now);return m<60?m+' min':Math.floor(m/60)+'h'+(m%60?String(m%60).padStart(2,'0'):'')};
  const act=fu?'':!today?`tog(${h.id},'${k}')`:h.q&&!d?`inc(${h.id})`:h.tm&&!d?(run?'pauseT()':`startT(${h.id})`):`tog(${h.id})`;
  const btn=today&&h.q&&!d?`<span class="hb-q"><b>+1</b><small>${c}/${h.q}</small></span>`:today&&h.tm&&!d?(run?`<span class="hb-t" data-tl>${tfmt()}</span>`:I('play')):d?I('check'):'';
- const chip=d?(mn?`<span class="hb-c ok">🛟 Versão mínima</span>`:''):run?`<span class="hb-c nx">${S.tm.p?'Pausado':'Rodando'}</span>`:isNx?`<span class="hb-c nx">${h.t>=now?'Próxima · em '+inT(h.t):'Agora'}</span>`:late?`<span class="hb-c lt">Atrasada</span>`:'';
- const st=hStk(h),meta=[`<span class="hb-h">${esc(h.t)}</span>`,h.tm?h.tm+' min':'',h.dt?'Volta rápida'+(today?' · some em '+left(h):''):'',st?`<span class="hb-s" title="Sequência">🔥 ${st}</span>`:''].filter(Boolean).join(' · ');
+ const chip=d?(mn?`<span class="hb-c ok">🛟 Versão mínima</span>`:''):run?`<span class="hb-c nx">${S.tm.p?'Pausado':'Rodando'}</span>`:isNx?`<span class="hb-c nx">${h.t>=now?'Daqui a '+inT(h.t):'Agora'}</span>`:late?`<span class="hb-c lt">Atrasada</span>`:'';
+ const st=hStk(h),meta=[`<span class="hb-h">${esc(h.t)}</span>`,h.tm?h.tm+' min':'',h.dt?'Volta rápida'+(today?', some em '+left(h):''):'',st?`<span class="hb-s" title="Sequência">🔥 ${st}</span>`:''].filter(Boolean).map(x=>x[0]=='<'?x:`<span>${x}</span>`).join('');
  return`<div class="hbw"><div class="hbsw">${I('check')}<span>${d?'Desfazer':today&&h.q?'+1':'Feito'}</span></div><div class="hb ${d?'d':''} ${isNx?'nx':''} ${late?'lt':''} ${run?'run':''}" data-h="${h.id}" style="--hc:${hCo(h)}" onclick="if(!event.target.closest('button')&&Date.now()-(+this.dataset.sw||0)>450)habPg(${h.id})">
 <span class="hb-ic" aria-hidden="true">${esc(hIc(h))}</span><div class="hb-i"><b>${esc(h.n)}</b><div class="hb-m">${meta}${chip}</div>${today&&h.q&&!d?`<div class="hb-p"><i style="width:${Math.min(100,c/h.q*100)}%"></i></div>`:''}${today&&h.mn&&!d&&(h.t<now||n.getHours()>=19)?`<button class="pill mn" onclick="minH(${h.id})">🛟 Dia difícil? ${esc(h.mn)}</button>`:''}</div>
 <button class="hb-b ${d?'on':''} ${today&&h.q&&!d?'q':''} ${today&&h.tm&&!d?'tm':''}" ${fu?'disabled':''} onclick="${act}" aria-label="${fu?'Ainda não chegou':d?'Desmarcar '+esc(h.n):today&&h.q?'Mais uma: '+esc(h.n):today&&h.tm?(run?'Pausar timer':'Iniciar timer de '+h.tm+' min'):'Concluir '+esc(h.n)}">${btn}</button></div></div>`}
@@ -1880,7 +1937,7 @@ function vHoje(){const n=new Date(),k=ymd(n);if(S.ui){if(S.ui.hs)hjS=S.ui.hs=='t
  const l=sched(n),s=stats(n),pc=s.t?s.d/s.t:0,pos=s.t?Math.max(1,20-Math.round(pc*19)):20,nx=l.find(h=>!isDone(n,h.id)&&h.t>=hm(n))||l.find(h=>!isDone(n,h.id)),p=pts();let r=R[0],nl=R[1];R.forEach((x,i)=>{if(p>=x[0]){r=x;nl=R[i+1]}});const lp=nl?Math.min(100,(p-r[0])/(nl[0]-r[0])*100):100;
  const card=h=>hjCard(h,n,k,1,nx),per=[['Manhã','☀️',h=>h.t<'12:00'],['Tarde','🌤️',h=>h.t>='12:00'&&h.t<'18:00'],['Noite','🌙',h=>h.t>='18:00']],open_=l.filter(h=>!isDone(n,h.id)),done_=l.filter(h=>isDone(n,h.id));
  const TA=S.n.filter(m=>m.k=='t'&&(m.tp==k||(m.due&&m.due<=k&&(!m.d||m.dd==k)))),tD=TA.filter(m=>m.d).length,seg=document.body.classList.contains('tour')?'h':hjS;
- const habList=!l.length?'':per.map(([nm,ic,f])=>{const g=open_.filter(f);return g.length?`<div class="hb-g">${ic} ${nm}</div>${g.map(card).join('')}`:''}).join('')+(!open_.length?`<div class="hb-all">🏆 Bandeira quadriculada! Todos os hábitos de hoje concluídos.</div>`:'');
+ const habList=!l.length?'':per.map(([nm,ic,f])=>{const g=open_.filter(f);return g.length?`<div class="hb-g">${nm}</div>${g.map(card).join('')}`:''}).join('')+(!open_.length?`<div class="hb-all">🏆 Bandeira quadriculada! Todos os hábitos de hoje concluídos.</div>`:'');
  const fut=S.h.filter(h=>h.dt&&h.dt>k&&h.dt<=addD(k,3)).sort((a,b)=>(a.dt+a.t).localeCompare(b.dt+b.t));
  const habs=`<div class="hbl">${habList||`<div class="emp"><b>Pista livre</b><span class="mu sm">Toque em + para criar seu primeiro hábito ou comece com uma rotina pronta.</span><div><button class="b sm" onclick="rots()" style="margin-top:8px">${I('flag')}Ver rotinas de campeões</button></div></div>`}</div>
 ${open_.length?'<p class="hjtip">Dica: deslize o cartão ← para concluir</p>':''}
@@ -1908,8 +1965,8 @@ function habPg(id,mo){const h=S.h.find(x=>x.id==id);if(!h)return;const t=new Dat
  const sch=h.dt?'Volta rápida em '+esc(dfmt(h.dt)):h.d.length==7?'Todos os dias':h.d.map(i=>DN[i]).join(', '),prog=g.nx?Math.round((st-g.g[0])/(g.nx[0]-g.g[0])*100):100;
  const oT=on(h,t),dT=isDone(t,h.id),pit=!h.dt&&oT&&!dT;
  sheet(`${shT('Hábito')}<div class="hp" style="--hc:${co}">
-<div class="hp-h"><span class="hp-ic">${esc(hIc(h))}</span><div><b>${esc(h.n)}</b><small class="mu">${sch} · ${esc(h.t)}${h.tm?' · '+h.tm+' min':''}${h.q?' · '+h.q+'x por dia':''}</small></div></div>
-${oT?`<button class="b wide hp-do ${dT?'t':''}" onclick="closeMd();tog(${h.id})">${I('check')}${dT?'Feito hoje · desfazer':'Marcar como feito hoje'}</button>`:''}
+<div class="hp-h"><span class="hp-ic">${esc(hIc(h))}</span><div><b>${esc(h.n)}</b><small class="mu">${sch}, às ${esc(h.t)}${h.tm?', '+h.tm+' min':''}${h.q?', '+h.q+'x por dia':''}</small></div></div>
+${oT?`<button class="b wide hp-do ${dT?'t':''}" onclick="closeMd();tog(${h.id})">${I('check')}${dT?'Feito hoje (desfazer)':'Marcar como feito hoje'}</button>`:''}
 <div class="hp-st"><div><b>🔥 ${st}</b><small>Sequência</small></div><div><b>🏆 ${be}</b><small>Recorde</small></div><div><b>${sc?Math.round(dn/sc*100):0}%</b><small>em 30 dias</small></div><div><b>${tot}</b><small>Vezes feito</small></div></div>
 <div class="hp-g"><span class="hp-car">${g.g[2]}</span><div><b>Garagem: ${g.g[1]}</b><small class="mu">${g.nx?`Faltam ${g.nx[0]-st} ${g.nx[0]-st==1?'dia':'dias'} seguidos para o ${g.nx[1]} ${g.nx[2]}`:'Carro máximo! Mantenha a sequência.'}</small><div class="pb"><i style="width:${prog}%"></i></div><small class="mu sm">Se faltar um dia sem pit stop, o carro volta para o Kart.</small></div></div>
 <div class="hp-cal"><div class="hp-mh"><button class="ib g" onclick="habPg(${h.id},'${pm}')" aria-label="Mês anterior">‹</button><b>${lb}</b><button class="ib g" onclick="habPg(${h.id},'${nm}')" ${nm>td.slice(0,7)?'disabled':''} aria-label="Próximo mês">›</button></div>
@@ -1936,7 +1993,7 @@ function newH(){pkMan=0;sheet(`${shT('Novo hábito')}<div class="nh-top"><span c
 <details class="nh-mo"><summary>Ícone e cor</summary>${pick('n')}</details>
 <details class="nh-mo"><summary>Dias, timer e opções</summary>${tbox('n')}</details>
 <button class="b wide" onclick="addH()">${I('plus')}Criar hábito</button><button class="lnk" onclick="rots()">${I('flag')}Ou aplique uma rotina pronta de campeões</button>`);tsel('n');nhSug()}
-function nhSug(){const t=THM.find(x=>x[0]==nhT)||THM[0];document.querySelectorAll('.nh-th button').forEach(b=>b.classList.toggle('on',b.dataset.t==t[0]));const e=$('#nhs');if(e)e.innerHTML=t[2].map((x,i)=>`<button type="button" onclick="nhUse(${i})"><span>${x[1]}</span><b>${x[0]}</b><small>${x[2]}${x[3]&&x[3].tm?' · '+x[3].tm+' min':''}${x[3]&&x[3].q?' · '+x[3].q+'x':''}</small></button>`).join('')}
+function nhSug(){const t=THM.find(x=>x[0]==nhT)||THM[0];document.querySelectorAll('.nh-th button').forEach(b=>b.classList.toggle('on',b.dataset.t==t[0]));const e=$('#nhs');if(e)e.innerHTML=t[2].map((x,i)=>`<button type="button" onclick="nhUse(${i})"><span>${x[1]}</span><b>${x[0]}</b><small>${x[2]}${x[3]&&x[3].tm?', '+x[3].tm+' min':''}${x[3]&&x[3].q?', '+x[3].q+'x':''}</small></button>`).join('')}
 function nhUse(i){const t=THM.find(x=>x[0]==nhT)||THM[0],x=t[2][i];if(!x)return;$('#hn').value=x[0];$('#ht').value=x[2];$('#ntm').value=x[3]&&x[3].tm||'';$('#nqt').value=x[3]&&x[3].q||'';pkMan=0;nhGuess(x[1]);document.querySelectorAll('#nhs button').forEach((b,j)=>b.classList.toggle('on',j==i))}
 function nhGuess(ic){if(pkMan&&!ic)return;const e=ic||icGuess(($('#hn')||{}).value),g=$('#nic');const ip=$('.md .nh-ic');if(ip)ip.textContent=e;document.querySelectorAll('#nic button').forEach(b=>b.classList.toggle('on',b.textContent==e))}
 let cfgOpen={conta:1};
@@ -1947,10 +2004,10 @@ const conta=`<h4>Senha do cofre</h4>${lkSec()}<h4>Conta e sincronização</h4>${
 const avisos=`<div class="set"><span>Notificações neste aparelho</span>${ns}</div>${pxSec()}<div class="set"><span>Aviso antes de cada hábito e tarefa</span><select onchange="S.pl=+this.value;save();cfg()" style="max-width:130px">${[[0,'Desligado'],[5,'5 min'],[10,'10 min'],[15,'15 min'],[30,'30 min'],[60,'1 hora']].map(([v,l])=>`<option value="${v}" ${(S.pl==null?10:+S.pl)==v?'selected':''}>${l}</option>`).join('')}</select></div><div class="set"><label class="tg"><input type="checkbox" id="mo" ${S.m.on?'checked':''} onchange="setM()"><i></i>Mensagem do dia</label><input id="mt" type="time" value="${S.m.t}" onchange="setM()" style="max-width:120px;flex:none"></div>`;
 const visu=`<h4>Perfil</h4><div class="sgc">${[['m','Homem'],['f','Mulher']].map(([k,l])=>`<button class="${(S.fam||'m')==k?'on':''}" onclick="setFam('${k}')">${l}</button>`).join('')}</div><label class="set tg"><input type="checkbox" ${cyOn()?'checked':''} onchange="S.cy.on=this.checked;save();render()"><i></i>Acompanhar ciclo menstrual</label><h4>Tema</h4><div class="thg">${TH.filter(t=>t[5]==(S.fam||'m')).map(t=>`<button class="thb ${(S.th||'classico')==t[0]?'on':''}" data-t="${t[0]}" onclick="setTh('${t[0]}')"><span class="sw" style="background:linear-gradient(135deg,${t[2]} 0 46%,${t[3]} 46% 74%,${t[4]} 74%)"></span>${t[1]}</button>`).join('')}</div><h4>Fundo de tela</h4><div class="wpg">${WP.map(([k,l])=>{const cur=(S.wp||'auto')==k,pv=k=='auto'?WPD[S.th]||'carbono':k;return`<button class="wpb ${cur?'on':''}" onclick="S.wp='${k}';save();applyTh();cfg()"><span class="wpv wp-${pv}"></span>${l}</button>`}).join('')}</div>`;
 const o=sheet(`${shT('Ajustes')}
-${grp('eu','user','Seu perfil',nmOf()?esc(nmOf())+(S.pf.oc?' · '+lb(OCU,S.pf.oc):''):'Conte quem você é',`<p class="mu sm">Nome, rotina, objetivos e o jeito do Engenheiro IA falar com você.</p><button class="b wide" onclick="perfilEd()">${I('edit')}Editar perfil</button><label class="set tg" style="margin-top:12px"><input type="checkbox" ${negOn()?'checked':''} onchange="S.neg=this.checked?1:0;save();render();cfg()"><i></i>Aba Negócios: clientes, reuniões e funil</label><label class="set tg"><input type="checkbox" ${S.t3off?'':'checked'} onchange="S.t3off=this.checked?0:1;save()"><i></i>Montar meu Top 3 sozinho toda manhã</label>`)}
-${grp('conta','lock','Conta e segurança',[V.key?'Cofre ativo':'Sem senha',gon?'Conta conectada':'Sem conta'].join(' · '),conta)}
+${grp('eu','user','Seu perfil',nmOf()?esc(nmOf())+(S.pf.oc?', '+lb(OCU,S.pf.oc):''):'Conte quem você é',`<p class="mu sm">Nome, rotina, objetivos e o jeito do Engenheiro IA falar com você.</p><button class="b wide" onclick="perfilEd()">${I('edit')}Editar perfil</button><label class="set tg" style="margin-top:12px"><input type="checkbox" ${negOn()?'checked':''} onchange="S.neg=this.checked?1:0;save();render();cfg()"><i></i>Aba Negócios: clientes, reuniões e funil</label><label class="set tg"><input type="checkbox" ${S.t3off?'':'checked'} onchange="S.t3off=this.checked?0:1;save()"><i></i>Montar meu Top 3 sozinho toda manhã</label>`)}
+${grp('conta','lock','Conta e segurança',[V.key?'Cofre ativo':'Sem senha',gon?'conta conectada':'sem conta'].join(', '),conta)}
 ${grp('avisos','bell','Avisos',pon?'Chegam mesmo com o app fechado':'Só com o app aberto',avisos)}
-${grp('visu','paint','Perfil e aparência',[(S.fam=='f'?'Mulher':'Homem'),thn].join(' · '),visu)}
+${grp('visu','paint','Perfil e aparência',[(S.fam=='f'?'Mulher':'Homem'),thn].join(', '),visu)}
 <p class="ver">RC Life · versão 3.2${V.key?' · dados criptografados':''} · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a></p>`);
 o.querySelectorAll('details.grp').forEach(d=>d.addEventListener('toggle',()=>{cfgOpen[d.dataset.g]=d.open}));
 if($('#bx'))$('#bx').onclick=async()=>{await bkpFile();closeMd();render()};
