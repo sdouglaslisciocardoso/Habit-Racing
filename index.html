@@ -403,7 +403,15 @@ nav{overflow:visible}.nvr{flex:none!important;width:62px;display:flex;flex-direc
 .hjsg button{border:0;background:none;padding:10px 8px;border-radius:999px;font-weight:800;font-size:15px;cursor:pointer;color:var(--mu)}.hjsg button small{font:700 12px var(--fn);opacity:.8;margin-left:2px}
 .hjsg button.on{background:var(--acc);color:var(--onacc)}
 .hjtip{text-align:center;font-size:12px;color:var(--mu);margin:10px 0 0}
-.c.hjbx{padding:0;margin-top:12px;overflow:hidden}.hjbx>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}.hjbx>summary::-webkit-details-marker{display:none}
+.c.hjbx{padding:0;overflow:hidden}
+.hjwb{position:relative;background:var(--p);border:1px solid var(--bd);border-radius:var(--rad);margin:0 0 10px;overflow:hidden;touch-action:pan-x}
+.hjwb .hjws{margin:0;border:0;background:none;max-height:120px;opacity:1;transition:max-height .32s ease,opacity .22s ease,padding .32s ease}
+.hjwb.min .hjws{max-height:0;opacity:0;padding-top:0;padding-bottom:0}
+.hjwh{display:flex;align-items:center;justify-content:center;width:100%;border:0;background:none;padding:0 0 8px;cursor:pointer;position:relative;min-height:18px}
+.hjwh i{width:38px;height:5px;border-radius:5px;background:color-mix(in srgb,var(--tx) 22%,transparent)}
+.hjwc{display:none;font-size:14px;font-weight:700;color:var(--tx)}
+.hjwb.min .hjwh{padding:12px 14px;justify-content:space-between}.hjwb.min .hjwc{display:block}
+.hjwb.min .hjwh i{width:10px;height:10px;border-radius:0;background:none;border-right:2.5px solid var(--mu);border-bottom:2.5px solid var(--mu);transform:rotate(45deg);margin-top:-4px}.hjbx>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}.hjbx>summary::-webkit-details-marker{display:none}
 .hjbx-i{font-size:22px}.hjbx-t{flex:1;min-width:0;display:grid}.hjbx-t b{font-size:15px}.hjbx-t small{font-size:12.5px}.hjbx>summary>.i{width:16px;height:16px;color:var(--mu);transition:transform .2s}.hjbx[open]>summary>.i{transform:rotate(90deg)}
 .hjbx-m{display:flex;gap:8px;align-items:flex-start;padding:0 14px}.hjbx-m p{flex:1;font-weight:800;font-style:italic;font-size:16px;line-height:1.35}.hjbx .dash{padding:6px 12px 14px}.pki button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 18%,var(--well))}
 .pkc{display:flex;gap:10px;flex-wrap:wrap}.pkc button{width:34px;height:34px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;box-shadow:0 0 0 1px var(--bd)}.pkc button.on{border-color:var(--bg);box-shadow:0 0 0 2.5px var(--c)}
@@ -1248,7 +1256,10 @@ function editH(id){const h=S.h.find(x=>x.id==id),n=new Date(),pit=!h.dt&&on(h,n)
 if(pit)$('#ep').onclick=()=>{closeMd();skip(id)};if($('#emb'))$('#emb').onclick=()=>{closeMd();minH(id)};if($('#ef'))$('#ef').onclick=()=>{closeMd();if(S.tm&&S.tm.id==id){S.tm=null;save();tbar()}tog(id)};$('#er').onclick=()=>{closeMd();delH(id)};$('#es').onclick=()=>{const nm=$('#en').value.trim();if(!nm)return toast('Dê um nome ao hábito.');const r=tread('e');if(!r)return;h.n=nm;h.t=$('#et').value||h.t;h.d=r.d;if(r.dt)h.dt=r.dt;else delete h.dt;const m=Math.round(+$('#etm').value);if(m>0)h.tm=Math.min(600,m);else delete h.tm;const q=Math.round(+$('#eqt').value);if(q>1)h.q=Math.min(99,q);else delete h.q;const mn=$('#emn').value.trim();if(mn)h.mn=mn;else delete h.mn;const pk=pkRead('e');if(pk.ic&&pk.ic!=icGuess(nm))h.ic=pk.ic;else delete h.ic;if(pk.co)h.co=pk.co;save();closeMd();render()}}
 function perm(){if(isIOS()&&!isSA())return`<div class="bn">${I('bell')}<span>Para receber avisos, abra no Safari e use Compartilhar → Adicionar à Tela de Início.</span></div>`;if('Notification' in window&&Notification.permission=='default')return`<div class="bn">${I('bell')}<span>Ative os avisos de horário</span><button class="b sm" onclick="bell()">Ativar</button></div>`;return''}
 /* topo da Hoje: saudação, % do dia e semana; avisos urgentes logo abaixo. A mensagem do dia e os outros avisos vão depois dos hábitos */
-function hero(){if(hjD&&hjD!=ymd(new Date()))return hjTop();return hjTop()+gReBn()+rpBn()}
+function hero(){if(hjD&&hjD!=ymd(new Date()))return hjTop();return hjTop()+hjBox()+gReBn()+rpBn()}
+function hjBox(){const n=new Date(),s=stats(n),pc=s.t?s.d/s.t:0,pos=s.t?Math.max(1,20-Math.round(pc*19)):20,p=pts(),sk=streak();let r=R[0],nl=R[1];R.forEach((x,i)=>{if(p>=x[0]){r=x;nl=R[i+1]}});const lp=nl?Math.min(100,(p-r[0])/(nl[0]-r[0])*100):100;
+ return`<details class="c hjbx" ${hjG?'open':''} ontoggle="hjG=this.open"><summary><span class="hjbx-i">📻</span><span class="hjbx-t"><b>Mensagem e painel do dia</b><small class="mu">P${pos} · 🔥 ${sk} ${sk==1?'dia':'dias'} · ${r[1]} ${p} pts</small></span>${I('chev')}</summary>
+<div class="hjbx-m"><p>${esc(todayMsg())}</p><button class="ib sm g" onclick="newMsg()" aria-label="Outra mensagem">${I('refresh')}</button></div><div class="dash">${gauge(pc,pos,lp)}<div class="lv"><span class="chip" style="--c:${r[2]}">${r[1]}</span><div class="pb"><i style="width:${lp}%"></i></div><small class="mu">${p} pts</small></div></div></details>`}
 function hjMsg(){return`${pfBn()}${bdBn()}${negBn()}${perm()}${alertsBn()}${cyBn()}`}
 /* ===== Hoje no estilo Rabit: semana no topo, cartões coloridos, deslizar para concluir, garagem que evolui ===== */
 const PAL=['#ff5a5f','#ff9f1c','#2ec4b6','#3a86ff','#8338ec','#ff4fa3','#22c55e','#eab308'];
@@ -1264,10 +1275,15 @@ function hBest(h){let b=0,c=0;const d=new Date(),td=ymd(d);d.setDate(d.getDate()
 const GAR=[[0,'Kart','🛞'],[3,'Turismo','🚗'],[7,'GT4','🚙'],[14,'GT3','🏎️'],[30,'Protótipo','🚀'],[60,'Fórmula 1','🏆']];
 const gar=n=>{let i=0;GAR.forEach((g,j)=>{if(n>=g[0])i=j});return{g:GAR[i],nx:GAR[i+1]}};
 let hjD=null,hjG=0;
-function wkStrip(){const t=new Date(),td=ymd(t),b=new Date(t);b.setDate(t.getDate()-dow(t));const sd=hjD||td;let o='';
- for(let i=0;i<7;i++){const d=new Date(b);d.setDate(b.getDate()+i);const k=ymd(d),fu=k>td,s=stats(d),pc=s.t&&!fu?Math.round(s.d/s.t*100):0;
+let hjWk=(()=>{try{return localStorage.getItem('gt3wk')!=='0'}catch(e){return true}})();
+function hjWkT(v){hjWk=v===undefined?!hjWk:v;try{localStorage.setItem('gt3wk',hjWk?'1':'0')}catch(e){}const w=$('.hjwb');if(w){w.classList.toggle('min',!hjWk);const h=w.querySelector('.hjwh');if(h)h.setAttribute('aria-expanded',hjWk)}}
+function wkStrip(){const t=new Date(),td=ymd(t),b=new Date(t);b.setDate(t.getDate()-dow(t));const sd=hjD||td;let o='',full=0,past=0;
+ for(let i=0;i<7;i++){const d=new Date(b);d.setDate(b.getDate()+i);const k=ymd(d),fu=k>td,s=stats(d),pc=s.t&&!fu?Math.round(s.d/s.t*100):0;if(!fu){past++;if(pc==100)full++}
   o+=`<button class="hjw ${k==sd?'on':''} ${k==td?'td':''} ${fu?'fu':''} ${pc==100?'ok':''}" onclick="hjD=${k==td?'null':`'${k}'`};render()" aria-label="${DN[i]} ${d.getDate()}${s.t&&!fu?': '+s.d+' de '+s.t:''}"><small>${DN[i]}</small><span class="hjwr" style="--p:${pc}"><b>${d.getDate()}</b></span></button>`}
- return`<div class="hjws">${o}</div>`}
+ const sdD=new Date(sd+'T12:00');
+ return`<div class="hjwb ${hjWk?'':'min'}"><div class="hjws">${o}</div><button class="hjwh" onclick="hjWkT()" aria-expanded="${hjWk}" aria-label="Mostrar ou minimizar a semana"><span class="hjwc">📅 ${sd==td?'Hoje':sdD.toLocaleDateString('pt-BR',{weekday:'short',day:'numeric'})} · ${full} de ${past} ${past==1?'dia completo':'dias completos'} na semana</span><i></i></button></div>`}
+/* deslizar para cima na semana minimiza; para baixo, mostra */
+(()=>{let y0=null;document.addEventListener('pointerdown',e=>{y0=e.target.closest('.hjwb')?e.clientY:null},{passive:true});document.addEventListener('pointerup',e=>{if(y0==null)return;const dy=e.clientY-y0;y0=null;if(dy<-35&&hjWk)hjWkT(false);else if(dy>35&&!hjWk)hjWkT(true)},{passive:true})})();
 function hjTop(){const n=new Date(),s=stats(n),pc=s.t?Math.round(s.d/s.t*100):0,dd=n.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
  return`<div class="hjh"><div class="hjh-t"><small>${dd}</small><b>${greet()}</b></div><div class="hjh-r" style="--p:${pc}" role="img" aria-label="${pc}% do dia"><b>${pc}<small>%</small></b></div></div>${wkStrip()}`}
 function hjCard(h,n,k,today,nx){const now=hm(n),d=isDone(n,h.id),fu=k>ymd(new Date()),c=(S.c[k]||{})[h.id]||0,run=today&&S.tm&&S.tm.id==h.id,isNx=today&&nx&&nx.id==h.id&&!d,late=today&&!d&&h.t<now&&!isNx,mn=(S.x[k]||{})[h.id]==2;
@@ -1298,8 +1314,6 @@ ${fut.length?`<div class="sh"><b>Próximas voltas rápidas</b></div><div class="
  return`<div class="hjsg" role="tablist" aria-label="O que ver hoje"><button role="tab" aria-selected="${seg=='h'}" class="${seg=='h'?'on':''}" onclick="hjSeg('h')">🏁 Hábitos <small>${s.d}/${s.t}</small></button><button role="tab" aria-selected="${seg=='t'}" class="${seg=='t'?'on':''}" onclick="hjSeg('t')">✅ Tarefas <small>${tD}/${TA.length}</small></button></div>
 ${seg=='t'?vTasks():habs}
 ${doneBox(done_,card)}
-<details class="c hjbx" ${hjG?'open':''} ontoggle="hjG=this.open"><summary><span class="hjbx-i">📻</span><span class="hjbx-t"><b>Mensagem e painel do dia</b><small class="mu">P${pos} · 🔥 ${streak()} ${streak()==1?'dia':'dias'} · ${r[1]} ${p} pts</small></span>${I('chev')}</summary>
-<div class="hjbx-m"><p>${esc(todayMsg())}</p><button class="ib sm g" onclick="newMsg()" aria-label="Outra mensagem">${I('refresh')}</button></div><div class="dash">${gauge(pc,pos,lp)}<div class="lv"><span class="chip" style="--c:${r[2]}">${r[1]}</span><div class="pb"><i style="width:${lp}%"></i></div><small class="mu">${p} pts</small></div></div></details>
 <div class="hjm">${hjMsg()}</div>`}
 /* deslizar o cartão para a esquerda conclui (ou soma +1 / inicia o timer) */
 (()=>{let st=null;const lim=80;
