@@ -1424,8 +1424,8 @@ function hBest(h){let b=0,c=0;const d=new Date(),td=ymd(d);d.setDate(d.getDate()
 const GAR=[[0,'Kart','🛞'],[3,'Turismo','🚗'],[7,'GT4','🚙'],[14,'GT3','🏎️'],[30,'Protótipo','🚀'],[60,'Fórmula 1','🏆']];
 const gar=n=>{let i=0;GAR.forEach((g,j)=>{if(n>=g[0])i=j});return{g:GAR[i],nx:GAR[i+1]}};
 let hjD=null,hjG=0;
-let hjWk=(()=>{try{return localStorage.getItem('gt3wk')!=='0'}catch(e){return true}})();
-function hjWkT(v){hjWk=v===undefined?!hjWk:v;try{localStorage.setItem('gt3wk',hjWk?'1':'0')}catch(e){}const w=$('.hjwb');if(w){w.classList.toggle('min',!hjWk);const h=w.querySelector('.hjwh');if(h)h.setAttribute('aria-expanded',hjWk)}}
+let hjWk=(()=>{if(S&&S.ui&&S.ui.wk!=null)return!!S.ui.wk;try{return localStorage.getItem('gt3wk')!=='0'}catch(e){return true}})();
+function hjWkT(v){hjWk=v===undefined?!hjWk:v;S.ui=Object.assign({},S.ui,{wk:hjWk?1:0});save();try{localStorage.setItem('gt3wk',hjWk?'1':'0')}catch(e){}const w=$('.hjwb');if(w){w.classList.toggle('min',!hjWk);const h=w.querySelector('.hjwh');if(h)h.setAttribute('aria-expanded',hjWk)}}
 function wkStrip(){const t=new Date(),td=ymd(t),b=new Date(t);b.setDate(t.getDate()-dow(t));const sd=hjD||td;let o='',full=0,past=0;
  for(let i=0;i<7;i++){const d=new Date(b);d.setDate(b.getDate()+i);const k=ymd(d),fu=k>td,s=stats(d),pc=s.t&&!fu?Math.round(s.d/s.t*100):0;if(!fu){past++;if(pc==100)full++}
   o+=`<button class="hjw ${k==sd?'on':''} ${k==td?'td':''} ${fu?'fu':''} ${pc==100?'ok':''}" onclick="hjD=${k==td?'null':`'${k}'`};render()" aria-label="${DN[i]} ${d.getDate()}${s.t&&!fu?': '+s.d+' de '+s.t:''}"><small>${DN[i]}</small><span class="hjwr" style="--p:${pc}"><b>${d.getDate()}</b></span></button>`}
@@ -1444,9 +1444,10 @@ function hjCard(h,n,k,today,nx){const now=hm(n),d=isDone(n,h.id),fu=k>ymd(new Da
  return`<div class="hbw"><div class="hbsw">${I('check')}<span>${d?'Desfazer':today&&h.q?'+1':'Feito'}</span></div><div class="hb ${d?'d':''} ${isNx?'nx':''} ${late?'lt':''} ${run?'run':''}" data-h="${h.id}" style="--hc:${hCo(h)}" onclick="if(!event.target.closest('button')&&Date.now()-(+this.dataset.sw||0)>450)habPg(${h.id})">
 <span class="hb-ic" aria-hidden="true">${esc(hIc(h))}</span><div class="hb-i"><b>${esc(h.n)}</b><div class="hb-m">${meta}${chip}</div>${today&&h.q&&!d?`<div class="hb-p"><i style="width:${Math.min(100,c/h.q*100)}%"></i></div>`:''}${today&&h.mn&&!d&&(h.t<now||n.getHours()>=19)?`<button class="pill mn" onclick="minH(${h.id})">🛟 Dia difícil? ${esc(h.mn)}</button>`:''}</div>
 <button class="hb-b ${d?'on':''} ${today&&h.q&&!d?'q':''} ${today&&h.tm&&!d?'tm':''}" ${fu?'disabled':''} onclick="${act}" aria-label="${fu?'Ainda não chegou':d?'Desmarcar '+esc(h.n):today&&h.q?'Mais uma: '+esc(h.n):today&&h.tm?(run?'Pausar timer':'Iniciar timer de '+h.tm+' min'):'Concluir '+esc(h.n)}">${btn}</button></div></div>`}
-let hjS=(()=>{try{return localStorage.getItem('gt3hs')=='t'?'t':'h'}catch(e){return'h'}})();
-function hjSeg(k){hjS=k;try{localStorage.setItem('gt3hs',k)}catch(e){}render()}
-function vHoje(){const n=new Date(),k=ymd(n);
+/* preferências de tela também vão para o Google (S.ui), para ficar igual em todos os aparelhos */
+let hjS=(()=>{if(S&&S.ui&&S.ui.hs)return S.ui.hs=='t'?'t':'h';try{return localStorage.getItem('gt3hs')=='t'?'t':'h'}catch(e){return'h'}})();
+function hjSeg(k){hjS=k;S.ui=Object.assign({},S.ui,{hs:k});try{localStorage.setItem('gt3hs',k)}catch(e){}save();render()}
+function vHoje(){const n=new Date(),k=ymd(n);if(S.ui){if(S.ui.hs)hjS=S.ui.hs=='t'?'t':'h';if(S.ui.wk!=null)hjWk=!!S.ui.wk}
  if(hjD&&hjD!=k){const D=new Date(hjD+'T12:00'),l=sched(D),fu=hjD>k,s=stats(D);
   return`<div class="sh"><b>${D.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'short'})}</b><button class="pill" style="margin:0" onclick="hjD=null;render()">Voltar para hoje</button></div>
 <p class="mu sm" style="margin:8px 4px 10px">${fu?'Dia que ainda não chegou: veja o que está programado.':s.t?`${s.d} de ${s.t} feitos. Esqueceu de marcar? Toque no círculo ou deslize o cartão.`:''}</p>
@@ -1572,6 +1573,7 @@ function clean(d){
   Object.keys(d.sl).forEach(k=>{const e=d.sl[k];if(!obj(e)||!TR.test(e.a)||!TR.test(e.b))delete d.sl[k]});
   if(obj(d.cy)){d.cy.st=Array.isArray(d.cy.st)?d.cy.st.filter(x=>DR.test(x)):[];d.cy.len=num(d.cy.len,5)}else delete d.cy;
   if(obj(d.m)&&!TR.test(d.m.t))d.m.t='07:00';
+  if(d.ui!=null){if(!obj(d.ui))d.ui={};else{const u={};if(d.ui.hs!=null)u.hs=d.ui.hs=='t'?'t':'h';if(d.ui.wk!=null)u.wk=d.ui.wk===0||d.ui.wk===false?0:1;d.ui=u}}
   if(d.xt!=null){d.xt=keys(d.xt,DR);Object.keys(d.xt).forEach(k=>{const o=keys(d.xt[k],/^\d+$/);Object.keys(o).forEach(i=>{if(!TR.test(o[i]))delete o[i]});d.xt[k]=o})}
   if(d.jd!=null){d.jd=keys(d.jd,DR);Object.keys(d.jd).forEach(k=>{const e=d.jd[k];if(!obj(e)){delete d.jd[k];return}d.jd[k]={t:String(e.t==null?'':e.t).slice(0,2000),g:String(e.g==null?'':e.g).slice(0,500)}})}
   if(d.mv!=null){d.mv=keys(d.mv,DR);Object.keys(d.mv).forEach(k=>{const o=keys(d.mv[k],/^\d+$/);Object.keys(o).forEach(i=>{if(!TR.test(o[i]))delete o[i]});d.mv[k]=o})}
@@ -1663,7 +1665,7 @@ async function gGet(id){return(await gApi('drive/v3/files/'+encodeURIComponent(i
 async function gPut(blob,upd,id){const meta={name:GFN,mimeType:'application/json',appProperties:{upd:String(upd)}};if(!id)meta.parents=['appDataFolder'];const bd='hrc'+b64e(rnd(12)).replace(/[^a-zA-Z0-9]/g,'');
   const body=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(blob)}\r\n--${bd}--`;
   const r=await gApi('upload/drive/v3/files'+(id?'/'+encodeURIComponent(id):'')+'?uploadType=multipart&fields=id',{method:id?'PATCH':'POST',headers:{'Content-Type':'multipart/related; boundary='+bd},body});return(await r.json()).id}
-function gdQueue(){if(!(S.gd&&S.gd.on&&gLive()))return;clearTimeout(gTm);gTm=setTimeout(()=>gSync(),5000)}
+function gdQueue(){if(!(S.gd&&S.gd.on&&gLive()))return;clearTimeout(gTm);gTm=setTimeout(()=>gSync(0,1),1500)}
 function gKeep(){return{gd:S.gd,px:S.px,lk:S.lk,tm:S.tm}}
 const gW=d=>{const tx=Object.values(d.f||{}).reduce((n,a)=>n+(a||[]).length,0),x=Object.keys(d.x||{}).length,h=(d.h||[]).length,n=(d.n||[]).length;return{h,n,tx,x,w:h+n+tx+x+(d.bl||[]).length+(d.sh||[]).length+(d.yd||[]).length+(d.v||[]).length}};
 const gWTxt=c=>`${c.h} hábitos · ${c.x} dias registrados · ${c.n} notas e tarefas · ${c.tx} lançamentos`;
@@ -1672,7 +1674,7 @@ async function gOpenRemote(f){const b=await gGet(f.id);if(b&&b.plain)return{d:b.
 function gChoose(rd,ru){return new Promise(res=>{const L=gW(S),R=gW(rd);const o=sheet(`${shT('Qual versão manter?')}<p class="mu sm">Os dados deste aparelho e os do Google estão diferentes. Escolha qual manter: a outra versão será substituída.</p><button class="chv" id="gcL"><b>Manter os deste aparelho</b><small>${gWTxt(L)}</small>${L.w>=R.w?'<em>tem mais dados</em>':''}</button><button class="chv" id="gcR"><b>Usar os do Google</b><small>${gWTxt(R)} · salvo em ${new Date(ru).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small>${R.w>L.w?'<em>tem mais dados</em>':''}</button>`);
   const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};o.querySelector('.sht .ib').onclick=()=>done(null);o.querySelector('#gcL').onclick=()=>done('L');o.querySelector('#gcR').onclick=()=>done('R')})}
 async function gApply(r,f,ru){const d=clean(r.d);if(!d)throw new Error('arquivo do Google inválido');const keep=gKeep();Object.assign(d,keep);d.gd=Object.assign({},keep.gd,{on:1,base:ru,at:Date.now(),id:f.id});d.upd=ru;
-  V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;if(typeof fixS=='function')fixS();save(1);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
+  V.key=r.key;V.salt=r.salt;V.it=r.it;S=d;if(typeof fixS=='function')fixS();save(1);gBase(S);await V.idle();lsD('gt3h');if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
 async function gPull(f,ru){const r=await gOpenRemote(f);if(!r)return false;await gApply(r,f,ru);return true}
 /* junta duas versões sem perder nada: itens pelo id, registros por dia, lançamentos sem repetir; o mais recente vence nos ajustes */
 function gMerge(a,b){const cp=o=>JSON.parse(JSON.stringify(o||{})),wa=gW(a).w,wb=gW(b).w,na=Math.abs(wa-wb)>Math.max(wa,wb)*.2?wa>wb:(a.upd||0)>=(b.upd||0),N=cp(na?a:b),O=cp(na?b:a),out=Object.assign(cp(O),cp(N));
@@ -1681,25 +1683,40 @@ function gMerge(a,b){const cp=o=>JSON.parse(JSON.stringify(o||{})),wa=gW(a).w,wb
   const f={};[O.f||{},N.f||{}].forEach(src=>Object.keys(src).forEach(m=>{f[m]=f[m]||[];const seen=new Set(f[m].map(t=>JSON.stringify([t.d,t.x,t.v])));(src[m]||[]).forEach(t=>{const k=JSON.stringify([t.d,t.x,t.v]);if(!seen.has(k)){seen.add(k);f[m].push(t)}})}));out.f=f;
   out.bg=Object.assign({},O.bg,N.bg);if(O.cy||N.cy){out.cy=Object.assign({},O.cy,N.cy);out.cy.st=[...new Set([...((O.cy||{}).st||[]),...((N.cy||{}).st||[])])].sort()}
   return out}
-async function gJoin(r,f){const keep=gKeep(),d=clean(gMerge(S,r.d));if(!d)throw new Error('não consegui juntar os dados');Object.assign(d,keep);if(!V.key&&r.key){V.key=r.key;V.salt=r.salt;V.it=r.it}
+async function gJoin(r,f){const keep=gKeep(),d=clean(gPrune(gMerge(S,r.d),S,r.d));if(!d)throw new Error('não consegui juntar os dados');Object.assign(d,keep);if(!V.key&&r.key){V.key=r.key;V.salt=r.salt;V.it=r.it}
   d.upd=Date.now();S=d;save(1);await V.idle();lsD('gt3h');await gPush(f);if(typeof applyTh=='function'){applyTh();applyIcon();tbar();render()}}
-async function gPush(f){const blob=V.key?await V.enc(S):{hrc:1,plain:1,d:S};const id=await gPut(blob,S.upd||Date.now(),f&&f.id);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);return id}
-async function gSync(manual){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
+async function gPush(f){const blob=V.key?await V.enc(S):{hrc:1,plain:1,d:S};const id=await gPut(blob,S.upd||Date.now(),f&&f.id);S.gd=Object.assign({},S.gd,{on:1,base:S.upd,at:Date.now(),id});save(1);gBase(S);return id}
+/* base da última sincronização (fica só neste aparelho): serve para saber o que foi APAGADO de um lado e não ressuscitar ao juntar */
+const GB_ARR=['h','v','n','bl','sh','yd','cl','rn'],GB_DAY=['x','o','c','xt'];
+function gBase(d){try{const b={};GB_ARR.forEach(k=>{b[k]=(d[k]||[]).map(x=>String(x.id))});const lim=new Date(Date.now()-120*864e5).toISOString().slice(0,10);GB_DAY.forEach(k=>{const a=[];Object.keys(d[k]||{}).forEach(dy=>{if(dy<lim)return;const v=d[k][dy];if(v&&typeof v=='object')Object.keys(v).forEach(id=>a.push(dy+'|'+id))});b[k]=a});lsS('gt3gb',JSON.stringify(b))}catch(e){}}
+function gPrune(m,L,Rm){let b;try{b=JSON.parse(lsG('gt3gb')||'null')}catch(e){}if(!b)return m;
+  GB_ARR.forEach(k=>{if(!b[k])return;const B=new Set(b[k]),l=new Set((L[k]||[]).map(x=>String(x.id))),r=new Set((Rm[k]||[]).map(x=>String(x.id)));m[k]=(m[k]||[]).filter(x=>{const id=String(x.id);return!(B.has(id)&&(!l.has(id)||!r.has(id)))})});
+  GB_DAY.forEach(k=>{if(!b[k]||!m[k])return;const B=new Set(b[k]),has=(o,dy,id)=>!!(o&&o[dy]&&o[dy][id]!==undefined);Object.keys(m[k]).forEach(dy=>{const v=m[k][dy];if(!v||typeof v!='object')return;Object.keys(v).forEach(id=>{if(B.has(dy+'|'+id)&&(!has(L[k],dy,id)||!has(Rm[k],dy,id)))delete v[id]})})});
+  return m}
+/* ocupado = a pessoa está escrevendo ou com uma janela aberta: não troca a tela debaixo dela */
+const gBusyUI=()=>{const a=document.activeElement;return!!(document.querySelector('.md,#onb,#lock')||document.body.classList.contains('tour')||(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)))};
+async function gSync(manual,bg){if(gBusy)return;if(!(S.gd&&S.gd.on))return;
   if(!gLive()){if(manual)return gAuth();return}
-  gBusy=true;gUI('…');
+  gBusy=true;if(!bg)gUI('…');
   try{await gVerify();const f=await gFind(),ru=f?Number((f.appProperties||{}).upd)||0:0,base=S.gd.base||0,lu=S.upd||0;
     if(f&&ru&&ru!==base&&ru!==lu){
+      if(bg&&gBusyUI())return;
       const r=await gOpenRemote(f);if(!r)return;const L=gW(S).w,R=gW(r.d).w;
-      if(lu>base||!base){if(L<=3){await gApply(r,f,ru);toast('☁️ Seus dados da conta chegaram neste aparelho.',5000);return}await gJoin(r,f);toast('☁️ Dados juntados: tudo deste aparelho e da sua conta agora está aqui e no Google.',6000);return}
+      if(lu>base||!base){if(L<=3){await gApply(r,f,ru);toast('☁️ Seus dados da conta chegaram neste aparelho.',5000);return}await gJoin(r,f);toast(bg?'☁️ Sincronizado com seus outros aparelhos':'☁️ Dados juntados: tudo deste aparelho e da sua conta agora está aqui e no Google.',bg?2500:6000);return}
       let pick='R';if(R*2<L&&L>8)pick=await gChoose(r.d,ru);
       if(!pick)return;
-      if(pick=='R'){await gApply(r,f,ru);toast('☁️ Dados atualizados com a cópia do Google.',5000);return}
+      if(pick=='R'){await gApply(r,f,ru);toast(bg?'☁️ Atualizado com outro aparelho':'☁️ Dados atualizados com a cópia do Google.',bg?2500:5000);return}
       await gPush(f);toast('☁️ Dados deste aparelho enviados ao Google.');return}
     if(!f||lu!==ru){await gPush(f);if(manual)toast('☁️ Salvo no seu Google Drive.')}else{S.gd.at=Date.now();save(1);if(manual)toast('☁️ Tudo em dia com o Google.')}}
-  catch(e){toast('Sincronização: '+(e.message||e),7000)}finally{gBusy=false;gUI();if(S.gd&&S.gd.on&&!document.getElementById('gdb')&&typeof render=='function')render()}}
+  catch(e){if(!bg||!/login expirou|token/.test(e.message||''))toast('Sincronização: '+(e.message||e),7000)}finally{gBusy=false;if(!bg)gUI();if(S.gd&&S.gd.on&&!document.getElementById('gdb')&&typeof render=='function'&&!(bg&&gBusyUI()))render()}}
+/* tempo real: envia 1,5 s depois de qualquer mudança e confere o Google a cada 15 s (e ao voltar para o app) */
+let gPollT=null;
+function gRT(){if(gPollT)return;gPollT=setInterval(()=>{if(!document.hidden&&navigator.onLine&&S&&S.gd&&S.gd.on&&gLive())gSync(0,1)},15000);
+  const wake=()=>{if(document.hidden||!S||!(S.gd&&S.gd.on))return;if(gLive())gSync(0,1);else if(!gBusyUI()&&typeof gSilent=='function')gSilent()};
+  document.addEventListener('visibilitychange',wake);addEventListener('focus',wake);addEventListener('online',wake)}
 function gConnect(){lsS('gt3go','1');gAuth()}
 async function gAfterBoot(){await gAB();if(typeof onbSync=='function')onbSync();if(GSIL&&typeof render=='function')render()}
-async function gAB(){
+async function gAB(){gRT();
   if(GERR){toast(GERR=='access_denied'?'Login do Google cancelado.':'Não consegui confirmar o login do Google ('+GERR+'). Tente de novo.',7000);lsD('gt3go');return}
   if(!GT)return;const pend=lsG('gt3go');lsD('gt3go');
   try{await gVerify()}catch(e){return toast('Login do Google recusado: '+e.message,7000)}
