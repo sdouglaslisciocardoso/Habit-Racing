@@ -1430,16 +1430,41 @@ setInterval(()=>{if(MIC&&!$('#'+MIC.id))micOff()},800);document.addEventListener
 const BQ=['O que fez o dia valer a pena?','Qual foi a melhor volta de hoje?','O que te travou hoje e como passar amanhã?','O que você aprendeu hoje?','Quem te ajudou hoje?','Do que você se orgulha hoje?','O que vai fazer diferente amanhã?','Qual momento você quer lembrar?'];
 let bdO=null,bdTm=0;
 const jdOf=k=>(S.jd||{})[k]||{};
-function jdSetK(k,f,v){S.jd=S.jd||{};const e=S.jd[k]=Object.assign({},S.jd[k]);e[f]=String(v).slice(0,f=='t'?2000:500);if(!e.t&&!e.g)delete S.jd[k];clearTimeout(bdTm);bdTm=setTimeout(()=>save(),600)}
-function jdSet(f,v){jdSetK(ymd(new Date()),f,v)}
-function jdStk(){let n=0;const d=new Date();if(!jdOf(ymd(d)).t&&!S.md[ymd(d)])d.setDate(d.getDate()-1);for(let i=0;i<400;i++){const k=ymd(d);if(jdOf(k).t||S.md[k])n++;else break;d.setDate(d.getDate()-1)}return n}
+/* salvar manual + senha por dia (mesmo formato do app Android: PBKDF2-SHA256 310 mil + AES-GCM 256, aad rc-life/diario/v1) */
+let jdSujo=false,jdRas={k:'',t:'',g:''},jdFal=0,jdAte=0;
+const jdTr=e=>!!(e&&e.z&&typeof e.z=='object');
+function jdSalvar(k,t,g,z){S.jd=S.jd||{};const e=Object.assign({},S.jd[k]);if(z){e.t='';e.g='';e.z=z}else{e.t=String(t||'').slice(0,2000);e.g=String(g||'').slice(0,500);if('z' in e)e.z=null}if(!e.t&&!e.g&&!jdTr(e))delete S.jd[k];else S.jd[k]=e;save()}
+function jdSet(f,v){const k=ymd(new Date());if(!jdSujo||jdRas.k!=k){const T=$('#jd_t'),G=$('#jd_g');jdRas={k,t:T?T.value:'',g:G?G.value:''}}jdRas[f]=v;if(!jdSujo){jdSujo=true;jdBtn()}}
+function jdBtn(){const b=$('#jd_sv');if(!b)return;b.disabled=!jdSujo;b.textContent=jdSujo?'💾 Salvar':'Salvo ✓';b.classList.toggle('t',!jdSujo)}
+function jdSalvaHoje(){if(!jdSujo)return;jdSalvar(jdRas.k||ymd(new Date()),jdRas.t,jdRas.g);jdSujo=false;toast('✓ Diário salvo');render()}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&jdSujo&&jdRas.k&&!jdTr(jdOf(jdRas.k))){jdSalvar(jdRas.k,jdRas.t,jdRas.g);jdSujo=false}});
+async function jdKey(pw,salt,it){const b=await crypto.subtle.importKey('raw',te8.encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt,iterations:it},b,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function jdNovaChave(pw){const salt=rnd(16);return{key:await jdKey(pw,salt,310000),salt,it:310000}}
+async function jdCifra(c,o){const iv=rnd(12),ct=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:te8.encode('rc-life/diario/v1')},c.key,te8.encode(JSON.stringify(o)));return{v:1,it:c.it,salt:b64e(c.salt),iv:b64e(iv),ct:b64e(ct)}}
+async function jdAbre(pw,z){try{const salt=b64d(z.salt),it=+z.it||310000,key=await jdKey(pw,salt,it),pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(z.iv),additionalData:te8.encode('rc-life/diario/v1')},key,b64d(z.ct));return{d:JSON.parse(td8.decode(pt)),c:{key,salt,it}}}catch(e){return null}}
+function jdSenha(title,txt,nova){return new Promise(res=>{const o=document.createElement('div');o.className='md mdtop';
+ const inp=(id,ph,ac)=>`<input id="${id}" type="password" autocomplete="${ac}" placeholder="${ph}" aria-label="${ph}" style="width:100%;margin-top:10px;font-size:18px;text-align:center">`;
+ o.innerHTML=`<div class="c sheet">${shT(title)}<form id="jps" autocomplete="off" novalidate><p class="mu sm">${txt}</p>${inp('jp0',nova?'Senha deste dia':'Senha',nova?'new-password':'current-password')}${nova?inp('jp1','Repita a senha','new-password'):''}<label class="mu sm" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="jpv" style="width:auto"> Mostrar senha</label><p class="sm" id="jpm" role="status" style="min-height:18px;margin-top:8px;color:var(--acc)"></p><div class="row"><button class="b" type="submit">${nova?'Trancar':'Abrir'}</button><button class="b t" type="button" id="jpc">Cancelar</button></div></form></div>`;
+ document.body.appendChild(o);const done=v=>{o.remove();res(v)};o.onclick=e=>{if(e.target==o)done(null)};const x=o.querySelector('.sht .ib');if(x)x.onclick=()=>done(null);o.querySelector('#jpc').onclick=()=>done(null);
+ const ps=[...o.querySelectorAll('#jp0,#jp1')];o.querySelector('#jpv').onchange=e=>ps.forEach(i=>i.type=e.target.checked?'text':'password');setTimeout(()=>ps[0].focus(),60);
+ o.querySelector('#jps').onsubmit=e=>{e.preventDefault();const a=ps[0].value,b=nova?ps[1].value:a,m=t=>o.querySelector('#jpm').textContent=t;if(!a)return m('Digite a senha.');if(nova&&a.length<4)return m('Use pelo menos 4 caracteres.');if(a!==b)return m('As senhas não são iguais.');done(a)}})}
+async function jdAbrirSenha(k){const w=Math.ceil((jdAte-Date.now())/1000);if(w>0){toast('Muitas tentativas. Aguarde '+w+' s.');return null}
+ const pw=await jdSenha('🔒 Dia trancado','Digite a senha que você escolheu para '+jdLbl(k,{weekday:'long',day:'numeric',month:'long'})+'.');if(!pw)return null;toast('Abrindo…',2500);
+ const r=await jdAbre(pw,jdOf(k).z);if(!r){jdFal++;if(jdFal>=3)jdAte=Date.now()+15000*2**Math.min(8,jdFal-3);toast('Senha incorreta.');return null}jdFal=0;document.querySelectorAll('.toast').forEach(e=>e.remove());return r}
+async function jdTrancar(k,t,g){if(!String(t||'').trim()&&!String(g||'').trim()){toast('Escreva algo antes de trancar.');return false}
+ const pw=await jdSenha('Trancar este dia','O que você escreveu em '+jdLbl(k,{weekday:'long',day:'numeric',month:'long'})+' fica criptografado e só abre com esta senha. <b>Se esquecer a senha, ninguém consegue recuperar o texto, nem você.</b>',1);if(!pw)return false;
+ toast('Trancando…',2500);const c=await jdNovaChave(pw);jdSalvar(k,'','',await jdCifra(c,{t,g}));toast('🔒 Dia trancado. Só abre com a senha.');return true}
+async function jdTrancaHoje(){const k=ymd(new Date()),T=$('#jd_t'),G=$('#jd_g');if(await jdTrancar(k,T?T.value:'',G?G.value:'')){jdSujo=false;jdRas={k,t:'',g:''};render()}}
+function jdStk(){let n=0;const d=new Date();const tem=k=>jdOf(k).t||jdTr(jdOf(k))||S.md[k];if(!tem(ymd(d)))d.setDate(d.getDate()-1);for(let i=0;i<400;i++){const k=ymd(d);if(tem(k))n++;else break;d.setDate(d.getDate()-1)}return n}
 function jdIns(){const ks=Object.keys(S.md||{}).filter(k=>S.md[k]&&k<ymd(new Date()));if(ks.length<4)return'';const g=[],b=[];ks.forEach(k=>{const s=stats(new Date(k+'T12:00'));if(!s.t)return;(S.md[k]>=4?g:b).push(s.d/s.t)});if(g.length<2||b.length<2)return'';const av=a=>Math.round(a.reduce((x,y)=>x+y,0)/a.length*100),A=av(g),B=av(b);
  return`<p class="bdo-in">💡 Nos dias de motor bom você completa <b>${A}%</b> dos hábitos; nos outros, <b>${B}%</b>.${A>B+10?' Cuidar do motor ajuda a pista inteira.':A+10<B?' Mesmo nos dias difíceis você entrega. Isso é piloto de verdade.':''}</p>`}
-const bordo=()=>{const t=new Date(),k=ymd(t),e=jdOf(k),m=S.md[k],open=bdO===null?!(m&&e.t):bdO,q=BQ[Math.floor(t.getTime()/864e5)%BQ.length],st=jdStk();
- return`<details class="c bdo" ${open?'open':''} ontoggle="bdO=this.open"><summary><span class="bdo-e">${m?MD[m-1]:'📓'}</span><span class="bdo-s"><b>Hoje</b><small class="mu">${m||e.t?[m?ML[m-1]:'',e.t?'escrito':''].filter(Boolean).join(', '):'Como foi o seu dia?'}${st>1?', 🔥 '+st+' dias seguidos':''}</small></span>${I('chev')}</summary>
+const bordo=()=>{const t=new Date(),k=ymd(t),e=jdOf(k),m=S.md[k],tr=jdTr(e),open=bdO===null?!(m&&(e.t||tr)):bdO,q=BQ[Math.floor(t.getTime()/864e5)%BQ.length],st=jdStk();
+ const ras=jdSujo&&jdRas.k==k,vt=ras?jdRas.t:e.t||'',vg=ras?jdRas.g:e.g||'',est=tr?'🔒 trancado':ras?'não salvo':e.t?'escrito':'';
+ return`<details class="c bdo" ${open?'open':''} ontoggle="bdO=this.open"><summary><span class="bdo-e">${m?MD[m-1]:'📓'}</span><span class="bdo-s"><b>Hoje</b><small class="mu">${m||est?[m?ML[m-1]:'',est].filter(Boolean).join(', '):'Como foi o seu dia?'}${st>1?', 🔥 '+st+' dias seguidos':''}</small></span>${I('chev')}</summary>
 <div class="bdo-b"><div class="mood"><span class="mu sm">Motor hoje</span>${MD.map((x,i)=>`<button class="${m==i+1?'on':''}" onclick="setMd(${i+1})" aria-label="${ML[i]}" title="${ML[i]}">${x}</button>`).join('')}</div>
-<label class="bdo-q">${q}</label><div class="stm bdo-t"><textarea id="jd_t" rows="2" maxlength="2000" placeholder="Uma linha sobre hoje…" oninput="jdSet('t',this.value)">${esc(e.t||'')}</textarea>${micBtn('jd_t')}</div>
-<label class="bdo-q">🙏 Sou grato por…</label><input id="jd_g" maxlength="500" placeholder="Uma coisa boa de hoje" value="${esc(e.g||'')}" oninput="jdSet('g',this.value)">
+${tr?`<p class="mu" style="text-align:center;margin:6px 0">🔒 O texto de hoje está trancado com senha.</p><button class="b wide" onclick="jdDay('${k}')">🔓 Abrir com senha</button>`:`<label class="bdo-q">${q}</label><div class="stm bdo-t"><textarea id="jd_t" rows="2" maxlength="2000" placeholder="Uma linha sobre hoje…" oninput="jdSet('t',this.value)">${esc(vt)}</textarea>${micBtn('jd_t')}</div>
+<label class="bdo-q">🙏 Sou grato por…</label><input id="jd_g" maxlength="500" placeholder="Uma coisa boa de hoje" value="${esc(vg)}" oninput="jdSet('g',this.value)">
+<button class="b wide${ras?'':' t'}" id="jd_sv" onclick="jdSalvaHoje()" ${ras?'':'disabled'}>${ras?'💾 Salvar':'Salvo ✓'}</button><button class="b t wide" onclick="jdTrancaHoje()">🔒 Salvar e trancar com senha</button>`}
 ${cyLine()}${jdIns()}</div></details>`};
 /* dias anteriores em miniaturas, com lupa para buscar por palavra ou data */
 let jdQ='',jdN=24,ntO=false;
@@ -1451,17 +1476,27 @@ function jdThumbs(){const td=ymd(new Date()),q=jdQ.trim();let L=jdDays().filter(
  if(!L.length)return`<p class="jd-emp">${q?`Nada encontrado para “${esc(q)}”. Tente outra palavra ou uma data, como 12/11.`:'Os dias que você escrever aparecem aqui em miniaturas, para reler quando quiser.'}</p>`;
  const more=!q&&L.length>jdN;L=L.slice(0,q?60:jdN);let out='',cur='';
  L.forEach(k=>{const mo=k.slice(0,7),e=jdOf(k),m=S.md[k];if(mo!=cur){if(cur)out+='</div>';cur=mo;out+=`<h3 class="jd-mo">${jdLbl(k,{month:'long',year:'numeric'})}</h3><div class="jd-g">`}
-  out+=`<button class="jd-c" onclick="jdDay('${k}')" aria-label="${jdLbl(k,{weekday:'long',day:'numeric',month:'long'})}"><span class="jd-h"><b>${+k.slice(8)}</b><small>${jdLbl(k,{weekday:'short'}).replace('.','')}</small>${m?`<span class="jd-m" title="${ML[m-1]}">${MD[m-1]}</span>`:''}</span>${e.t?`<p>${esc(e.t)}</p>`:'<p class="mu">Só o humor neste dia.</p>'}${e.g?`<small class="jd-gr">🙏 ${esc(e.g)}</small>`:''}</button>`});
+  out+=`<button class="jd-c" onclick="jdDay('${k}')" aria-label="${jdLbl(k,{weekday:'long',day:'numeric',month:'long'})}"><span class="jd-h"><b>${+k.slice(8)}</b><small>${jdLbl(k,{weekday:'short'}).replace('.','')}</small>${m?`<span class="jd-m" title="${ML[m-1]}">${MD[m-1]}</span>`:''}</span>${jdTr(e)?'<p class="mu" style="margin:auto;text-align:center">🔒<br>Trancado com senha</p>':e.t?`<p>${esc(e.t)}</p>`:'<p class="mu">Só o humor neste dia.</p>'}${e.g&&!jdTr(e)?`<small class="jd-gr">🙏 ${esc(e.g)}</small>`:''}</button>`});
  return out+'</div>'+(more?`<button class="b t wide jd-more" onclick="jdN+=24;jdList()">Ver mais dias</button>`:'')}
 function jdList(){const e=$('#jdl');if(e)e.innerHTML=jdThumbs()}
 function setMdK(k,i){S.md[k]=S.md[k]==i?0:i;save()}
-function jdDay(k){if(!DR_.test(k))return;const e=jdOf(k),m=S.md[k],td=ymd(new Date());
- const o=sheet(`${shT(k==td?'Hoje':jdLbl(k,{weekday:'long',day:'numeric',month:'long'}))}<div class="mood">${MD.map((x,i)=>`<button class="${m==i+1?'on':''}" onclick="setMdK('${k}',${i+1});this.parentElement.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',S.md['${k}']==j+1))" aria-label="${ML[i]}" title="${ML[i]}">${x}</button>`).join('')}</div>
-<div class="fm"><label class="bdo-q" for="jdd_t">O que aconteceu</label><textarea id="jdd_t" rows="6" maxlength="2000" placeholder="Escreva sobre este dia…" oninput="jdSetK('${k}','t',this.value)">${esc(e.t||'')}</textarea>
-<label class="bdo-q" for="jdd_g">🙏 Sou grato por…</label><input id="jdd_g" maxlength="500" value="${esc(e.g||'')}" oninput="jdSetK('${k}','g',this.value)"></div>
-<button class="b wide" onclick="closeMd()">Pronto</button><button class="lnk" onclick="jdDel('${k}')">Apagar este dia</button>`);
- const ob=new MutationObserver(()=>{if(!o.isConnected){ob.disconnect();save();if(tab=='not')render()}});ob.observe(document.body,{childList:true})}
-function jdDel(k){if(!confirm('Apagar o que foi escrito neste dia?'))return;if(S.jd)delete S.jd[k];delete S.md[k];save();closeMd()}
+async function jdDay(k){if(!DR_.test(k))return;let e=jdOf(k),c=null;const m=S.md[k],td=ymd(new Date());
+ if(jdTr(e)){const r=await jdAbrirSenha(k);if(!r)return;c=r.c;e=r.d}
+ let sujo=0,feito=0;
+ const o=sheet(`${shT(k==td?'Hoje':jdLbl(k,{weekday:'long',day:'numeric',month:'long'}))}${c?'<p class="mu sm" style="text-align:center">🔓 Aberto com a senha. Ao salvar, continua trancado.</p>':''}<div class="mood">${MD.map((x,i)=>`<button class="${m==i+1?'on':''}" onclick="setMdK('${k}',${i+1});this.parentElement.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',S.md['${k}']==j+1))" aria-label="${ML[i]}" title="${ML[i]}">${x}</button>`).join('')}</div>
+<div class="fm"><label class="bdo-q" for="jdd_t">O que aconteceu</label><textarea id="jdd_t" rows="6" maxlength="2000" placeholder="Escreva sobre este dia…">${esc(e.t||'')}</textarea>
+<label class="bdo-q" for="jdd_g">🙏 Sou grato por…</label><input id="jdd_g" maxlength="500" value="${esc(e.g||'')}"></div>
+<button class="b wide" id="jdd_sv">💾 Salvar</button><button class="b t wide" id="jdd_lk">${c?'🔓 Tirar a senha deste dia':'🔒 Salvar e trancar com senha'}</button><button class="lnk" id="jdd_del">Apagar este dia</button>`);
+ const T=o.querySelector('#jdd_t'),G=o.querySelector('#jdd_g');T.oninput=G.oninput=()=>sujo=1;
+ const hoje=(t,g)=>{if(k==td){jdSujo=false;jdRas={k,t,g}}};
+ const salvar=async()=>{if(c)jdSalvar(k,'','',await jdCifra(c,{t:T.value,g:G.value}));else{jdSalvar(k,T.value,G.value);hoje(T.value,G.value)}sujo=0;feito=1;toast(c?'✓ Salvo e continua trancado':'✓ Diário salvo')};
+ o.querySelector('#jdd_sv').onclick=async()=>{await salvar();closeMd()};
+ o.querySelector('#jdd_lk').onclick=async()=>{if(c){if(!confirm('Tirar a senha deste dia? O texto volta a ficar visível para quem abrir o app.'))return;c=null;await salvar();closeMd()}else if(await jdTrancar(k,T.value,G.value)){sujo=0;feito=1;hoje('','');closeMd()}};
+ o.querySelector('#jdd_del').onclick=()=>{if(jdDel(k)){sujo=0;feito=1;hoje('','')}};
+ const ob=new MutationObserver(()=>{if(!o.isConnected){ob.disconnect();
+  const fim=()=>{if(tab=='not')render()};
+  if(sujo&&!feito&&confirm('Você mudou o texto deste dia. Salvar as alterações?'))salvar().then(fim);else{save();fim()}}});ob.observe(document.body,{childList:true})}
+function jdDel(k){if(!confirm('Apagar o que foi escrito neste dia?'))return false;if(S.jd)delete S.jd[k];delete S.md[k];save();closeMd();return true}
 const DR_=/^\d{4}-\d\d-\d\d$/;
 /* estratégia de corrida: fale ou escreva tudo, o app organiza */
 function stratOpen(){sheet(`${shT('📻 Rádio da equipe')}<p class="mu sm" style="margin:-6px 0 12px">Monte sua estratégia de corrida: fale ou escreva tudo o que você precisa fazer: tarefas, contas, gastos, compras e ideias. Eu monto a estratégia e coloco cada coisa no lugar certo.</p><div class="stm">${micBtn('dmp')}<span class="mu sm">${SRc?'Toque no microfone para falar. Vermelho = ouvindo; toque de novo para parar.':'Use o microfone do teclado para falar.'}</span></div><textarea id="dmp" rows="5" placeholder="Ex.: pagar luz sexta, gastei 40 no posto, comprar café, ligar pro João amanhã às 10h" oninput="dr.dmp=this.value">${esc(dr.dmp||'')}</textarea><button class="b wide" onclick="micOff();dump()">${I('flag')}Montar estratégia</button>`);setTimeout(()=>{const e=$('#dmp');if(e&&!SRc)e.focus()},80)}
@@ -1993,7 +2028,7 @@ case'remover_remedio':{const r=(S.rm||[]).find(x=>x.id==a.id);if(!r)throw'Reméd
 case'marcar_remedio':{const r=(S.rm||[]).find(x=>x.id==a.id);if(!r)throw'Remédio '+a.id+' não existe.';if(!r.h.includes(a.horario))throw'Esse remédio não tem dose às '+a.horario+'.';const k=ymd(new Date()),o=S.rx[k]=S.rx[k]||{},key=r.id+'@'+a.horario;if(a.tomado===false)delete o[key];else o[key]=1;return{ok:1,log:(a.tomado===false?'Desmarcado: ':'Tomado: ')+r.n+' das '+a.horario}}
 case'registrar_peso':{const v=+a.kg,k=okD(a.data)?a.data:ymd(new Date());if(!(v>20&&v<400))throw'Peso em kg entre 20 e 400.';S.ps[k]=Math.round(v*10)/10;return{ok:1,log:'Peso: '+lt1(S.ps[k])+' kg em '+dfmt(k)}}
 case'definir_orcamento':{const v=+a.valor;if(!(v>=0&&v<1e9))throw'Valor inválido.';if(v>0)S.orc=Math.round(v*100)/100;else delete S.orc;return{ok:1,log:v>0?'Orçamento do mês: R$ '+f2(S.orc):'Orçamento do mês removido'}}
-case'escrever_diario':{const k=okD(a.data)?a.data:ymd(new Date());if(k>ymd(new Date()))throw'Não dá para escrever no diário de um dia que ainda não chegou.';S.jd=S.jd||{};const e=Object.assign({t:'',g:''},S.jd[k]);if(a.texto!==undefined)e.t=(a.acrescentar&&e.t?e.t+'\n':'')+String(a.texto).trim();if(a.gratidao!==undefined)e.g=(a.acrescentar&&e.g?e.g+'; ':'')+String(a.gratidao).trim();e.t=e.t.slice(0,2000);e.g=e.g.slice(0,500);if(e.t||e.g)S.jd[k]=e;else delete S.jd[k];return{ok:1,log:'Diário de '+dfmt(k)+' atualizado'}}
+case'escrever_diario':{const k=okD(a.data)?a.data:ymd(new Date());if(k>ymd(new Date()))throw'Não dá para escrever no diário de um dia que ainda não chegou.';if(jdTr(jdOf(k)))throw'Este dia do diário está trancado com senha; só a pessoa pode escrever nele.';S.jd=S.jd||{};const e=Object.assign({t:'',g:''},S.jd[k]);if(a.texto!==undefined)e.t=(a.acrescentar&&e.t?e.t+'\n':'')+String(a.texto).trim();if(a.gratidao!==undefined)e.g=(a.acrescentar&&e.g?e.g+'; ':'')+String(a.gratidao).trim();e.t=e.t.slice(0,2000);e.g=e.g.slice(0,500);if(e.t||e.g)S.jd[k]=e;else delete S.jd[k];return{ok:1,log:'Diário de '+dfmt(k)+' atualizado'}}
 case'salvar_perfil':{const p=S.pf=S.pf||{};if(a.nome)p.nm=String(a.nome).trim().slice(0,40);if(a.acorda!==undefined){if(!okH(a.acorda))throw'Hora de acordar HH:MM.';p.ac=a.acorda}if(a.dorme!==undefined){if(!okH(a.dorme))throw'Hora de dormir HH:MM.';p.dm=a.dorme}if(['manha','tarde','noite'].includes(a.rende_mais))p.per=a.rende_mais;if(OCU.some(o=>o[0]==a.rotina_principal))p.oc=a.rotina_principal;if(a.sobre!==undefined)p.sb=String(a.sobre).trim().slice(0,300);return{ok:1,log:'Perfil atualizado'}}
 default:throw'Ferramenta desconhecida: '+n}}
 /* retrato para a IA: acrescenta Saúde de hoje, orçamento, diário e perfil */
