@@ -3,6 +3,9 @@
 // Opcional: secret ANTHROPIC_KEY (liga a IA compartilhada para quem não tem chave própria).
 // Secret ADMIN_H: hash do código de acesso do painel do dono (painel.html). Sem ele, o painel fica fechado.
 //   Valor = SHA-256 do código, em base64url sem "=" (o mesmo formato da função sha() abaixo).
+// Variável PLANO_IA (opcional): "assinatura" = a IA só funciona para quem tem assinatura ativa (tabela ass).
+//   Sem ela (ou com outro valor), a IA fica liberada para todos, como antes. Quem não assina usa as regras do app.
+//   Assinantes são marcados pelo painel do dono (painel.html > Assinaturas), pelo e-mail da conta Google.
 // Deploy: painel da Cloudflare > Workers > habit-rc-avisos > Editar código, colar este arquivo e salvar.
 // Contas: login com Google (só identidade) + sessão própria; os dados de cada conta ficam separados no D1.
 // Cada aparelho tem um token aleatório; o servidor guarda só o hash dele, o endereço de push e a agenda dos avisos.
@@ -82,8 +85,13 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS acct (sub TEXT PRIMARY KEY, em TEXT, nm TEXT, ct INTEGER, la INTEGER)",
   "CREATE TABLE IF NOT EXISTS ses (h TEXT PRIMARY KEY, sub TEXT, exp INTEGER, ct INTEGER)",
   "CREATE INDEX IF NOT EXISTS ses_sub ON ses(sub)",
-  "CREATE TABLE IF NOT EXISTS dat (sub TEXT PRIMARY KEY, upd INTEGER, b TEXT, at INTEGER)"
+  "CREATE TABLE IF NOT EXISTS dat (sub TEXT PRIMARY KEY, upd INTEGER, b TEXT, at INTEGER)",
+  // assinatura da IA: até quando a conta pode usar (ms); marcada pelo dono no painel
+  "CREATE TABLE IF NOT EXISTS ass (sub TEXT PRIMARY KEY, ate INTEGER, ct INTEGER, obs TEXT)"
 ];
+// a assinatura vale para a IA só quando o dono liga PLANO_IA = "assinatura"
+const exigeAss = env => String(env.PLANO_IA || '').trim().toLowerCase() === 'assinatura';
+async function assDe(D, sub) { if (!sub) return 0; const r = await D.prepare('SELECT ate FROM ass WHERE sub=?').bind(sub).first(); return r && r.ate > Date.now() ? r.ate : 0; }
 // ---------- login com Google (só identidade) e sessão própria de longa duração ----------
 const GID = '1084181239561-43t77l64li8nh7q1fa902ndj9fofae5t.apps.googleusercontent.com';
 const SES_DAYS = 180, DAT_MAX = 1900000;
@@ -153,14 +161,21 @@ export default {
     // freio por endereço (a sincronização com sessão tem folga maior: confere a cada 5 s)
     if (req.method === 'POST' && tooMany(ip, p.startsWith('/data/') ? 240 : 60)) return json({ erro: 'Muitos pedidos seguidos. Espere um minuto.' }, 429);
     if (p === '/vapid') return json({ publicKey: (await vapid(env)).pub });
+    // situação da assinatura de quem está logado (o app pergunta para saber se mostra a IA)
+    if (req.method === 'POST' && p === '/ai/status') {
+      const b = await body(req);
+      const D = await db(env), sub = b ? await sesOf(D, b.tk) : null, ate = await assDe(D, sub);
+      return json({ on: !!env.ANTHROPIC_KEY, plano: exigeAss(env) ? 'assinatura' : 'livre', logado: !!sub, assinante: !!ate, ate });
+    }
     if (p === '/ai') {
       const on = !!env.ANTHROPIC_KEY;
-      if (req.method !== 'POST') return json({ on, lim: AI_LIM });
+      if (req.method !== 'POST') return json({ on, lim: AI_LIM, plano: exigeAss(env) ? 'assinatura' : 'livre' });
       if (!ORIGINS.includes(origin)) return aiErr('origem não permitida', 403);
       if (!on) return aiErr('A IA do app ainda não foi ligada.', 503);
       const b = await body(req);
       if (!b || !/^[a-f0-9]{32}$/.test(String(b.d)) || !b.b || !Array.isArray(b.b.messages)) return aiErr('pedido inválido', 400);
       const D = await db(env), now = Date.now(), hj = dia(now), id = await sha('ai:' + b.d), ipId = await sha('aip:' + ip);
+      if (exigeAss(env) && !(await assDe(D, await sesOf(D, b.tk)))) return json({ error: { message: 'A automação com IA é um recurso da assinatura RC Life.' }, assinatura: true }, 402);
       const [me, byIp, all] = await Promise.all([
         D.prepare('SELECT n FROM ai WHERE d=? AND dy=?').bind(id, hj).first(),
         D.prepare('SELECT n FROM ai WHERE d=? AND dy=?').bind(ipId, hj).first(),
@@ -235,6 +250,21 @@ export default {
       const b = await body(req);
       if (!b || !env.ADMIN_H || !same(await sha(String(b.k || '')), String(env.ADMIN_H))) { await new Promise(r => setTimeout(r, 800)); return json({ erro: 'Código de acesso inválido.' }, 401); }
       const D = await db(env), now = Date.now(), hj = dia(now);
+      // assinaturas: o dono dá (ou tira) dias de assinatura pelo e-mail da conta Google da pessoa
+      if (b.acao === 'ass') {
+        const em = String(b.em || '').trim().toLowerCase().slice(0, 200), dias = Math.floor(Number(b.dias));
+        if (!em || !Number.isFinite(dias) || dias < 0 || dias > 3660) return json({ erro: 'Informe o e-mail e de 0 a 3660 dias.' }, 400);
+        const ac = await D.prepare('SELECT sub FROM acct WHERE lower(em)=?').bind(em).first();
+        if (!ac) return json({ erro: 'Nenhuma conta com esse e-mail. A pessoa precisa entrar no app com o Google pelo menos uma vez.' }, 404);
+        if (dias === 0) { await D.prepare('DELETE FROM ass WHERE sub=?').bind(ac.sub).run(); return json({ ok: true, ate: 0 }); }
+        const base = Math.max(now, await assDe(D, ac.sub)), ate = base + dias * 864e5;
+        await D.prepare('INSERT INTO ass (sub,ate,ct,obs) VALUES (?1,?2,?3,?4) ON CONFLICT(sub) DO UPDATE SET ate=?2, obs=COALESCE(NULLIF(?4, \'\'), obs)').bind(ac.sub, ate, now, String(b.obs || '').slice(0, 120)).run();
+        return json({ ok: true, ate });
+      }
+      if (b.acao === 'assLista') {
+        const L = ((await D.prepare('SELECT a.em em, a.nm nm, s.ate ate, s.obs obs FROM ass s JOIN acct a ON a.sub = s.sub ORDER BY s.ate DESC LIMIT 200').all()).results) || [];
+        return json({ plano: exigeAss(env) ? 'assinatura' : 'livre', lista: L.map(x => ({ em: x.em, nm: x.nm, ate: x.ate, ativa: x.ate > now, obs: x.obs || '' })) });
+      }
       const one = async (q, ...v) => ((await D.prepare(q).bind(...v).first()) || {}).c || 0;
       const t0 = Date.parse(hj + 'T03:00:00Z');
       const [agora, h15, h1, hoje, d7, d30, total, novos, visitas] = await Promise.all([
@@ -253,7 +283,8 @@ export default {
       const novosSerie = ((await D.prepare("SELECT strftime('%Y-%m-%d', (f - 10800000) / 1000, 'unixepoch') dy, COUNT(*) c FROM pg WHERE f >= ? GROUP BY dy").bind(now - 14 * 864e5).all()).results) || [];
       const ia = ((await D.prepare("SELECT n c FROM ai WHERE d='*' AND dy=?").bind(hj).first()) || {}).c || 0;
       const contas = await one('SELECT COUNT(*) c FROM acct'), sinc = await one('SELECT COUNT(*) c FROM dat WHERE at > ?', now - 864e5);
-      return json({ agora, h15, h1, hoje, d7, d30, total, novos, visitas, serie, plat, novosSerie, ia, iaOn: !!env.ANTHROPIC_KEY, iaLim: AI_DAY, contas, sinc, ts: now });
+      const assinantes = await one('SELECT COUNT(*) c FROM ass WHERE ate > ?', now);
+      return json({ agora, h15, h1, hoje, d7, d30, total, novos, visitas, serie, plat, novosSerie, ia, iaOn: !!env.ANTHROPIC_KEY, iaLim: AI_DAY, contas, sinc, assinantes, plano: exigeAss(env) ? 'assinatura' : 'livre', ts: now });
     }
     if (req.method === 'POST' && (p === '/sync' || p === '/test')) {
       const b = await body(req);

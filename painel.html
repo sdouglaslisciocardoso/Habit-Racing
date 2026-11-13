@@ -36,6 +36,7 @@ button.gh{background:transparent;border:1px solid var(--ln);color:var(--mu);padd
 </style></head><body><main>
 <header><h1>Box <span>RC Life</span></h1><button class="gh" id="out" hidden>Sair</button></header>
 <div id="v"></div>
+<div id="as"></div>
 </main>
 <script>
 const URL_W='https://habit-rc-avisos.sdouglaslisciocardoso.workers.dev/painel';
@@ -45,12 +46,12 @@ let K=ls.g('rcpk')||'';
 const h=location.hash.match(/k=([a-f0-9]+)/);if(h){K=h[1];ls.s('rcpk',K);history.replaceState(null,'',location.pathname)}
 const n=x=>Number(x||0).toLocaleString('pt-BR');
 const dd=s=>{const[y,m,d]=s.split('-');return d+'/'+m};
-function login(msg){$('#out').hidden=true;v.innerHTML=`<div class="sec"><h2>Acesso do dono</h2><p class="mu sm">Digite o código de acesso do painel. Ele fica salvo só neste aparelho.</p><form id="f"><input id="k" type="password" autocomplete="current-password" placeholder="Código de acesso"><button>Entrar</button></form>${msg?`<p class="err">${msg}</p>`:''}</div>`;$('#f').onsubmit=e=>{e.preventDefault();K=$('#k').value.trim();if(!K)return;ls.s('rcpk',K);load()}}
+function login(msg){$('#out').hidden=true;$('#as').innerHTML='';v.innerHTML=`<div class="sec"><h2>Acesso do dono</h2><p class="mu sm">Digite o código de acesso do painel. Ele fica salvo só neste aparelho.</p><form id="f"><input id="k" type="password" autocomplete="current-password" placeholder="Código de acesso"><button>Entrar</button></form>${msg?`<p class="err">${msg}</p>`:''}</div>`;$('#f').onsubmit=e=>{e.preventDefault();K=$('#k').value.trim();if(!K)return;ls.s('rcpk',K);load()}}
 let tm;
 async function load(){clearTimeout(tm);if(!K)return login();
  try{const r=await fetch(URL_W,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({k:K}),cache:'no-store'});const j=await r.json();
   if(r.status==401){K='';ls.s('rcpk',null);return login(j.erro||'Código inválido.')}
-  if(!r.ok)throw new Error(j.erro||r.status);draw(j)}
+  if(!r.ok)throw new Error(j.erro||r.status);draw(j);if(!$('#as').innerHTML)assLoad()}
  catch(e){if(!v.innerHTML)v.innerHTML='';const p=document.createElement('p');p.className='err';p.textContent='Sem conexão com o servidor agora. Tentando de novo…';if(!$('.err'))v.prepend(p)}
  tm=setTimeout(load,20000)}
 function draw(j){$('#out').hidden=false;
@@ -75,7 +76,21 @@ function draw(j){$('#out').hidden=false;
  <div class="sec"><h2>Aparelhos · 7 dias</h2>${Object.keys(pl).sort((a,b)=>pl[b]-pl[a]).map(k=>`<div class="row"><span>${P[k]||k}</span><span>${n(pl[k])}</span></div>`).join('')||'<p class="mu sm">Ninguém ainda.</p>'}${tot7?`<div class="row"><span>Com o app instalado</span><span>${n(inst)} de ${n(tot7)}</span></div>`:''}</div>
  <div class="sec"><h2>IA do app · hoje</h2>${j.iaOn?`<div class="row"><span>Pedidos de IA</span><span>${n(j.ia)} de ${n(j.iaLim)}</span></div><div class="meter"><i style="width:${iaPct}%"></i></div>`:'<p class="mu sm">Desligada. Para ligar, crie o secret ANTHROPIC_KEY no Worker do Cloudflare.</p>'}</div>
  <p class="mu sm">Atualiza sozinho a cada 20 segundos · ${new Date(j.ts).toLocaleTimeString('pt-BR')}. "Agora" conta quem está com o app aberto nos últimos 2 minutos. Tudo anônimo: nenhum nome ou dado pessoal é enviado.</p>`}
-$('#out').onclick=()=>{K='';ls.s('rcpk',null);login()};
+/* assinaturas da IA: o dono marca quem pagou (por e-mail da conta Google) */
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const assPost=b=>fetch(URL_W,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({k:K},b)),cache:'no-store'}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.erro||r.status);return j});
+async function assLoad(msg){const a=$('#as');if(!K){a.innerHTML='';return}
+ let j;try{j=await assPost({acao:'assLista'})}catch(e){a.innerHTML=`<div class="sec"><h2>Assinaturas da IA</h2><p class="err">${esc(e.message)}</p></div>`;return}
+ const L=j.lista||[],at=L.filter(x=>x.ativa).length;
+ a.innerHTML=`<div class="sec"><h2>Assinaturas da IA</h2>
+ <p class="mu sm">${j.plano=='assinatura'?'<b style="color:var(--tx)">Cobrança ligada:</b> só assinantes usam a IA.':'<b style="color:var(--tx)">Cobrança desligada:</b> a IA está liberada para todos. Para exigir assinatura, crie a variável <b>PLANO_IA</b> = <b>assinatura</b> no Worker.'} ${at} ${at==1?'assinatura ativa':'assinaturas ativas'}.</p>
+ <form id="af"><input id="aem" type="email" placeholder="E-mail da conta Google" autocomplete="off" required><input id="adi" type="number" min="0" max="3660" value="30" style="flex:0 0 90px" aria-label="Dias"><button>Dar dias</button></form>
+ <p class="mu sm">Os dias somam ao que a pessoa já tem. Use 0 para cancelar. A pessoa precisa ter entrado no app com o Google pelo menos uma vez.</p>
+ ${msg?`<p class="sm" style="color:var(--ok)">${esc(msg)}</p>`:''}<p class="err" id="aer" hidden></p>
+ ${L.map(x=>`<div class="row"><span>${esc(x.nm||x.em)}<br><small class="mu">${esc(x.em)}${x.obs?' · '+esc(x.obs):''}</small></span><span style="text-align:right">${x.ativa?'até '+new Date(x.ate).toLocaleDateString('pt-BR'):'<span class="mu">vencida</span>'}</span></div>`).join('')||'<p class="mu sm">Ninguém assinou ainda.</p>'}</div>`;
+ $('#af').onsubmit=async e=>{e.preventDefault();const em=$('#aem').value.trim(),dias=+$('#adi').value,er=$('#aer');er.hidden=true;
+  try{const r=await assPost({acao:'ass',em,dias});assLoad(dias?`${em}: assinatura até ${new Date(r.ate).toLocaleDateString('pt-BR')}.`:`${em}: assinatura cancelada.`)}catch(x){er.textContent=x.message;er.hidden=false}}}
+$('#out').onclick=()=>{K='';ls.s('rcpk',null);$('#as').innerHTML='';login()};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)load()});
 load();
 </script></body></html>
