@@ -1059,6 +1059,29 @@ nav button{font-stretch:86%;font-weight:640}
 .ps .qa{display:flex;gap:8px;align-items:center}
 .ps .qa input{flex:1 1 0;min-width:0;width:auto}
 .ps .qa .b{flex:none}
+/* página de anúncio da assinatura (fim do tour) */
+.pro{position:fixed;inset:0;z-index:120;overflow:auto;background:radial-gradient(900px 520px at 50% -10%,color-mix(in srgb,var(--acc) 28%,transparent),transparent 70%),radial-gradient(700px 500px at 100% 100%,color-mix(in srgb,var(--acc2) 22%,transparent),transparent 70%),var(--bg);animation:in .35s;padding:28px 18px calc(28px + env(safe-area-inset-bottom))}
+.pro-w{max-width:520px;margin:0 auto;display:grid;gap:16px}
+.pro-x{position:absolute;top:14px;right:14px}
+.pro-tag{justify-self:center;font:800 12px/1 var(--ff);letter-spacing:.14em;text-transform:uppercase;color:var(--onacc);background:var(--acc);padding:7px 12px;border-radius:99px}
+.pro h1{margin:0;text-align:center;font:900 clamp(30px,8vw,42px)/1.05 var(--ff);letter-spacing:-.02em}
+.pro h1 em{font-style:normal;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pro-sub{margin:0;text-align:center;color:var(--mu);font-size:16px;line-height:1.45}
+.pro-demo{background:var(--p);border:1px solid var(--bd);border-radius:22px;padding:14px;display:grid;gap:10px;box-shadow:0 18px 50px #0007}
+.pro-yo{justify-self:end;max-width:88%;background:color-mix(in srgb,var(--acc) 22%,var(--p2));border-radius:18px 18px 4px 18px;padding:10px 13px;font-size:14.5px}
+.pro-yo small{display:block;color:var(--mu);font-size:11.5px;margin-bottom:2px}
+.pro-it{display:flex;align-items:center;gap:10px;background:var(--p2);border-radius:14px;padding:9px 12px;font-size:14px;opacity:0;transform:translateY(8px);animation:proIn .45s forwards}
+.pro-it b{font-weight:700}.pro-it span{margin-left:auto;color:var(--mu);font-size:12px;white-space:nowrap}
+.pro-it:nth-child(3){animation-delay:.5s}.pro-it:nth-child(4){animation-delay:.9s}.pro-it:nth-child(5){animation-delay:1.3s}.pro-it:nth-child(6){animation-delay:1.7s}
+@keyframes proIn{to{opacity:1;transform:none}}
+.pro-fs{display:grid;gap:10px}
+.pro-f{display:flex;gap:12px;align-items:flex-start;background:var(--p);border:1px solid var(--bd);border-radius:18px;padding:13px 14px}
+.pro-f>i{font-style:normal;font-size:26px;line-height:1;flex:none;width:34px;text-align:center}
+.pro-f b{display:block;font-size:15.5px}.pro-f p{margin:3px 0 0;color:var(--mu);font-size:13.5px;line-height:1.4}
+.pro-cta{display:grid;gap:8px;margin-top:4px}
+.pro-cta .b{min-height:54px;font-size:16.5px;background:linear-gradient(90deg,var(--acc),var(--acc2));color:#111;border:0}
+.pro-note{text-align:center;color:var(--mu);font-size:12.5px;margin:0}
+@media (prefers-reduced-motion:reduce){.pro,.pro-it{animation:none;opacity:1;transform:none}}
 </style></head><body>
 <header><div class="lgw"><img class="lgi" src="ic-rc.png" alt=""><div class="lg"><svg class="wm" viewBox="3 -710 3655 730" aria-label="RC Life" role="img"><path fill="currentColor" d="M387 -700Q483 -700 547.0 -680.0Q611 -660 639.0 -612.5Q667 -565 656 -482Q651 -443 635.5 -409.5Q620 -376 588.0 -354.0Q556 -332 500 -326L499 -319Q516 -317 535.5 -306.5Q555 -296 570.5 -273.0Q586 -250 590 -208L616 0H392L374 -209Q373 -238 365.0 -245.0Q357 -252 334 -252Q257 -253 209.0 -253.0Q161 -253 128.5 -254.0Q96 -255 65 -257L81 -405H355Q385 -405 401.5 -411.0Q418 -417 426.5 -434.5Q435 -452 440 -484Q444 -508 440.0 -522.0Q436 -536 423.0 -541.5Q410 -547 385 -547Q278 -547 206.5 -545.5Q135 -544 110 -541L108 -690Q153 -695 192.5 -697.0Q232 -699 278.0 -699.5Q324 -700 387 -700ZM320 -690 223 0H11L108 -690ZM1070 -702Q1122 -702 1160.5 -699.0Q1199 -696 1231.5 -690.0Q1264 -684 1297 -674L1272 -517Q1236 -518 1204.5 -518.0Q1173 -518 1139.0 -518.5Q1105 -519 1059 -519Q1032 -519 1014.0 -513.0Q996 -507 983.5 -489.0Q971 -471 962.5 -434.5Q954 -398 946 -337Q937 -269 936.5 -233.0Q936 -197 951.0 -184.0Q966 -171 1003 -171Q1078 -171 1127.0 -173.0Q1176 -175 1224 -179L1232 -20Q1177 -3 1123.0 4.5Q1069 12 993 12Q878 12 811.5 -22.5Q745 -57 723.0 -137.0Q701 -217 720 -353Q735 -457 759.5 -525.0Q784 -593 823.5 -631.5Q863 -670 923.5 -686.0Q984 -702 1070 -702ZM1895 -690 1824 -212Q1822 -190 1829.5 -181.0Q1837 -172 1860 -172H2088L2084 -9Q2015 0 1927.0 2.0Q1839 4 1753 4Q1703 4 1667.0 -17.0Q1631 -38 1613.5 -74.5Q1596 -111 1603 -157L1677 -690ZM2459 -690 2362 0H2146L2243 -690ZM2727 -694Q2816 -694 2908.0 -692.0Q3000 -690 3069 -679L3045 -528H2815Q2788 -528 2776.0 -519.5Q2764 -511 2761 -488L2693 0H2475L2551 -541Q2561 -612 2609.0 -653.0Q2657 -694 2727 -694ZM2551 -411H2991L2973 -267H2530ZM3302 -694Q3363 -694 3425.5 -693.0Q3488 -692 3546.0 -689.5Q3604 -687 3650 -680L3626 -528H3386Q3361 -528 3349.5 -519.5Q3338 -511 3335 -488L3295 -201Q3292 -182 3301.0 -172.0Q3310 -162 3332 -162H3572L3568 -8Q3520 -1 3462.0 1.0Q3404 3 3344.0 3.5Q3284 4 3230 4Q3145 4 3105.0 -49.0Q3065 -102 3075 -184L3125 -541Q3135 -611 3180.5 -652.5Q3226 -694 3302 -694ZM3128 -425H3575L3557 -281H3105Z"/><path class="wmd" d="M1437 -425L1597 -425L1565 -265L1405 -265Z"/></svg></div></div><div class="hbt" id="hbt"></div></header>
 <div id="hero"></div><nav id="nav"></nav><main id="m"></main><div id="tmr" style="display:none"></div><button id="fab" class="fab" onclick="tab=='sem'?addDay(selD||ymd(new Date())):tab=='neg'?negAdd():tab=='hoje'&&hjS=='t'&&!(hjD&&hjD!=ymd(new Date()))?newT():newH()" aria-label="Adicionar"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -1817,7 +1840,6 @@ const TRS=[
  {id:'neg2',if:()=>negOn(),sel:()=>$('.sgc'),t:()=>['Clientes e vendas','<b>Agora</b> mostra o que fazer primeiro. Em <b>Reuniões</b>, aviso antes e um "como foi?" depois. Em <b>Clientes</b>, o histórico e o WhatsApp a um toque. Em <b>Vendas</b>, o funil do contato ao fechamento.'],btn:'Próximo'},
  {id:'ia',if:proOk,sel:()=>$('#hbt [aria-label="Engenheiro IA"]'),t:()=>['Seu Engenheiro IA','Toque aqui para conhecer.'],done:()=>tab=='ia'},
  {id:'chat',if:proOk,sel:()=>$('.cmp')||$('#qi'),t:()=>{const n=nmOf(),o=((S.pf&&S.pf.ob)||[]).map(k=>lb(OBJ,k).toLowerCase());return['Peça do seu jeito',`Ele já sabe ${n?'que você se chama <b>'+esc(n)+'</b>':'quem você é'}${o.length?' e o que você quer melhorar: '+o.join(', '):''}. Escreva, por exemplo: <i>monte minha manhã</i> ou <i>organize minha semana</i>.`+trAssTx()]},btn:'Próximo'},
- {id:'pro',if:()=>!proOk(),free:1,sel:()=>null,on:()=>{tab='hoje';render()},t:()=>['🏁 Assinatura RC Life','Tudo o que você viu até aqui é seu. Na <b>assinatura RC Life</b> entram as automações: o <b>Rádio</b>, que transforma o que você fala em tarefas, contas e compras; o <b>Engenheiro IA</b>, que monta e reorganiza sua rotina por você; o <b>reorganizar o dia</b> quando você atrasa; e o <b>Top 3 automático</b>, com as tarefas atrasadas passando sozinhas para hoje.'],btn:'Próximo'},
  {id:'cfg',sel:()=>$('#hbt [aria-label="Ajustes"]'),on:()=>{tab='hoje';render()},t:()=>['Ajustes','Aqui você entra com o Google para usar o app em vários aparelhos, cria a senha do cofre, escolhe os avisos, o tema e faz backup.'],btn:'Próximo'},
  {id:'help',sel:()=>$('#hbt [aria-label="Dúvidas"]'),t:()=>['Esqueceu algo?','Toque no ❔ quando quiser: lá estão as respostas, o seu perfil e dá para refazer este tour.'],btn:'Concluir'}];
 
@@ -1838,7 +1860,33 @@ function trDraw(){if(!TOUR)return;const c=$('#cm'),st=TRS[TOUR.i];if(!c||!st)ret
  else{ho.classList.add('nh');set(ho,vw/2,vh/2,0,0);set(K[0],0,0,vw,vh);[1,2,3,4].forEach(j=>set(K[j],0,0,0,0));tip.style.top=Math.round((vh-tip.offsetHeight)/2)+'px';
   if(st.free){}else if(!TOUR.miss)TOUR.miss=Date.now();else if(Date.now()-TOUR.miss>2500){TOUR.miss=0;return trGo(st.miss?trIdx(st.miss):TOUR.i+1)}}
  tip.style.left=Math.round((vw-tip.offsetWidth)/2)+'px'}
-function trEnd(skip){if(!TOUR)return;clearInterval(TOUR.iv);removeEventListener('resize',trDraw);TOUR=null;msgHold=Date.now()+6e4;const c=$('#cm');if(c)c.remove();document.body.classList.remove('tour');S.tour=1;save();try{hjSeg('h')}catch(e){}closeMd();tab='hoje';render();scrollTo(0,0);const n=nmOf();toast(skip?'Tudo bem! O ❔ no topo refaz o tour quando quiser.':'🏁 Bandeira verde'+(n?', '+n:'')+'! Bom campeonato.',5000)}
+function trEnd(skip){if(!TOUR)return;clearInterval(TOUR.iv);removeEventListener('resize',trDraw);TOUR=null;msgHold=Date.now()+6e4;const c=$('#cm');if(c)c.remove();document.body.classList.remove('tour');S.tour=1;save();try{hjSeg('h')}catch(e){}closeMd();tab='hoje';render();scrollTo(0,0);const n=nmOf();toast(skip?'Tudo bem! O ❔ no topo refaz o tour quando quiser.':'🏁 Bandeira verde'+(n?', '+n:'')+'! Bom campeonato.',5000);if(!skip&&!proOk())setTimeout(promoOpen,500)}
+/* página de anúncio: o que a assinatura RC Life automatiza */
+function promoOpen(){if($('#promo'))return;const o=document.createElement('div');o.id='promo';o.className='pro';o.setAttribute('role','dialog');o.setAttribute('aria-label','Assinatura RC Life');
+ const f=(e,t,d)=>`<div class="pro-f"><i aria-hidden="true">${e}</i><div><b>${t}</b><p>${d}</p></div></div>`;
+ o.innerHTML=`<button class="ib pro-x" onclick="promoClose()" aria-label="Fechar">${I('x')}</button><div class="pro-w">
+ <span class="pro-tag">Assinatura RC Life</span>
+ <h1>Fale uma vez.<br><em>A IA organiza tudo.</em></h1>
+ <p class="pro-sub">Pare de digitar item por item. Diga o que está na sua cabeça e o seu <b>Engenheiro de Pista com IA</b> transforma em tarefas, contas, gastos, compras e rotina, cada coisa no lugar certo.</p>
+ <div class="pro-demo" aria-label="Exemplo">
+  <div class="pro-yo"><small>Você, no Rádio</small>"Pagar a luz sexta, gastei 40 no posto, comprar café e pão, reunião com o João amanhã às 10h"</div>
+  <div style="color:var(--mu);font-size:12.5px;text-align:center">📻 Engenheiro montou a estratégia:</div>
+  <div class="pro-it">✅ <b>Pagar a luz</b><span>tarefa · sexta</span></div>
+  <div class="pro-it">💸 <b>Posto: R$ 40</b><span>gasto · hoje</span></div>
+  <div class="pro-it">🛒 <b>Café, pão</b><span>lista de compras</span></div>
+  <div class="pro-it">📅 <b>Reunião com o João</b><span>amanhã · 10:00</span></div>
+ </div>
+ <div class="pro-fs">
+  ${f('📻','Rádio da equipe','Fale ou escreva tudo de uma vez, do jeito que vier. Ele separa e guarda cada item, com data e horário.')}
+  ${f('✨','Engenheiro IA','Peça em português: "monte minha manhã", "reorganize minha semana", "quanto gastei com mercado?". Ele cria, ajusta e responde por você.')}
+  ${f('⏱️','Reorganizar o dia','Atrasou? Ele remonta o resto do dia nos horários livres, sem você arrastar nada.')}
+  ${f('⭐','Top 3 automático','Toda manhã, as 3 tarefas mais importantes do dia já escolhidas. O que ficou para trás passa sozinho para hoje.')}
+ </div>
+ <div class="pro-cta"><button class="b wide" onclick="promoQuero()">🏁 Quero a assinatura</button><button class="b t wide" onclick="promoClose()">Continuar com o app grátis</button></div>
+ <p class="pro-note">Hábitos, tarefas, diário, saúde e finanças continuam grátis, sem limite.</p>
+ </div>`;document.body.appendChild(o);o.querySelector('.pro-x').focus({preventScroll:true})}
+function promoClose(){const o=$('#promo');if(o)o.remove()}
+function promoQuero(){S.proQ=Date.now();save();promoClose();toast('🏁 Anotado! A assinatura RC Life está chegando: você vai ver aqui no app assim que abrir.',6000)}
 /* ===== dúvidas ===== */
 const FAQ=[
 ['Como crio um hábito?','Na aba <b>Hoje</b>, toque no <b>+</b> amarelo, escreva o nome, escolha o horário e os dias. Para algo só em um dia específico (dentista, reunião), vá em <b>Semana</b>, toque no dia e em <b>Adicionar em…</b>, depois escolha <b>Só neste dia</b>.'],
@@ -1856,7 +1904,7 @@ const FAQ=[
 ['Como funciona o Engenheiro IA?','Ele faz parte da <b>assinatura RC Life</b>. Com ela, toque no ✨ no topo e peça em português: "crie um hábito de correr às 6h de seg a sex", "quanto gastei com mercado?". Ele faz por você.'],
 ['Como organizo clientes e reuniões?','Ative a aba <b>Negócios</b> em Ajustes → Seu perfil (ou escolha "Empreendo" no seu perfil). Lá você cadastra clientes, marca reuniões com aviso antes, confirma pelo WhatsApp, registra o que foi decidido e acompanha o funil de vendas.'],
 ['Preciso de senha?','Não. A <b>senha do cofre</b> é opcional (Ajustes → Conta e segurança) e serve para criptografar seus dados. Se criar, guarde bem: sem ela não dá para recuperar os dados.']];
-function ajuda(){sheet(`${shT('Dúvidas')}<p class="mu sm" style="margin:-4px 0 10px">Toque em uma pergunta para ver como faz.</p><div class="faq">${FAQ.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div><div class="row" style="margin-top:14px"><button class="b" onclick="closeMd();trStart()">${I('flag')}Fazer o tour</button><button class="b t" onclick="perfilEd()">${I('user')}Meu perfil</button>${proOk()?`<button class="b t" onclick="closeMd();tab='ia';render()">${I('spark')}Perguntar ao Engenheiro</button>`:''}</div>`)}
+function ajuda(){sheet(`${shT('Dúvidas')}<p class="mu sm" style="margin:-4px 0 10px">Toque em uma pergunta para ver como faz.</p><div class="faq">${FAQ.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</div><div class="row" style="margin-top:14px"><button class="b" onclick="closeMd();trStart()">${I('flag')}Fazer o tour</button><button class="b t" onclick="perfilEd()">${I('user')}Meu perfil</button>${proOk()?`<button class="b t" onclick="closeMd();tab='ia';render()">${I('spark')}Perguntar ao Engenheiro</button>`:`<button class="b t" onclick="closeMd();promoOpen()">${I('spark')}Assinatura RC Life</button>`}</div>`)}
 /* ===== ciclo menstrual ===== */
 const cyOn=()=>!!(S.cy&&S.cy.on);
 function cyInfo(){const st=S.cy.st.slice().sort();if(!st.length)return null;const L=st.slice(-7),df=L.slice(1).map((k,i)=>dDiff(k,L[i])).filter(x=>x>=15&&x<=60),avg=df.length?Math.round(df.reduce((a,b)=>a+b,0)/df.length):28,last=st[st.length-1],td=ymd(new Date()),day=dDiff(td,last)+1,next=addD(last,avg),ov=avg-14,len=S.cy.len||5;
@@ -1945,7 +1993,7 @@ var AIX=(()=>{try{return localStorage.getItem('gt3ai')!=='0'}catch(e){return tru
 var PLANO=(()=>{try{return localStorage.getItem('gt3pl')||'livre'}catch(e){return'livre'}})(),ASS=(()=>{try{return localStorage.getItem('gt3as')==='1'}catch(e){return false}})();
 function assOk(){return PLANO!='assinatura'||!!ASS}
 function ssTk(){try{return typeof SS!='undefined'&&SS?SS.tk:''}catch(e){return''}}
-function assSet(pl,as){const ch=pl!==PLANO||as!==ASS;PLANO=pl;ASS=as;try{localStorage.setItem('gt3pl',pl);localStorage.setItem('gt3as',as?'1':'0')}catch(e){}if(ch&&!document.querySelector('.md')&&!document.body.classList.contains('tour'))render()}
+function assSet(pl,as){const ch=pl!==PLANO||as!==ASS;PLANO=pl;ASS=as;if(as&&typeof promoClose=='function')promoClose();try{localStorage.setItem('gt3pl',pl);localStorage.setItem('gt3as',as?'1':'0')}catch(e){}if(ch&&!document.querySelector('.md')&&!document.body.classList.contains('tour'))render()}
 /* Automações (Rádio, Engenheiro IA, reorganizar o dia, Top 3 automático e tarefas atrasadas que passam para hoje)
    são da assinatura RC Life. Quem já usava o app antes delas virarem assinatura ganhou de cortesia (S.pro=1). */
 function proOk(){return S.pro===1||!!ASS}
@@ -2288,6 +2336,8 @@ applyIcon();
 /* cortesia: quem já tinha usado o app (tutorial feito) antes das automações virarem assinatura continua com tudo */
 if(S.pro===undefined){S.pro=S.tut?1:0;save(1)}
 applyTh();rollTasks();tbar();render();deliver();checkAlerts();if(!S.fam)onb();pxQueue();
+/* anúncio da assinatura toda vez que o app abre, só para quem não assina (nem durante o cadastro ou o tour) */
+setTimeout(()=>{if(S.tut&&!proOk()&&!$('#onb')&&!document.body.classList.contains('tour')&&!$('.md'))promoOpen()},1500);
 </script>
 <script>
 /* RC Life · carregador: limpeza de dados (clean), cofre (criptografia local), tela de bloqueio, backup,
