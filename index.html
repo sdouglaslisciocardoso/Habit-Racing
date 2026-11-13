@@ -1433,7 +1433,7 @@ const jdOf=k=>(S.jd||{})[k]||{};
 /* salvar manual + senha por dia (mesmo formato do app Android: PBKDF2-SHA256 310 mil + AES-GCM 256, aad rc-life/diario/v1) */
 let jdSujo=false,jdRas={k:'',t:'',g:''},jdFal=0,jdAte=0;
 const jdTr=e=>!!(e&&e.z&&typeof e.z=='object');
-function jdSalvar(k,t,g,z){S.jd=S.jd||{};const e=Object.assign({},S.jd[k]);if(z){e.t='';e.g='';e.z=z}else{e.t=String(t||'').slice(0,2000);e.g=String(g||'').slice(0,500);if('z' in e)e.z=null}if(!e.t&&!e.g&&!jdTr(e))delete S.jd[k];else S.jd[k]=e;save()}
+function jdSalvar(k,t,g,z){S.jd=S.jd||{};const e=Object.assign({},S.jd[k]);if(z){e.t='';e.g='';e.z=z}else{e.t=String(t||'').slice(0,2000);e.g=String(g||'').slice(0,500);if('z' in e)e.z=null}S.jd[k]=(!e.t&&!e.g&&!jdTr(e))?{t:'',g:'',z:null}:e;save()}
 function jdSet(f,v){const k=ymd(new Date());if(!jdSujo||jdRas.k!=k){const T=$('#jd_t'),G=$('#jd_g');jdRas={k,t:T?T.value:'',g:G?G.value:''}}jdRas[f]=v;if(!jdSujo){jdSujo=true;jdBtn()}}
 function jdBtn(){const b=$('#jd_sv');if(!b)return;b.disabled=!jdSujo;b.textContent=jdSujo?'💾 Salvar':'Salvo ✓';b.classList.toggle('t',!jdSujo)}
 function jdSalvaHoje(){if(!jdSujo)return;jdSalvar(jdRas.k||ymd(new Date()),jdRas.t,jdRas.g);jdSujo=false;toast('✓ Diário salvo');render()}
@@ -1469,7 +1469,7 @@ ${cyLine()}${jdIns()}</div></details>`};
 /* dias anteriores em miniaturas, com lupa para buscar por palavra ou data */
 let jdQ='',jdN=24,ntO=false;
 const nrm=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const jdDays=()=>[...new Set([...Object.keys(S.jd||{}),...Object.keys(S.md||{}).filter(k=>S.md[k])])].sort().reverse();
+const jdDays=()=>[...new Set([...Object.keys(S.jd||{}).filter(k=>{const e=S.jd[k];return e&&(e.t||e.g||jdTr(e))}),...Object.keys(S.md||{}).filter(k=>S.md[k])])].sort().reverse();
 const jdLbl=(k,o)=>new Date(k+'T12:00').toLocaleDateString('pt-BR',o);
 function jdMatch(k,q){const e=jdOf(k),[y,mo,d]=k.split('-'),hay=nrm([e.t,e.g,S.md[k]?ML[S.md[k]-1]:'',jdLbl(k,{weekday:'long',day:'numeric',month:'long',year:'numeric'}),d+'/'+mo+'/'+y,d+'/'+mo,(+d)+'/'+(+mo)].join(' '));return nrm(q).split(/\s+/).filter(Boolean).every(w=>hay.includes(w))}
 function jdThumbs(){const td=ymd(new Date()),q=jdQ.trim();let L=jdDays().filter(k=>q?jdMatch(k,q):k!=td);
@@ -1496,7 +1496,7 @@ async function jdDay(k){if(!DR_.test(k))return;let e=jdOf(k),c=null;const m=S.md
  const ob=new MutationObserver(()=>{if(!o.isConnected){ob.disconnect();
   const fim=()=>{if(tab=='not')render()};
   if(sujo&&!feito&&confirm('Você mudou o texto deste dia. Salvar as alterações?'))salvar().then(fim);else{save();fim()}}});ob.observe(document.body,{childList:true})}
-function jdDel(k){if(!confirm('Apagar o que foi escrito neste dia?'))return false;if(S.jd)delete S.jd[k];delete S.md[k];save();closeMd();return true}
+function jdDel(k){if(!confirm('Apagar o que foi escrito neste dia?'))return false;S.jd=S.jd||{};S.jd[k]={t:'',g:'',z:null};S.md[k]=0;save();closeMd();return true}
 const DR_=/^\d{4}-\d\d-\d\d$/;
 /* estratégia de corrida: fale ou escreva tudo, o app organiza */
 function stratOpen(){sheet(`${shT('📻 Rádio da equipe')}<p class="mu sm" style="margin:-6px 0 12px">Monte sua estratégia de corrida: fale ou escreva tudo o que você precisa fazer: tarefas, contas, gastos, compras e ideias. Eu monto a estratégia e coloco cada coisa no lugar certo.</p><div class="stm">${micBtn('dmp')}<span class="mu sm">${SRc?'Toque no microfone para falar. Vermelho = ouvindo; toque de novo para parar.':'Use o microfone do teclado para falar.'}</span></div><textarea id="dmp" rows="5" placeholder="Ex.: pagar luz sexta, gastei 40 no posto, comprar café, ligar pro João amanhã às 10h" oninput="dr.dmp=this.value">${esc(dr.dmp||'')}</textarea><button class="b wide" onclick="micOff();dump()">${I('flag')}Montar estratégia</button>`);setTimeout(()=>{const e=$('#dmp');if(e&&!SRc)e.focus()},80)}
@@ -2028,7 +2028,7 @@ case'remover_remedio':{const r=(S.rm||[]).find(x=>x.id==a.id);if(!r)throw'Reméd
 case'marcar_remedio':{const r=(S.rm||[]).find(x=>x.id==a.id);if(!r)throw'Remédio '+a.id+' não existe.';if(!r.h.includes(a.horario))throw'Esse remédio não tem dose às '+a.horario+'.';const k=ymd(new Date()),o=S.rx[k]=S.rx[k]||{},key=r.id+'@'+a.horario;if(a.tomado===false)delete o[key];else o[key]=1;return{ok:1,log:(a.tomado===false?'Desmarcado: ':'Tomado: ')+r.n+' das '+a.horario}}
 case'registrar_peso':{const v=+a.kg,k=okD(a.data)?a.data:ymd(new Date());if(!(v>20&&v<400))throw'Peso em kg entre 20 e 400.';S.ps[k]=Math.round(v*10)/10;return{ok:1,log:'Peso: '+lt1(S.ps[k])+' kg em '+dfmt(k)}}
 case'definir_orcamento':{const v=+a.valor;if(!(v>=0&&v<1e9))throw'Valor inválido.';if(v>0)S.orc=Math.round(v*100)/100;else delete S.orc;return{ok:1,log:v>0?'Orçamento do mês: R$ '+f2(S.orc):'Orçamento do mês removido'}}
-case'escrever_diario':{const k=okD(a.data)?a.data:ymd(new Date());if(k>ymd(new Date()))throw'Não dá para escrever no diário de um dia que ainda não chegou.';if(jdTr(jdOf(k)))throw'Este dia do diário está trancado com senha; só a pessoa pode escrever nele.';S.jd=S.jd||{};const e=Object.assign({t:'',g:''},S.jd[k]);if(a.texto!==undefined)e.t=(a.acrescentar&&e.t?e.t+'\n':'')+String(a.texto).trim();if(a.gratidao!==undefined)e.g=(a.acrescentar&&e.g?e.g+'; ':'')+String(a.gratidao).trim();e.t=e.t.slice(0,2000);e.g=e.g.slice(0,500);if(e.t||e.g)S.jd[k]=e;else delete S.jd[k];return{ok:1,log:'Diário de '+dfmt(k)+' atualizado'}}
+case'escrever_diario':{const k=okD(a.data)?a.data:ymd(new Date());if(k>ymd(new Date()))throw'Não dá para escrever no diário de um dia que ainda não chegou.';if(jdTr(jdOf(k)))throw'Este dia do diário está trancado com senha; só a pessoa pode escrever nele.';S.jd=S.jd||{};const e=Object.assign({t:'',g:''},S.jd[k]);if(a.texto!==undefined)e.t=(a.acrescentar&&e.t?e.t+'\n':'')+String(a.texto).trim();if(a.gratidao!==undefined)e.g=(a.acrescentar&&e.g?e.g+'; ':'')+String(a.gratidao).trim();e.t=e.t.slice(0,2000);e.g=e.g.slice(0,500);S.jd[k]=e.t||e.g?e:{t:'',g:'',z:null};return{ok:1,log:'Diário de '+dfmt(k)+' atualizado'}}
 case'salvar_perfil':{const p=S.pf=S.pf||{};if(a.nome)p.nm=String(a.nome).trim().slice(0,40);if(a.acorda!==undefined){if(!okH(a.acorda))throw'Hora de acordar HH:MM.';p.ac=a.acorda}if(a.dorme!==undefined){if(!okH(a.dorme))throw'Hora de dormir HH:MM.';p.dm=a.dorme}if(['manha','tarde','noite'].includes(a.rende_mais))p.per=a.rende_mais;if(OCU.some(o=>o[0]==a.rotina_principal))p.oc=a.rotina_principal;if(a.sobre!==undefined)p.sb=String(a.sobre).trim().slice(0,300);return{ok:1,log:'Perfil atualizado'}}
 default:throw'Ferramenta desconhecida: '+n}}
 /* retrato para a IA: acrescenta Saúde de hoje, orçamento, diário e perfil */
@@ -2036,7 +2036,7 @@ const _snapAI0=snapAI;snapAI=function(){const o=_snapAI0(),n=new Date(),k=ymd(n)
  o.perfil={nome:nmOf()||null,acorda:p.ac||null,dorme:p.dm||null,rende_mais:p.per||null,rotina_principal:p.oc?lb(OCU,p.oc):null,sobre:p.sb||null};
  o.saude_hoje={agua:{copos:agN(),meta:agMeta()},remedios:(S.rm||[]).map(r=>({id:r.id,nome:r.n,dose:r.ds||'',horarios:r.h,dias:r.d&&r.d.length?r.d.map(i=>DN[i].toLowerCase().replace('á','a')):'todos',hoje:(r.d&&r.d.length&&!r.d.includes(dow(n)))?'não toma hoje':r.h.map(t=>t+(rmTk(k,r,t)?' tomado':t<hm(n)?' atrasado':' pendente'))})),peso_ultimos:Object.keys(S.ps||{}).sort().slice(-6).map(d=>({data:d,kg:S.ps[d]}))};
  o.orcamento_mes=S.orc?{valor:S.orc,gasto:+g.toFixed(2),sobra:+(S.orc-g).toFixed(2)}:null;
- o.diario={hoje:jdOf(k).t||jdOf(k).g?{texto:jdOf(k).t||'',gratidao:jdOf(k).g||''}:null,ultimos_dias:Object.keys(S.jd||{}).filter(d=>d<k).sort().slice(-7).map(d=>({data:d,texto:String(S.jd[d].t||'').slice(0,160)}))};
+ o.diario={hoje:jdOf(k).t||jdOf(k).g?{texto:jdOf(k).t||'',gratidao:jdOf(k).g||''}:null,ultimos_dias:Object.keys(S.jd||{}).filter(d=>d<k&&S.jd[d]&&S.jd[d].t).sort().slice(-7).map(d=>({data:d,texto:String(S.jd[d].t||'').slice(0,160)}))};
  return o};
 const SYS=`Você é o Engenheiro de Pista do RC Life, um app pessoal de hábitos com tema de corrida GT3. Fale em português do Brasil, curto, prático, com leve tom de rádio de equipe.
 
