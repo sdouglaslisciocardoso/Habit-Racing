@@ -255,7 +255,9 @@ export default {
           const sub = await contaDe(o.customer);
           if (sub) {
             if (ev.type === 'customer.subscription.deleted' || ['canceled', 'unpaid', 'incomplete_expired'].includes(o.status)) await assAte(D, sub, Date.now(), 'Stripe cancelada', true);
-            else if (stripeAtiva(o)) await assAte(D, sub, stripeFim(o) + FOLGA, 'Stripe');
+            // só estende com a assinatura em dia; atrasada (past_due) fica com a data que já tinha e vence sozinha
+            // (ex.: quem entrou com cupom de 1 ano grátis sem cartão não ganha outro ano quando a renovação falha)
+            else if (['active', 'trialing'].includes(o.status)) await assAte(D, sub, stripeFim(o) + FOLGA, 'Stripe');
           }
         }
       } catch (e) { return json({ erro: 'falha ao processar: ' + e.message }, 500); }
@@ -272,7 +274,8 @@ export default {
         const s = await stripe(env, 'checkout/sessions', {
           mode: 'subscription', 'line_items[0][price]': plano === 'anual' ? env.STRIPE_PRICE_ANUAL : env.STRIPE_PRICE_MENSAL, 'line_items[0][quantity]': '1',
           client_reference_id: sub, 'metadata[sub]': sub, 'subscription_data[metadata][sub]': sub, ...(ac && ac.em ? { customer_email: ac.em } : {}),
-          locale: 'pt-BR', allow_promotion_codes: 'true',
+          // código promocional no pagamento; com cupom de 100% não pede cartão (e não cobra sozinho depois)
+          locale: 'pt-BR', allow_promotion_codes: 'true', payment_method_collection: 'if_required',
           success_url: SITE + '?assinatura=ok', cancel_url: SITE + '?assinatura=cancelada'
         });
         return json({ url: s.url });
