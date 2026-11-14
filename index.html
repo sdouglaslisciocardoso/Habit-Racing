@@ -1895,7 +1895,7 @@ function promoQuero(){S.proQ=Date.now();save();
  <button class="b wide" id="pgA" onclick="promoPagar('anual')">Anual · R$ 149,90 por ano<br><small style="font-weight:600;opacity:.8">sai por R$ 12,49 por mês · economize 37%</small></button>
  <button class="b t wide" id="pgM" onclick="promoPagar('mensal')">Mensal · R$ 19,90 por mês</button>
  <button class="lnk" onclick="promoClose()">Agora não</button>`;
- const n=$('#promo .pro-note');if(n)n.textContent='Ganhou um código? Na tela de pagamento, toque em "Adicionar código promocional". Pagamento seguro pelo Stripe: Apple Pay, Google Pay ou cartão. Cancele quando quiser.'}
+ const n=$('#promo .pro-note');if(n)n.textContent='Ganhou um código? Na tela de pagamento, toque em "Adicionar código promocional". Pagamento seguro pelo Stripe: Apple Pay, Google Pay ou cartão. Cancele quando quiser. Renova sozinha até você cancelar. Termos: sdouglaslisciocardoso.github.io/Habit-Racing/termos.html'}
 async function promoPagar(plano){const bs=[...document.querySelectorAll('#pgA,#pgM')];bs.forEach(b=>b.disabled=true);const bt=$(plano=='anual'?'#pgA':'#pgM'),t0=bt.innerHTML;bt.textContent='Abrindo o pagamento…';
  let j={};try{const r=await fetch(PXU+'/pay/stripe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tk:ssTk(),plano})});j=await r.json().catch(()=>({}));if(r.ok&&j.url&&/^https:\/\/checkout\.stripe\.com\//.test(j.url)){location.href=j.url;return}}catch(e){j={erro:'Sem conexão agora. Tente de novo.'}}
  bs.forEach(b=>b.disabled=false);bt.innerHTML=t0;toast(j.erro||'Não consegui abrir o pagamento agora. Tente de novo.',6000);
@@ -2343,7 +2343,7 @@ ${grp('eu','user','Seu perfil',nmOf()?esc(nmOf())+(S.pf.oc?', '+lb(OCU,S.pf.oc):
 ${grp('conta','lock','Conta e segurança',[V.key?'Cofre ativo':'Sem senha',gon?'conta conectada':'sem conta'].join(', '),conta)}
 ${grp('avisos','bell','Avisos',pon?'Chegam mesmo com o app fechado':'Só com o app aberto',avisos)}
 ${grp('visu','paint','Perfil e aparência',[(S.fam=='f'?'Mulher':'Homem'),thn].join(', '),visu)}
-<p class="ver">RC Life · versão 3.2${V.key?' · dados criptografados':''} · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a></p>`);
+<p class="ver">RC Life · versão 3.2${V.key?' · dados criptografados':''} · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a> · <a href="termos.html" target="_blank" rel="noopener">Termos de uso</a></p>`);
 o.querySelectorAll('details.grp').forEach(d=>d.addEventListener('toggle',()=>{cfgOpen[d.dataset.g]=d.open}));
 if($('#bx'))$('#bx').onclick=async()=>{await bkpFile();closeMd();render()};
 if($('#bi'))$('#bi').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=await bkpRead(f);if(d===0)return;if(!d)throw 0;if(!confirm('Substituir todos os dados deste aparelho pelos do backup?'))return;delete d.k;Object.assign(d,gKeep());S=d;save();await V.idle();location.reload()}catch(x){toast('Este arquivo não é um backup válido do RC Life.')}}}
