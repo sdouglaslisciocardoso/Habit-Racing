@@ -97,7 +97,9 @@ const SCHEMA = [
   // erros do servidor (os últimos aparecem no painel; limpos depois de 30 dias)
   "CREATE TABLE IF NOT EXISTS err (ct INTEGER, onde TEXT, msg TEXT)",
   // tentativas erradas do código do painel por janela de 15 min
-  "CREATE TABLE IF NOT EXISTS admf (j INTEGER PRIMARY KEY, n INTEGER DEFAULT 0)"
+  "CREATE TABLE IF NOT EXISTS admf (j INTEGER PRIMARY KEY, n INTEGER DEFAULT 0)",
+  // usos grátis do Rádio por semana (degustação para quem não assina)
+  "CREATE TABLE IF NOT EXISTS aig (q TEXT, sem INTEGER, rid TEXT, PRIMARY KEY (q, rid))"
 ];
 // a assinatura vale para a IA só quando o dono liga PLANO_IA = "assinatura"
 const exigeAss = env => String(env.PLANO_IA || '').trim().toLowerCase() === 'assinatura';
@@ -118,6 +120,7 @@ const SITE = 'https://sdouglaslisciocardoso.github.io/Habit-Racing/';
 // fim da pré-venda do anual (R$ 99 no 1º ano); o mesmo prazo está no app web (PV_FIM)
 const PV_FIM = Date.parse('2026-12-14T23:59:59-03:00');
 const AI_MES = 300; // pedidos de IA por conta por mês quando a assinatura é exigida
+const RADIO_GRATIS = 3; // usos do Rádio por semana para quem não assina (degustação)
 const FOLGA = 2 * 864e5; // 2 dias de folga depois do fim do período (atraso de renovação não corta na hora)
 const stripeOn = env => !!(env.STRIPE_KEY && env.STRIPE_PRICE_MENSAL && env.STRIPE_PRICE_ANUAL);
 async function stripe(env, path, params, method = 'POST') {
@@ -359,10 +362,23 @@ const mod = {
       const D = await db(env), now = Date.now(), hj = dia(now), id = await sha('ai:' + b.d), ipId = await sha('aip:' + ip);
       let subAss = null;
       if (exigeAss(env)) {
-        subAss = await sesOf(D, b.tk);
-        if (!(await assDe(D, subAss))) return json({ error: { message: 'A automação com IA é um recurso da assinatura RC Life.' }, assinatura: true }, 402);
-        const mm = await D.prepare('SELECT n FROM aim WHERE sub=? AND mes=?').bind(subAss, hj.slice(0, 7)).first();
-        if (mm && mm.n >= AI_MES) return aiErr('Você usou os ' + AI_MES + ' pedidos de IA deste mês. No dia 1º libera de novo.', 429);
+        const sesSub = await sesOf(D, b.tk);
+        if (await assDe(D, sesSub)) {
+          subAss = sesSub;
+          const mm = await D.prepare('SELECT n FROM aim WHERE sub=? AND mes=?').bind(subAss, hj.slice(0, 7)).first();
+          if (mm && mm.n >= AI_MES) return aiErr('Você usou os ' + AI_MES + ' pedidos de IA deste mês. No dia 1º libera de novo.', 429);
+        } else {
+          // degustação: quem não assina usa o Rádio RADIO_GRATIS vezes por semana (com login; um uso = um rid, mesmo com várias chamadas)
+          const rid = String(b.rid || ''), sem = Math.floor((now - 3 * 36e5) / (7 * 864e5));
+          if (b.uso !== 'radio' || !/^[a-z0-9]{8,40}$/i.test(rid)) return json({ error: { message: 'A automação com IA é um recurso da assinatura RC Life.' }, assinatura: true }, 402);
+          if (!sesSub) return json({ error: { message: 'Entre com sua conta Google para usar o Rádio grátis.' }, assinatura: true, cota: true }, 402);
+          const ja = await D.prepare('SELECT 1 FROM aig WHERE q=? AND rid=?').bind(sesSub, rid).first();
+          if (!ja) {
+            const c = await D.prepare('SELECT COUNT(*) c FROM aig WHERE q=? AND sem=?').bind(sesSub, sem).first();
+            if (c && c.c >= RADIO_GRATIS) return json({ error: { message: 'Você usou os ' + RADIO_GRATIS + ' Rádios grátis desta semana. Assine para usar à vontade.' }, assinatura: true, cota: true }, 402);
+            await D.prepare('INSERT INTO aig (q,sem,rid) VALUES (?,?,?)').bind(sesSub, sem, rid).run();
+          }
+        }
       }
       const [me, byIp, all] = await Promise.all([
         D.prepare('SELECT n FROM ai WHERE d=? AND dy=?').bind(id, hj).first(),
@@ -532,7 +548,7 @@ const mod = {
       } catch (e) { await D.prepare('UPDATE u SET nxt=? WHERE id=?').bind(t + 6e4, row.id).run(); }
     }));
     // limpeza diária: agendas paradas há mais de 30 dias
-    if (new Date(t).getUTCHours() === 6 && new Date(t).getUTCMinutes() === 0) { await D.prepare('DELETE FROM u WHERE at < ?').bind(t - 30 * 864e5).run(); await D.prepare('DELETE FROM pd WHERE dy < ?').bind(dia(t, 120)).run(); await D.prepare('DELETE FROM ai WHERE dy < ?').bind(dia(t, 7)).run(); await D.prepare('DELETE FROM aim WHERE mes < ?').bind(dia(t, 120).slice(0, 7)).run(); await D.prepare('DELETE FROM err WHERE ct < ?').bind(t - 30 * 864e5).run(); }
+    if (new Date(t).getUTCHours() === 6 && new Date(t).getUTCMinutes() === 0) { await D.prepare('DELETE FROM u WHERE at < ?').bind(t - 30 * 864e5).run(); await D.prepare('DELETE FROM pd WHERE dy < ?').bind(dia(t, 120)).run(); await D.prepare('DELETE FROM ai WHERE dy < ?').bind(dia(t, 7)).run(); await D.prepare('DELETE FROM aim WHERE mes < ?').bind(dia(t, 120).slice(0, 7)).run(); await D.prepare('DELETE FROM err WHERE ct < ?').bind(t - 30 * 864e5).run(); await D.prepare('DELETE FROM aig WHERE sem < ?').bind(Math.floor((t - 3 * 36e5) / (7 * 864e5)) - 2).run(); }
     // uma vez por dia: confere na Play Store as assinaturas do Android (renovação ou cancelamento sem o app abrir)
     if (env.PLAY_SA && new Date(t).getUTCHours() === 7 && new Date(t).getUTCMinutes() === 0) {
       const { results: ps } = await D.prepare("SELECT sub, tok FROM pag WHERE prov='play'").all();
