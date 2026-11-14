@@ -10,12 +10,13 @@ main{max-width:720px;margin:0 auto}header{display:flex;align-items:center;gap:14
 h1{font-size:26px;margin:0;line-height:1.2}h2{font-size:18px;margin:28px 0 6px;color:var(--acc)}p,li{color:var(--tx)}small,.mu{color:var(--mu)}
 ul{padding-left:20px}a{color:var(--acc)}.box{background:var(--p);border:1px solid var(--bd);border-radius:14px;padding:14px 16px;margin-top:16px}
 </style></head><body><main>
-<header><img src="icon-192.png" alt=""><div><h1>Política de Privacidade</h1><small>RC Life · atualizada em 11 de novembro de 2026</small></div></header>
+<header><img src="icon-192.png" alt=""><div><h1>Política de Privacidade</h1>
+<p class="mu">Atualizada em 14 de novembro de 2026</p><small>RC Life · atualizada em 11 de novembro de 2026</small></div></header>
 
 <div class="box"><b>Resumo:</b> seus dados são seus. Eles ficam no seu aparelho e, se você entrar com sua conta, numa cópia separada só sua no servidor do RC Life, para aparecerem em todos os seus aparelhos. Se você criar a senha do cofre (opcional e recomendado), tudo fica criptografado com uma senha que só você conhece. O criador do RC Life não usa nem compartilha seus dados.</div>
 
 <h2>1. Quem somos</h2>
-<p>O RC Life (antes chamado Habit RC) é um aplicativo gratuito de organização de hábitos, tarefas, finanças pessoais e rotina, criado por Samuel Douglas e disponível em <a href="https://sdouglaslisciocardoso.github.io/Habit-Racing/">sdouglaslisciocardoso.github.io/Habit-Racing</a>.</p>
+<p>O RC Life (antes chamado Habit RC) é um aplicativo de organização de hábitos, tarefas, finanças pessoais e rotina, criado por Samuel Douglas e disponível em <a href="https://sdouglaslisciocardoso.github.io/Habit-Racing/">sdouglaslisciocardoso.github.io/Habit-Racing</a>. O uso básico é gratuito; as automações com IA fazem parte de uma assinatura opcional (veja os <a href="termos.html">Termos de uso</a>).</p>
 
 <h2>2. Que dados o app guarda</h2>
 <p>Tudo o que você digita no app: hábitos, tarefas, anotações, contas, gastos, lista de compras, datas importantes, sono e demais registros. Esses dados ficam guardados <b>no próprio aparelho</b>. Quando você cria a senha do cofre (opcional), eles são criptografados (AES-256) com uma chave gerada a partir da sua senha, que nunca é salva nem enviada a ninguém.</p>
@@ -33,23 +34,27 @@ ul{padding-left:20px}a{color:var(--acc)}.box{background:var(--p);border:1px soli
 <p>Se você ativar essa função, o app envia ao nosso servidor de avisos (hospedado na Cloudflare) a agenda dos próximos 7 dias: horário, título e texto curto de cada aviso (por exemplo, "Hora de Treino"), para que a notificação chegue na hora certa. O servidor não recebe o resto dos seus dados, identifica seu aparelho apenas por um código aleatório e apaga a agenda quando você desliga os avisos ou fica 30 dias sem abrir o app. A entrega até o celular é criptografada pelo serviço de notificações da Apple, do Google ou do navegador.</p>
 
 <h2>5. Engenheiro IA</h2>
-<p>A função de IA é opcional. Quando você conversa com o engenheiro (ou pede uma mensagem do dia), o app envia sua pergunta e os dados necessários para responder ao servidor do RC Life, que repassa à Anthropic (empresa que faz o Claude), sob a política de privacidade dela. O servidor não guarda o conteúdo das conversas; ele só conta quantos pedidos cada aparelho fez no dia, para respeitar o limite diário.</p>
+<p>A função de IA faz parte da assinatura RC Life. Quando você conversa com o engenheiro (ou pede uma mensagem do dia), o app envia sua pergunta e os dados necessários para responder ao servidor do RC Life, que repassa à Anthropic (empresa que faz o Claude), sob a política de privacidade dela. O servidor não guarda o conteúdo das conversas; ele só conta quantos pedidos cada aparelho fez no dia e cada conta fez no mês, para respeitar os limites de uso.</p>
 
-<h2>6. Contagem anônima de uso</h2>
+<h2>6. Assinatura e pagamentos</h2>
+<p>As automações com IA fazem parte da assinatura RC Life, que é opcional. O pagamento é feito pelo <b>Stripe</b> (no site) ou pelo <b>Google Play</b> (no Android), sob a política de privacidade de cada um. Os dados do seu cartão vão direto para eles: o RC Life nunca vê nem guarda número de cartão.</p>
+<p>O servidor do RC Life guarda só o necessário para liberar a assinatura na sua conta: o código do cliente no Stripe (ou o comprovante da compra no Google Play), até quando a assinatura vale e quantos pedidos de IA a conta fez no mês (para o limite de uso justo). O Stripe recebe o e-mail da sua conta Google para emitir recibos. Esses dados ficam guardados enquanto a assinatura existir e pelo tempo exigido por lei para fins fiscais.</p>
+
+<h2>7. Contagem anônima de uso</h2>
 <p>Enquanto o app está aberto, ele avisa ao servidor do RC Life, uma vez por minuto, que um aparelho está em uso. Vai só um código aleatório criado no aparelho (o servidor guarda apenas uma versão embaralhada dele), o tipo de aparelho (iPhone, Android ou computador) e se o app está instalado. Nenhum nome, e-mail, hábito, tarefa ou outro dado seu é enviado. Isso serve só para sabermos quantas pessoas usam o app. Os registros por dia são apagados depois de 120 dias.</p>
 
-<h2>7. O que não fazemos</h2>
+<h2>8. O que não fazemos</h2>
 <ul>
-<li>Não vendemos, alugamos ou compartilhamos seus dados.</li>
+<li>Não vendemos nem alugamos seus dados, e só compartilhamos o mínimo necessário com quem processa o pagamento (Stripe ou Google Play) e a IA (Anthropic), como descrito acima.</li>
 <li>Não usamos anúncios, rastreadores ou cookies de terceiros.</li>
 <li>Não usamos seus dados para treinar inteligência artificial.</li>
 <li>Não temos acesso à sua senha do cofre e não conseguimos recuperá-la.</li>
 </ul>
 
-<h2>8. Seus direitos (LGPD)</h2>
+<h2>9. Seus direitos (LGPD)</h2>
 <p>Você tem controle total: pode ver, corrigir, exportar e apagar seus dados a qualquer momento dentro do app. Para apagar tudo, saia da conta em Ajustes escolhendo apagar também os dados guardados no servidor, desligue os avisos e remova o app do aparelho. Dúvidas sobre privacidade: <a href="mailto:sdouglaslisciocardoso@gmail.com">sdouglaslisciocardoso@gmail.com</a>.</p>
 
-<h2>9. Mudanças</h2>
+<h2>10. Mudanças</h2>
 <p>Se esta política mudar, a nova versão será publicada nesta página com a data de atualização.</p>
 
 <p class="mu" style="margin-top:32px"><a href="./">← Voltar ao RC Life</a></p>
