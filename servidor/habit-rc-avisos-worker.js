@@ -93,7 +93,9 @@ const SCHEMA = [
   // pedidos de IA por conta por mês (limite da assinatura)
   "CREATE TABLE IF NOT EXISTS aim (sub TEXT, mes TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (sub, mes))",
   // gasto da IA por mês (pedidos e tokens), para o dono acompanhar o custo no painel
-  "CREATE TABLE IF NOT EXISTS aiu (mes TEXT PRIMARY KEY, n INTEGER DEFAULT 0, ent INTEGER DEFAULT 0, sai INTEGER DEFAULT 0)"
+  "CREATE TABLE IF NOT EXISTS aiu (mes TEXT PRIMARY KEY, n INTEGER DEFAULT 0, ent INTEGER DEFAULT 0, sai INTEGER DEFAULT 0)",
+  // erros do servidor (os últimos aparecem no painel; limpos depois de 30 dias)
+  "CREATE TABLE IF NOT EXISTS err (ct INTEGER, onde TEXT, msg TEXT)"
 ];
 // a assinatura vale para a IA só quando o dono liga PLANO_IA = "assinatura"
 const exigeAss = env => String(env.PLANO_IA || '').trim().toLowerCase() === 'assinatura';
@@ -215,8 +217,18 @@ async function db(env) { if (!ready) { for (const q of SCHEMA) await env.DB.prep
 const nextTs = (items, after) => { let m = null; for (const i of items) if (i.ts > after && (m === null || i.ts < m)) m = i.ts; return m; };
 const ENDPOINT = /^https:\/\/[a-z0-9.-]+\.(push\.apple\.com|googleapis\.com|mozilla\.com|mozaws\.net|notify\.windows\.com)\//i;
 
-export default {
+// anota um erro do servidor (o dono vê os últimos no painel)
+async function erroLog(env, onde, e) {
+  try { console.log(onde, e && e.message); await env.DB.prepare("INSERT INTO err (ct,onde,msg) VALUES (?,?,?)").bind(Date.now(), String(onde).slice(0, 40), String((e && e.message) || e).slice(0, 300)).run(); } catch (x) { }
+}
+
+const mod = {
+  // qualquer erro inesperado vira resposta 500 e fica anotado
   async fetch(req, env) {
+    try { return await mod.app(req, env); }
+    catch (e) { await erroLog(env, new URL(req.url).pathname, e); return new Response(JSON.stringify({ erro: 'Erro no servidor. Tente de novo.' }), { status: 500, headers: { 'content-type': 'application/json', 'Access-Control-Allow-Origin': ORIGINS[0] } }); }
+  },
+  async app(req, env) {
     const origin = req.headers.get('Origin'), H = hdrs(origin), ip = req.headers.get('CF-Connecting-IP') || '';
     const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { ...H, 'content-type': 'application/json' } });
     const aiErr = (m, s) => json({ error: { message: m } }, s);
@@ -262,7 +274,7 @@ export default {
             else if (['active', 'trialing'].includes(o.status)) await assAte(D, sub, stripeFim(o) + FOLGA, 'Stripe');
           }
         }
-      } catch (e) { return json({ erro: 'falha ao processar: ' + e.message }, 500); }
+      } catch (e) { await erroLog(env, 'webhook ' + ev.type, e); return json({ erro: 'falha ao processar: ' + e.message }, 500); }
       return json({ ok: true });
     }
     // pagamento no web: cria a página de pagamento do Stripe para a conta logada
@@ -293,7 +305,7 @@ export default {
         }
         if (!s) s = await sessao(porEmail);
         return json({ url: s.url });
-      } catch (e) { console.log('checkout', e.message); return json({ erro: 'Não consegui abrir o pagamento agora. Tente de novo em instantes.' }, 502); }
+      } catch (e) { await erroLog(env, 'checkout', e); return json({ erro: 'Não consegui abrir o pagamento agora. Tente de novo em instantes.' }, 502); }
     }
     // gerenciar/cancelar a assinatura: abre o portal do cliente no Stripe
     if (req.method === 'POST' && p === '/pay/portal') {
@@ -303,7 +315,7 @@ export default {
       const pc = await D.prepare("SELECT ref FROM pag WHERE sub=? AND prov='stripe' ORDER BY ct DESC LIMIT 1").bind(sub).first();
       if (!pc) return json({ erro: (await D.prepare("SELECT 1 FROM pag WHERE sub=? AND prov='play'").bind(sub).first()) ? 'Sua assinatura é pela Play Store: gerencie em Play Store > Pagamentos e assinaturas.' : 'Não encontrei assinatura paga nesta conta.' }, 404);
       try { const s = await stripe(env, 'billing_portal/sessions', { customer: pc.ref.slice(7), return_url: SITE, locale: 'pt-BR' }); return json({ url: s.url }); }
-      catch (e) { console.log('portal', e.message); return json({ erro: 'Não consegui abrir o gerenciamento agora. Tente de novo em instantes.' }, 502); }
+      catch (e) { await erroLog(env, 'portal', e); return json({ erro: 'Não consegui abrir o gerenciamento agora. Tente de novo em instantes.' }, 502); }
     }
     // pagamento no Android: confere a compra na Play Store e libera a assinatura da conta
     if (req.method === 'POST' && p === '/pay/play') {
@@ -366,7 +378,7 @@ export default {
         // soma os tokens do mês (o custo da Anthropic vem daqui)
         try { const u = (JSON.parse(txt).usage) || {}; if (r.ok) await D.prepare("INSERT INTO aiu (mes,n,ent,sai) VALUES (?1,1,?2,?3) ON CONFLICT(mes) DO UPDATE SET n=n+1, ent=ent+?2, sai=sai+?3").bind(hj.slice(0, 7), (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0), u.output_tokens || 0).run(); } catch (e) { }
         return new Response(txt, { status: r.status, headers: { ...H, 'content-type': 'application/json' } });
-      } catch (e) { return aiErr('Não consegui falar com a IA agora. Tente de novo.', 502); }
+      } catch (e) { await erroLog(env, 'ia', e); return aiErr('Não consegui falar com a IA agora. Tente de novo.', 502); }
     }
     if (req.method === 'POST' && p === '/auth') {
       const b = await body(req);
@@ -455,7 +467,8 @@ export default {
       const contas = await one('SELECT COUNT(*) c FROM acct'), sinc = await one('SELECT COUNT(*) c FROM dat WHERE at > ?', now - 864e5);
       const assinantes = await one('SELECT COUNT(*) c FROM ass WHERE ate > ?', now);
       const iaMes = (await D.prepare("SELECT mes, n, ent, sai FROM aiu ORDER BY mes DESC LIMIT 3").all()).results || [];
-      return json({ agora, h15, h1, hoje, d7, d30, total, novos, visitas, serie, plat, novosSerie, ia, iaOn: !!env.ANTHROPIC_KEY, iaLim: AI_DAY, contas, sinc, assinantes, iaMes, plano: exigeAss(env) ? 'assinatura' : 'livre', ts: now });
+      const erros = (await D.prepare("SELECT ct, onde, msg FROM err ORDER BY ct DESC LIMIT 10").all()).results || [], err24 = await one('SELECT COUNT(*) c FROM err WHERE ct > ?', now - 864e5);
+      return json({ agora, h15, h1, hoje, d7, d30, total, novos, visitas, serie, plat, novosSerie, ia, iaOn: !!env.ANTHROPIC_KEY, iaLim: AI_DAY, contas, sinc, assinantes, iaMes, erros, err24, plano: exigeAss(env) ? 'assinatura' : 'livre', ts: now });
     }
     if (req.method === 'POST' && (p === '/sync' || p === '/test')) {
       const b = await body(req);
@@ -501,7 +514,7 @@ export default {
       } catch (e) { await D.prepare('UPDATE u SET nxt=? WHERE id=?').bind(t + 6e4, row.id).run(); }
     }));
     // limpeza diária: agendas paradas há mais de 30 dias
-    if (new Date(t).getUTCHours() === 6 && new Date(t).getUTCMinutes() === 0) { await D.prepare('DELETE FROM u WHERE at < ?').bind(t - 30 * 864e5).run(); await D.prepare('DELETE FROM pd WHERE dy < ?').bind(dia(t, 120)).run(); await D.prepare('DELETE FROM ai WHERE dy < ?').bind(dia(t, 7)).run(); await D.prepare('DELETE FROM aim WHERE mes < ?').bind(dia(t, 120).slice(0, 7)).run(); }
+    if (new Date(t).getUTCHours() === 6 && new Date(t).getUTCMinutes() === 0) { await D.prepare('DELETE FROM u WHERE at < ?').bind(t - 30 * 864e5).run(); await D.prepare('DELETE FROM pd WHERE dy < ?').bind(dia(t, 120)).run(); await D.prepare('DELETE FROM ai WHERE dy < ?').bind(dia(t, 7)).run(); await D.prepare('DELETE FROM aim WHERE mes < ?').bind(dia(t, 120).slice(0, 7)).run(); await D.prepare('DELETE FROM err WHERE ct < ?').bind(t - 30 * 864e5).run(); }
     // uma vez por dia: confere na Play Store as assinaturas do Android (renovação ou cancelamento sem o app abrir)
     if (env.PLAY_SA && new Date(t).getUTCHours() === 7 && new Date(t).getUTCMinutes() === 0) {
       const { results: ps } = await D.prepare("SELECT sub, tok FROM pag WHERE prov='play'").all();
@@ -511,3 +524,4 @@ export default {
     }
   }
 };
+export default mod;
