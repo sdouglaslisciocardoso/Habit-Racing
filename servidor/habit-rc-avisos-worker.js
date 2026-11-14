@@ -113,6 +113,8 @@ async function assAte(D, sub, ate, obs, forcar) {
 const PRECOS = { mensal: 'R$ 19,90 por mês', anual: 'R$ 149,90 por ano' };
 const PLAY_PKG = 'com.rclife.rc_life', PLAY_PROD = 'rclife_assinatura';
 const SITE = 'https://sdouglaslisciocardoso.github.io/Habit-Racing/';
+// fim da pré-venda do anual (R$ 99 no 1º ano); o mesmo prazo está no app web (PV_FIM)
+const PV_FIM = Date.parse('2026-12-14T23:59:59-03:00');
 const AI_MES = 300; // pedidos de IA por conta por mês quando a assinatura é exigida
 const FOLGA = 2 * 864e5; // 2 dias de folga depois do fim do período (atraso de renovação não corta na hora)
 const stripeOn = env => !!(env.STRIPE_KEY && env.STRIPE_PRICE_MENSAL && env.STRIPE_PRICE_ANUAL);
@@ -289,11 +291,14 @@ const mod = {
       const plano = b.plano === 'anual' ? 'anual' : 'mensal', ac = await D.prepare('SELECT em FROM acct WHERE sub=?').bind(sub).first();
       // a mesma conta usa sempre o mesmo cliente no Stripe (assim "código só no primeiro pedido" vale de verdade)
       const pc = await D.prepare("SELECT ref FROM pag WHERE sub=? AND prov='stripe' ORDER BY ct DESC LIMIT 1").bind(sub).first();
+      // pré-venda: no anual e dentro do prazo, o desconto (código STRIPE_PREVENDA) já vem aplicado
+      const pv = b.pv && plano === 'anual' && Date.now() < PV_FIM && /^promo_/.test(String(env.STRIPE_PREVENDA || ''));
       const sessao = quem => stripe(env, 'checkout/sessions', {
         mode: 'subscription', 'line_items[0][price]': plano === 'anual' ? env.STRIPE_PRICE_ANUAL : env.STRIPE_PRICE_MENSAL, 'line_items[0][quantity]': '1',
         client_reference_id: sub, 'metadata[sub]': sub, 'subscription_data[metadata][sub]': sub, ...quem,
         // código promocional no pagamento; com cupom de 100% não pede cartão (e não cobra sozinho depois)
-        locale: 'pt-BR', allow_promotion_codes: 'true', payment_method_collection: 'if_required',
+        ...(pv ? { 'discounts[0][promotion_code]': env.STRIPE_PREVENDA } : { allow_promotion_codes: 'true' }),
+        locale: 'pt-BR', payment_method_collection: 'if_required',
         success_url: SITE + '?assinatura=ok', cancel_url: SITE + '?assinatura=cancelada'
       });
       const porEmail = ac && ac.em ? { customer_email: ac.em } : {};
