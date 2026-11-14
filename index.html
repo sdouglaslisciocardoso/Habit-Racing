@@ -1898,7 +1898,9 @@ function promoQuero(){S.proQ=Date.now();save();
  const n=$('#promo .pro-note');if(n)n.textContent='Ganhou um código? Na tela de pagamento, toque em "Adicionar código promocional". Pagamento seguro pelo Stripe: Apple Pay, Google Pay ou cartão. Cancele quando quiser.'}
 async function promoPagar(plano){const bs=[...document.querySelectorAll('#pgA,#pgM')];bs.forEach(b=>b.disabled=true);const bt=$(plano=='anual'?'#pgA':'#pgM'),t0=bt.innerHTML;bt.textContent='Abrindo o pagamento…';
  let j={};try{const r=await fetch(PXU+'/pay/stripe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tk:ssTk(),plano})});j=await r.json().catch(()=>({}));if(r.ok&&j.url&&/^https:\/\/checkout\.stripe\.com\//.test(j.url)){location.href=j.url;return}}catch(e){j={erro:'Sem conexão agora. Tente de novo.'}}
- bs.forEach(b=>b.disabled=false);bt.innerHTML=t0;toast(j.erro||'Não consegui abrir o pagamento agora. Tente de novo.',6000)}
+ bs.forEach(b=>b.disabled=false);bt.innerHTML=t0;toast(j.erro||'Não consegui abrir o pagamento agora. Tente de novo.',6000);
+ /* a conta já assina: libera neste aparelho em vez de cobrar de novo */
+ if(j.ativa)assChk().then(ok=>{if(ok){promoClose();render();toast('🏁 Assinatura RC Life ativa! Rádio e Engenheiro IA liberados.',6000)}})}
 /* volta do pagamento: confere a assinatura algumas vezes (o aviso do Stripe leva alguns segundos) */
 async function assChk(){if(!ssTk())return false;try{const s=await (await fetch(PXU+'/ai/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tk:ssTk()})})).json();assSet(s.plano=='assinatura'?'assinatura':'livre',!!s.assinante);return!!s.assinante}catch(e){return false}}
 let PAGO=null;try{const q=new URLSearchParams(location.search).get('assinatura');if(q){PAGO=q;history.replaceState(null,'',location.pathname)}}catch(e){}

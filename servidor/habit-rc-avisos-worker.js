@@ -104,8 +104,8 @@ async function assAte(D, sub, ate, obs, forcar) {
 }
 
 // ---------- cobrança: Stripe (web: Apple Pay, Google Pay, cartão) e Play Store (Android) ----------
-// Secrets/variáveis no Worker: STRIPE_KEY (sk_live_...), STRIPE_WEBHOOK_SECRET (whsec_...),
-//   STRIPE_PRICE_MENSAL e STRIPE_PRICE_ANUAL (price_...), PLAY_SA (JSON da conta de serviço do Google Play).
+// Secrets/variáveis no Worker: STRIPE_KEY (secret, sk_live_...), STRIPE_PRICE_MENSAL e STRIPE_PRICE_ANUAL (price_...),
+//   PLAY_SA (secret: JSON da conta de serviço do Google Play). STRIPE_WEBHOOK_SECRET (whsec_...) é opcional: sem ele, cada aviso é conferido na API do Stripe.
 const PRECOS = { mensal: 'R$ 19,90 por mês', anual: 'R$ 149,90 por ano' };
 const PLAY_PKG = 'com.rclife.rc_life', PLAY_PROD = 'rclife_assinatura';
 const SITE = 'https://sdouglaslisciocardoso.github.io/Habit-Racing/';
@@ -269,17 +269,29 @@ export default {
       const D = await db(env), sub = b ? await sesOf(D, b.tk) : null;
       if (!sub) return json({ erro: 'Entre com sua conta Google para assinar: a assinatura fica na sua conta.' }, 401);
       if (!stripeOn(env)) return json({ erro: 'O pagamento ainda não foi ligado. Volte em breve!' }, 503);
+      // quem já assina não paga de novo (evita cobrança em dobro)
+      const ja = await assDe(D, sub);
+      if (ja) return json({ erro: 'Sua assinatura RC Life já está ativa (até ' + new Date(ja).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + '). Toque em "Já assino" para liberar neste aparelho.', ativa: true }, 409);
       const plano = b.plano === 'anual' ? 'anual' : 'mensal', ac = await D.prepare('SELECT em FROM acct WHERE sub=?').bind(sub).first();
+      // a mesma conta usa sempre o mesmo cliente no Stripe (assim "código só no primeiro pedido" vale de verdade)
+      const pc = await D.prepare("SELECT ref FROM pag WHERE sub=? AND prov='stripe' ORDER BY ct DESC LIMIT 1").bind(sub).first();
+      const sessao = quem => stripe(env, 'checkout/sessions', {
+        mode: 'subscription', 'line_items[0][price]': plano === 'anual' ? env.STRIPE_PRICE_ANUAL : env.STRIPE_PRICE_MENSAL, 'line_items[0][quantity]': '1',
+        client_reference_id: sub, 'metadata[sub]': sub, 'subscription_data[metadata][sub]': sub, ...quem,
+        // código promocional no pagamento; com cupom de 100% não pede cartão (e não cobra sozinho depois)
+        locale: 'pt-BR', allow_promotion_codes: 'true', payment_method_collection: 'if_required',
+        success_url: SITE + '?assinatura=ok', cancel_url: SITE + '?assinatura=cancelada'
+      });
+      const porEmail = ac && ac.em ? { customer_email: ac.em } : {};
       try {
-        const s = await stripe(env, 'checkout/sessions', {
-          mode: 'subscription', 'line_items[0][price]': plano === 'anual' ? env.STRIPE_PRICE_ANUAL : env.STRIPE_PRICE_MENSAL, 'line_items[0][quantity]': '1',
-          client_reference_id: sub, 'metadata[sub]': sub, 'subscription_data[metadata][sub]': sub, ...(ac && ac.em ? { customer_email: ac.em } : {}),
-          // código promocional no pagamento; com cupom de 100% não pede cartão (e não cobra sozinho depois)
-          locale: 'pt-BR', allow_promotion_codes: 'true', payment_method_collection: 'if_required',
-          success_url: SITE + '?assinatura=ok', cancel_url: SITE + '?assinatura=cancelada'
-        });
+        let s;
+        if (pc) {
+          // cliente antigo pode ser do modo de teste ou ter sido apagado: aí cai para o e-mail
+          try { s = await sessao({ customer: pc.ref.slice(7) }); } catch (e) { if (!/customer/i.test(e.message)) throw e; }
+        }
+        if (!s) s = await sessao(porEmail);
         return json({ url: s.url });
-      } catch (e) { return json({ erro: 'Não consegui abrir o pagamento agora (' + e.message + ').' }, 502); }
+      } catch (e) { console.log('checkout', e.message); return json({ erro: 'Não consegui abrir o pagamento agora. Tente de novo em instantes.' }, 502); }
     }
     // pagamento no Android: confere a compra na Play Store e libera a assinatura da conta
     if (req.method === 'POST' && p === '/pay/play') {
