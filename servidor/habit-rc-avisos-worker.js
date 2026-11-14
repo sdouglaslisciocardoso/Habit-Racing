@@ -91,7 +91,9 @@ const SCHEMA = [
   // pagamentos: liga o cliente do Stripe ou a compra da Play Store à conta (ref = "stripe:cus_..." ou "play:<hash do token>")
   "CREATE TABLE IF NOT EXISTS pag (ref TEXT PRIMARY KEY, sub TEXT, prov TEXT, tok TEXT, ct INTEGER)",
   // pedidos de IA por conta por mês (limite da assinatura)
-  "CREATE TABLE IF NOT EXISTS aim (sub TEXT, mes TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (sub, mes))"
+  "CREATE TABLE IF NOT EXISTS aim (sub TEXT, mes TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (sub, mes))",
+  // gasto da IA por mês (pedidos e tokens), para o dono acompanhar o custo no painel
+  "CREATE TABLE IF NOT EXISTS aiu (mes TEXT PRIMARY KEY, n INTEGER DEFAULT 0, ent INTEGER DEFAULT 0, sai INTEGER DEFAULT 0)"
 ];
 // a assinatura vale para a IA só quando o dono liga PLANO_IA = "assinatura"
 const exigeAss = env => String(env.PLANO_IA || '').trim().toLowerCase() === 'assinatura';
@@ -346,7 +348,7 @@ export default {
         D.prepare("SELECT n FROM ai WHERE d='*' AND dy=?").bind(hj).first()
       ]);
       if ((me && me.n >= AI_LIM) || (byIp && byIp.n >= AI_IP)) return aiErr('Você usou os ' + AI_LIM + ' pedidos de IA de hoje. Amanhã libera de novo.', 429);
-      if (all && all.n >= AI_DAY) return aiErr('A IA do app atingiu o limite de hoje. Amanhã libera de novo.', 429);
+      if (!subAss && all && all.n >= AI_DAY) return aiErr('A IA do app atingiu o limite de hoje. Amanhã libera de novo.', 429);
       const x = b.b, q = { model: AI_MODEL, max_tokens: Math.min(Math.max(+x.max_tokens || 600, 50), 4000), messages: aiMsgs(x.messages) };
       if (!q.messages.length) return aiErr('pedido inválido', 400);
       if (typeof x.system === 'string') q.system = x.system.slice(0, 80000);
@@ -360,7 +362,10 @@ export default {
       try {
         const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify(q) });
         if (r.status === 401 || r.status === 403) return aiErr('A IA do app está indisponível no momento.', 503);
-        return new Response(await r.text(), { status: r.status, headers: { ...H, 'content-type': 'application/json' } });
+        const txt = await r.text();
+        // soma os tokens do mês (o custo da Anthropic vem daqui)
+        try { const u = (JSON.parse(txt).usage) || {}; if (r.ok) await D.prepare("INSERT INTO aiu (mes,n,ent,sai) VALUES (?1,1,?2,?3) ON CONFLICT(mes) DO UPDATE SET n=n+1, ent=ent+?2, sai=sai+?3").bind(hj.slice(0, 7), (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0), u.output_tokens || 0).run(); } catch (e) { }
+        return new Response(txt, { status: r.status, headers: { ...H, 'content-type': 'application/json' } });
       } catch (e) { return aiErr('Não consegui falar com a IA agora. Tente de novo.', 502); }
     }
     if (req.method === 'POST' && p === '/auth') {
@@ -449,7 +454,8 @@ export default {
       const ia = ((await D.prepare("SELECT n c FROM ai WHERE d='*' AND dy=?").bind(hj).first()) || {}).c || 0;
       const contas = await one('SELECT COUNT(*) c FROM acct'), sinc = await one('SELECT COUNT(*) c FROM dat WHERE at > ?', now - 864e5);
       const assinantes = await one('SELECT COUNT(*) c FROM ass WHERE ate > ?', now);
-      return json({ agora, h15, h1, hoje, d7, d30, total, novos, visitas, serie, plat, novosSerie, ia, iaOn: !!env.ANTHROPIC_KEY, iaLim: AI_DAY, contas, sinc, assinantes, plano: exigeAss(env) ? 'assinatura' : 'livre', ts: now });
+      const iaMes = (await D.prepare("SELECT mes, n, ent, sai FROM aiu ORDER BY mes DESC LIMIT 3").all()).results || [];
+      return json({ agora, h15, h1, hoje, d7, d30, total, novos, visitas, serie, plat, novosSerie, ia, iaOn: !!env.ANTHROPIC_KEY, iaLim: AI_DAY, contas, sinc, assinantes, iaMes, plano: exigeAss(env) ? 'assinatura' : 'livre', ts: now });
     }
     if (req.method === 'POST' && (p === '/sync' || p === '/test')) {
       const b = await body(req);
