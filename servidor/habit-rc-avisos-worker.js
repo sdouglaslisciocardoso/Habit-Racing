@@ -293,6 +293,16 @@ export default {
         return json({ url: s.url });
       } catch (e) { console.log('checkout', e.message); return json({ erro: 'Não consegui abrir o pagamento agora. Tente de novo em instantes.' }, 502); }
     }
+    // gerenciar/cancelar a assinatura: abre o portal do cliente no Stripe
+    if (req.method === 'POST' && p === '/pay/portal') {
+      const b = await body(req);
+      const D = await db(env), sub = b ? await sesOf(D, b.tk) : null;
+      if (!sub) return json({ erro: 'Entre com a conta Google em que você assinou.' }, 401);
+      const pc = await D.prepare("SELECT ref FROM pag WHERE sub=? AND prov='stripe' ORDER BY ct DESC LIMIT 1").bind(sub).first();
+      if (!pc) return json({ erro: (await D.prepare("SELECT 1 FROM pag WHERE sub=? AND prov='play'").bind(sub).first()) ? 'Sua assinatura é pela Play Store: gerencie em Play Store > Pagamentos e assinaturas.' : 'Não encontrei assinatura paga nesta conta.' }, 404);
+      try { const s = await stripe(env, 'billing_portal/sessions', { customer: pc.ref.slice(7), return_url: SITE, locale: 'pt-BR' }); return json({ url: s.url }); }
+      catch (e) { console.log('portal', e.message); return json({ erro: 'Não consegui abrir o gerenciamento agora. Tente de novo em instantes.' }, 502); }
+    }
     // pagamento no Android: confere a compra na Play Store e libera a assinatura da conta
     if (req.method === 'POST' && p === '/pay/play') {
       const b = await body(req);
