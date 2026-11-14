@@ -1895,7 +1895,7 @@ function promoQuero(){S.proQ=Date.now();save();
  <button class="b wide" id="pgA" onclick="promoPagar('anual')">Anual · R$ 149,90 por ano<br><small style="font-weight:600;opacity:.8">sai por R$ 12,49 por mês · economize 37%</small></button>
  <button class="b t wide" id="pgM" onclick="promoPagar('mensal')">Mensal · R$ 19,90 por mês</button>
  <button class="lnk" onclick="promoClose()">Agora não</button>`;
- const n=$('#promo .pro-note');if(n)n.textContent='Pagamento seguro pelo Stripe: Apple Pay, Google Pay ou cartão. Cancele quando quiser. Hábitos, tarefas, diário, saúde e finanças continuam grátis.'}
+ const n=$('#promo .pro-note');if(n)n.textContent='Ganhou um código? Na tela de pagamento, toque em "Adicionar código promocional". Pagamento seguro pelo Stripe: Apple Pay, Google Pay ou cartão. Cancele quando quiser.'}
 async function promoPagar(plano){const bs=[...document.querySelectorAll('#pgA,#pgM')];bs.forEach(b=>b.disabled=true);const bt=$(plano=='anual'?'#pgA':'#pgM'),t0=bt.innerHTML;bt.textContent='Abrindo o pagamento…';
  let j={};try{const r=await fetch(PXU+'/pay/stripe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tk:ssTk(),plano})});j=await r.json().catch(()=>({}));if(r.ok&&j.url&&/^https:\/\/checkout\.stripe\.com\//.test(j.url)){location.href=j.url;return}}catch(e){j={erro:'Sem conexão agora. Tente de novo.'}}
  bs.forEach(b=>b.disabled=false);bt.innerHTML=t0;toast(j.erro||'Não consegui abrir o pagamento agora. Tente de novo.',6000)}
@@ -2011,11 +2011,14 @@ var AIX=(()=>{try{return localStorage.getItem('gt3ai')!=='0'}catch(e){return tru
 var PLANO=(()=>{try{return localStorage.getItem('gt3pl')||'livre'}catch(e){return'livre'}})(),ASS=(()=>{try{return localStorage.getItem('gt3as')==='1'}catch(e){return false}})();
 function assOk(){return PLANO!='assinatura'||!!ASS}
 function ssTk(){try{return typeof SS!='undefined'&&SS?SS.tk:''}catch(e){return''}}
-function assSet(pl,as){const ch=pl!==PLANO||as!==ASS;PLANO=pl;ASS=as;if(as&&typeof promoClose=='function')promoClose();try{localStorage.setItem('gt3pl',pl);localStorage.setItem('gt3as',as?'1':'0')}catch(e){}if(ch&&!document.querySelector('.md')&&!document.body.classList.contains('tour'))render()}
+function assSet(pl,as){const ch=pl!==PLANO||as!==ASS;PLANO=pl;ASS=as;if(as&&typeof promoClose=='function')promoClose();try{localStorage.setItem('gt3pl',pl);localStorage.setItem('gt3as',as?'1':'0')}catch(e){}if(ch&&!document.querySelector('.md')&&!document.body.classList.contains('tour')){render();
+ /* a cortesia acabou agora (o dono ligou a assinatura): mostra o anúncio com a compra */
+ if(!proOk()&&S.tut&&!$('#onb')&&!$('#promo')&&typeof promoOpen=='function')promoOpen()}}
 /* Automações (Rádio, Engenheiro IA, reorganizar o dia, Top 3 automático e tarefas atrasadas que passam para hoje)
-   são da assinatura RC Life. Quem já usava o app antes delas virarem assinatura ganhou de cortesia (S.pro=1). */
-function proOk(){return S.pro===1||!!ASS}
-function proTx(){return ASS?'Sua assinatura RC Life está ativa.':S.pro===1?(PLANO=='assinatura'?'Você tem as automações de cortesia; a IA agora pede a assinatura RC Life, e o Rádio segue pelas regras do app.':'Você ganhou as automações de cortesia por usar o RC Life antes delas virarem assinatura.'):'As automações fazem parte da assinatura RC Life.'}
+   são da assinatura RC Life. Quem já usava o app antes delas virarem assinatura ganhou de cortesia (S.pro=1),
+   que vale só enquanto o servidor não exige assinatura (PLANO 'livre'); depois disso, só assinante (ou código de 1 ano grátis). */
+function proOk(){return !!ASS||(S.pro===1&&PLANO!='assinatura')}
+function proTx(){return ASS?'Sua assinatura RC Life está ativa.':S.pro===1?(PLANO=='assinatura'?'Sua cortesia terminou: as automações agora fazem parte da assinatura RC Life. Ganhou um código? Use em Quero a assinatura.':'Você ganhou as automações de cortesia por usar o RC Life antes delas virarem assinatura.'):'As automações fazem parte da assinatura RC Life.'}
 function aiOn(){return AIX&&assOk()&&proOk()}
 function aiReq(b){return fetch(PXU+'/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({d:PGD,tk:ssTk()||undefined,b})})}
 function aiChk(){if(location.protocol!=='https:')return;fetch(PXU+'/ai',{cache:'no-store'}).then(r=>r.json()).then(j=>{const on=!!j.on,pl=j.plano=='assinatura'?'assinatura':'livre';if(!ssTk())assSet(pl,false);else fetch(PXU+'/ai/status',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tk:ssTk()})}).then(r=>r.json()).then(s=>assSet(pl,!!s.assinante)).catch(()=>{});if(on!==AIX){AIX=on;try{localStorage.setItem('gt3ai',on?'1':'0')}catch(e){}if(!document.querySelector('.md'))render()}}).catch(()=>{})}
