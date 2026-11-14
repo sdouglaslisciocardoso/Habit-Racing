@@ -95,7 +95,9 @@ const SCHEMA = [
   // gasto da IA por mês (pedidos e tokens), para o dono acompanhar o custo no painel
   "CREATE TABLE IF NOT EXISTS aiu (mes TEXT PRIMARY KEY, n INTEGER DEFAULT 0, ent INTEGER DEFAULT 0, sai INTEGER DEFAULT 0)",
   // erros do servidor (os últimos aparecem no painel; limpos depois de 30 dias)
-  "CREATE TABLE IF NOT EXISTS err (ct INTEGER, onde TEXT, msg TEXT)"
+  "CREATE TABLE IF NOT EXISTS err (ct INTEGER, onde TEXT, msg TEXT)",
+  // tentativas erradas do código do painel por janela de 15 min
+  "CREATE TABLE IF NOT EXISTS admf (j INTEGER PRIMARY KEY, n INTEGER DEFAULT 0)"
 ];
 // a assinatura vale para a IA só quando o dono liga PLANO_IA = "assinatura"
 const exigeAss = env => String(env.PLANO_IA || '').trim().toLowerCase() === 'assinatura';
@@ -435,7 +437,15 @@ const mod = {
     }
     if (req.method === 'POST' && p === '/painel') {
       const b = await body(req);
-      if (!b || !env.ADMIN_H || !same(await sha(String(b.k || '')), String(env.ADMIN_H))) { await new Promise(r => setTimeout(r, 800)); return json({ erro: 'Código de acesso inválido.' }, 401); }
+      // trava geral contra quem tenta adivinhar o código de vários endereços: 10 erros em 15 min fecham o painel por 15 min
+      const Dp = await db(env), jan = Math.floor(Date.now() / 9e5);
+      const fal = await Dp.prepare('SELECT n FROM admf WHERE j=?').bind(jan).first();
+      if (fal && fal.n >= 10) return json({ erro: 'Muitas tentativas erradas. O painel fica fechado por alguns minutos.' }, 429);
+      if (!b || !env.ADMIN_H || !same(await sha(String(b.k || '')), String(env.ADMIN_H))) {
+        await Dp.batch([Dp.prepare('INSERT INTO admf (j,n) VALUES (?,1) ON CONFLICT(j) DO UPDATE SET n=n+1').bind(jan), Dp.prepare('DELETE FROM admf WHERE j < ?').bind(jan - 4)]);
+        await erroLog(env, 'painel', 'código de acesso errado');
+        await new Promise(r => setTimeout(r, 800)); return json({ erro: 'Código de acesso inválido.' }, 401);
+      }
       const D = await db(env), now = Date.now(), hj = dia(now);
       // assinaturas: o dono dá (ou tira) dias de assinatura pelo e-mail da conta Google da pessoa
       if (b.acao === 'ass') {
