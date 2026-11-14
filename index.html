@@ -1080,6 +1080,12 @@ nav button{font-stretch:86%;font-weight:640}
 .pro-f b{display:block;font-size:15.5px}.pro-f p{margin:3px 0 0;color:var(--mu);font-size:13.5px;line-height:1.4}
 .pro-cta{display:grid;gap:8px;margin-top:4px}
 .bn.pv{background:linear-gradient(100deg,var(--acc),var(--acc2));color:#111;border:0}.bn.pv .mu{color:#333}.bn.pv .b{background:#111;color:#fff}
+.inst-ov{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.72);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.inst-c{position:relative;width:100%;max-width:440px;background:var(--p,#15151a);border:1px solid var(--bd,#2a2a31);border-radius:22px;padding:22px 18px 14px;text-align:center;max-height:92vh;overflow:auto}
+.inst-c h2{margin:6px 0 4px;font-size:22px}.inst-i{width:64px;height:64px;border-radius:16px}.inst-x{position:absolute;top:10px;right:10px}
+.inst-l{list-style:none;padding:0;margin:14px 0;text-align:left;display:grid;gap:10px}.inst-l li{display:flex;gap:12px;align-items:flex-start;line-height:1.4}
+.inst-l .in{flex:none;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#111;font-weight:800;display:grid;place-items:center}
+.ic-sh{display:inline-block;border:1.5px solid currentColor;border-radius:4px;padding:0 4px;font-size:12px}
 .pro-cta .b{min-height:54px;font-size:16.5px;background:linear-gradient(90deg,var(--acc),var(--acc2));color:#111;border:0}
 .pro-cta #pgA{flex-direction:column;gap:2px}
 .pro-note{text-align:center;color:var(--mu);font-size:12.5px;margin:0}
@@ -2267,10 +2273,24 @@ let hjS=(()=>{if(S&&S.ui&&S.ui.hs)return S.ui.hs=='t'?'t':'h';try{return localSt
 function hjSeg(k){hjS=k;S.ui=Object.assign({},S.ui,{hs:k});try{localStorage.setItem('gt3hs',k)}catch(e){}save();render()}
 /* ===== topo da tela Hoje: instalar o app e pré-venda do anual ===== */
 /* instalar: o Chrome/Android avisa que dá para instalar (beforeinstallprompt); no iPhone, mostra o passo a passo */
-let BIP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();BIP=e;if(tab=='hoje'&&!$('.md'))render()});
+let BIP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();BIP=e;if($('#inst'))instTut();if(tab=='hoje'&&!$('.md'))render()});
 addEventListener('appinstalled',()=>{BIP=null;toast('🏁 RC Life instalado! Abra pelo ícone na tela inicial.',6000);render()});
-function instalar(){if(BIP){BIP.prompt();BIP.userChoice.finally(()=>{BIP=null;render()});return}
- const ios=isIOS();sheet(`<h3>Instalar o RC Life</h3><p class="mu">${ios?'No Safari, toque em <b>Compartilhar</b> (o quadrado com a seta para cima) e depois em <b>Adicionar à Tela de Início</b>.':'No Chrome, toque nos <b>três pontinhos</b> (⋮) no canto de cima e depois em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.'}</p><p class="mu">O RC Life aparece na tela do celular como um app normal, abre em tela cheia e manda os avisos.</p><button class="b wide" onclick="closeMd()">Entendi</button>`)}
+function instalar(){if(BIP){BIP.prompt();BIP.userChoice.finally(()=>{BIP=null;instFechar();render()});return}instTut()}
+/* tutorial de instalação: abre sozinho no celular (1x por dia) enquanto o app não estiver instalado */
+const UA=navigator.userAgent,isAnd=()=>/Android/i.test(UA),isMob=()=>isIOS()||isAnd()||/Mobi/i.test(UA),
+ isInApp=()=>/Instagram|FBAN|FBAV|FB_IAB|WhatsApp|Line\/|TikTok|musical_ly|Snapchat|Twitter/i.test(UA),
+ isIOSSafari=()=>isIOS()&&/Safari/i.test(UA)&&!/CriOS|FxiOS|EdgiOS|OPiOS/i.test(UA);
+function instPassos(){const p=(n,t)=>`<li><span class="in">${n}</span><span>${t}</span></li>`;
+ if(isInApp())return{t:'Abra no navegador para instalar',s:'Você abriu o link por dentro de outro app (Instagram, WhatsApp…), e ele não deixa instalar.',l:p(1,'Toque nos <b>três pontinhos</b> (⋮ ou ⋯) no canto da tela.')+p(2,`Escolha <b>${isIOS()?'Abrir no Safari':'Abrir no Chrome'}</b> (ou "Abrir no navegador").`)+p(3,'Lá, este passo a passo aparece de novo para você instalar.')};
+ if(isIOS())return{t:'Instale no iPhone',s:isIOSSafari()?'Em 3 toques, pelo Safari:':'Abra este link no <b>Safari</b> e siga:',l:p(1,'Toque em <b>Compartilhar</b> <span class="ic-sh">⬆︎</span> (o quadrado com a seta para cima), na barra de baixo.')+p(2,'Role e toque em <b>Adicionar à Tela de Início</b>.')+p(3,'Toque em <b>Adicionar</b>. Pronto: o RC Life aparece na tela do iPhone.')};
+ return{t:'Instale no Android',s:BIP?'É só um toque:':'Em 2 toques, pelo Chrome:',l:BIP?p(1,'Toque em <b>Instalar agora</b>, aqui embaixo.')+p(2,'Confirme em <b>Instalar</b>. Pronto: o RC Life aparece na tela do celular.'):p(1,'Toque nos <b>três pontinhos</b> (⋮) no canto de cima do Chrome.')+p(2,'Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b> e confirme.')+p(3,'Pronto: o RC Life aparece na tela do celular, como um app normal.')}}
+function instTut(){instFechar();const x=instPassos(),o=document.createElement('div');o.id='inst';o.className='inst-ov';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+ o.innerHTML=`<div class="inst-c"><button class="ib inst-x" aria-label="Fechar" onclick="instFechar()">✕</button><img src="icon-192.png" alt="" class="inst-i"><h2>${x.t}</h2><p class="mu">${x.s}</p><ol class="inst-l">${x.l}</ol>
+ ${BIP&&!isInApp()?'<button class="b wide" onclick="instalar()">Instalar agora</button>':''}<p class="mu sm">Instalado, ele abre em tela cheia, funciona sem internet e manda os avisos dos seus hábitos.</p><button class="lnk" onclick="instFechar()">Agora não</button></div>`;
+ document.body.appendChild(o)}
+function instFechar(){const o=$('#inst');if(o)o.remove()}
+/* abre sozinho: celular, fora do app instalado, no máximo 1x por dia */
+function instAuto(){if(isSA()||!isMob())return false;const hj=ymd(new Date());if(lsG('gt3it')===hj)return false;lsS('gt3it',hj);instTut();return true}
 /* pré-venda do anual: R$ 99 no 1º ano até o fim da contagem; depois some sozinha */
 const PV_FIM=Date.parse('2026-12-14T23:59:59-03:00');
 function pvOn(){return Date.now()<PV_FIM&&!proOk()}
@@ -2386,7 +2406,7 @@ if(S.pro===undefined){S.pro=S.tut?1:0;save(1)}
 applyTh();rollTasks();tbar();render();deliver();checkAlerts();if(!S.fam)onb();pxQueue();
 /* anúncio da assinatura toda vez que o app abre, só para quem não assina (nem durante o cadastro ou o tour) */
 if(PAGO)setTimeout(pagoVolta,800);
-else setTimeout(()=>{if(S.tut&&!proOk()&&!$('#onb')&&!document.body.classList.contains('tour')&&!$('.md')){promoOpen();let pq=null;try{pq=lsG('gt3pq')}catch(e){}if(pq&&ssTk()){try{lsS('gt3pq','')}catch(e){}promoQuero()}let pv=null;try{pv=lsG('gt3pv')}catch(e){}if(pv&&ssTk()){try{lsS('gt3pv','')}catch(e){}promoClose();if(pvOn())pvComprar()}}},1500);
+else setTimeout(()=>{if(instAuto())return;if(S.tut&&!proOk()&&!$('#onb')&&!document.body.classList.contains('tour')&&!$('.md')){promoOpen();let pq=null;try{pq=lsG('gt3pq')}catch(e){}if(pq&&ssTk()){try{lsS('gt3pq','')}catch(e){}promoQuero()}let pv=null;try{pv=lsG('gt3pv')}catch(e){}if(pv&&ssTk()){try{lsS('gt3pv','')}catch(e){}promoClose();if(pvOn())pvComprar()}}},1500);
 </script>
 <script>
 /* RC Life · carregador: limpeza de dados (clean), cofre (criptografia local), tela de bloqueio, backup,
