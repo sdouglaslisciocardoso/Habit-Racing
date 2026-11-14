@@ -87,11 +87,74 @@ const SCHEMA = [
   "CREATE INDEX IF NOT EXISTS ses_sub ON ses(sub)",
   "CREATE TABLE IF NOT EXISTS dat (sub TEXT PRIMARY KEY, upd INTEGER, b TEXT, at INTEGER)",
   // assinatura da IA: até quando a conta pode usar (ms); marcada pelo dono no painel
-  "CREATE TABLE IF NOT EXISTS ass (sub TEXT PRIMARY KEY, ate INTEGER, ct INTEGER, obs TEXT)"
+  "CREATE TABLE IF NOT EXISTS ass (sub TEXT PRIMARY KEY, ate INTEGER, ct INTEGER, obs TEXT)",
+  // pagamentos: liga o cliente do Stripe ou a compra da Play Store à conta (ref = "stripe:cus_..." ou "play:<hash do token>")
+  "CREATE TABLE IF NOT EXISTS pag (ref TEXT PRIMARY KEY, sub TEXT, prov TEXT, tok TEXT, ct INTEGER)",
+  // pedidos de IA por conta por mês (limite da assinatura)
+  "CREATE TABLE IF NOT EXISTS aim (sub TEXT, mes TEXT, n INTEGER DEFAULT 0, PRIMARY KEY (sub, mes))"
 ];
 // a assinatura vale para a IA só quando o dono liga PLANO_IA = "assinatura"
 const exigeAss = env => String(env.PLANO_IA || '').trim().toLowerCase() === 'assinatura';
 async function assDe(D, sub) { if (!sub) return 0; const r = await D.prepare('SELECT ate FROM ass WHERE sub=?').bind(sub).first(); return r && r.ate > Date.now() ? r.ate : 0; }
+// grava até quando a conta assina; sem "forcar" nunca encurta (dias dados no painel não se perdem numa renovação)
+async function assAte(D, sub, ate, obs, forcar) {
+  await D.prepare(forcar
+    ? 'INSERT INTO ass (sub,ate,ct,obs) VALUES (?1,?2,?3,?4) ON CONFLICT(sub) DO UPDATE SET ate=?2, obs=?4'
+    : 'INSERT INTO ass (sub,ate,ct,obs) VALUES (?1,?2,?3,?4) ON CONFLICT(sub) DO UPDATE SET ate=MAX(ate, ?2), obs=?4').bind(sub, Math.floor(ate), Date.now(), obs).run();
+}
+
+// ---------- cobrança: Stripe (web: Apple Pay, Google Pay, cartão) e Play Store (Android) ----------
+// Secrets/variáveis no Worker: STRIPE_KEY (sk_live_...), STRIPE_WEBHOOK_SECRET (whsec_...),
+//   STRIPE_PRICE_MENSAL e STRIPE_PRICE_ANUAL (price_...), PLAY_SA (JSON da conta de serviço do Google Play).
+const PRECOS = { mensal: 'R$ 19,90 por mês', anual: 'R$ 149,90 por ano' };
+const PLAY_PKG = 'com.rclife.rc_life', PLAY_PROD = 'rclife_assinatura';
+const SITE = 'https://sdouglaslisciocardoso.github.io/Habit-Racing/';
+const AI_MES = 300; // pedidos de IA por conta por mês quando a assinatura é exigida
+const FOLGA = 2 * 864e5; // 2 dias de folga depois do fim do período (atraso de renovação não corta na hora)
+const stripeOn = env => !!(env.STRIPE_KEY && env.STRIPE_PRICE_MENSAL && env.STRIPE_PRICE_ANUAL);
+async function stripe(env, path, params, method = 'POST') {
+  const r = await fetch('https://api.stripe.com/v1/' + path, {
+    method, headers: { Authorization: 'Bearer ' + env.STRIPE_KEY, 'content-type': 'application/x-www-form-urlencoded' },
+    body: method === 'POST' ? new URLSearchParams(params || {}).toString() : undefined
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.error && j.error.message) || ('stripe ' + r.status));
+  return j;
+}
+// fim do período pago de uma assinatura do Stripe (versões novas da API guardam no item)
+const stripeFim = s => (s.current_period_end || (s.items && s.items.data && s.items.data[0] && s.items.data[0].current_period_end) || 0) * 1000;
+const stripeAtiva = s => ['active', 'trialing', 'past_due'].includes(s.status);
+// confere a assinatura do aviso do Stripe (cabeçalho Stripe-Signature: t=...,v1=...)
+async function stripeSigOk(env, raw, hdr) {
+  if (!env.STRIPE_WEBHOOK_SECRET || !hdr) return false;
+  const it = String(hdr).split(','), t = (it.find(x => x.startsWith('t=')) || '').slice(2), v1 = it.filter(x => x.startsWith('v1=')).map(x => x.slice(3));
+  if (!t || !v1.length || Math.abs(Date.now() / 1000 - Number(t)) > 600) return false;
+  const k = await crypto.subtle.importKey('raw', te.encode(env.STRIPE_WEBHOOK_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = [...new Uint8Array(await crypto.subtle.sign('HMAC', k, te.encode(t + '.' + raw)))].map(x => x.toString(16).padStart(2, '0')).join('');
+  return v1.some(v => same(v, sig));
+}
+// token de acesso do Google (conta de serviço) para consultar compras na Play Store
+async function googleToken(env) {
+  const sa = JSON.parse(env.PLAY_SA), now = Math.floor(Date.now() / 1000);
+  const head = b64u(te.encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
+  const claim = b64u(te.encode(JSON.stringify({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/androidpublisher', aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 })));
+  const der = Uint8Array.from(atob(String(sa.private_key).replace(/-----[^-]+-----/g, '').replace(/\s+/g, '')), c => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey('pkcs8', der, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  const sig = b64u(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, te.encode(head + '.' + claim)));
+  const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'grant_type=' + encodeURIComponent('urn:ietf:params:oauth:grant-type:jwt-bearer') + '&assertion=' + head + '.' + claim + '.' + sig });
+  const j = await r.json().catch(() => ({}));
+  if (!j.access_token) throw new Error('google token');
+  return j.access_token;
+}
+// consulta uma compra de assinatura na Play Store: { ativa, ate }
+async function playConsulta(env, token) {
+  const r = await fetch('https://androidpublisher.googleapis.com/androidpublisher/v3/applications/' + PLAY_PKG + '/purchases/subscriptionsv2/tokens/' + encodeURIComponent(token), { headers: { Authorization: 'Bearer ' + await googleToken(env) } });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.error && j.error.message) || ('play ' + r.status));
+  const itens = (j.lineItems || []).filter(x => x.productId === PLAY_PROD);
+  const ate = Math.max(0, ...itens.map(x => Date.parse(x.expiryTime) || 0));
+  return { ativa: itens.length > 0 && ['SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD'].includes(j.subscriptionState), ate };
+}
 // ---------- login com Google (só identidade) e sessão própria de longa duração ----------
 const GID = '1084181239561-43t77l64li8nh7q1fa902ndj9fofae5t.apps.googleusercontent.com';
 const SES_DAYS = 180, DAT_MAX = 1900000;
@@ -161,6 +224,69 @@ export default {
     // freio por endereço (a sincronização com sessão tem folga maior: confere a cada 5 s)
     if (req.method === 'POST' && tooMany(ip, p.startsWith('/data/') ? 240 : 60)) return json({ erro: 'Muitos pedidos seguidos. Espere um minuto.' }, 429);
     if (p === '/vapid') return json({ publicKey: (await vapid(env)).pub });
+    // ---------- cobrança ----------
+    // o que está ligado (o app mostra os botões de pagamento de acordo)
+    if (p === '/pay' && req.method === 'GET') return json({ stripe: stripeOn(env), play: !!env.PLAY_SA, precos: PRECOS, produto: PLAY_PROD });
+    // aviso do Stripe (webhook): pagamento feito, renovado ou cancelado
+    if (req.method === 'POST' && p === '/pay/stripe/webhook') {
+      const raw = await req.text();
+      if (raw.length > 200000 || !(await stripeSigOk(env, raw, req.headers.get('Stripe-Signature')))) return json({ erro: 'assinatura do aviso inválida' }, 400);
+      let ev; try { ev = JSON.parse(raw); } catch (e) { return json({ erro: 'aviso inválido' }, 400); }
+      const D = await db(env), o = (ev.data && ev.data.object) || {};
+      const contaDe = async cust => { const r = cust ? await D.prepare('SELECT sub FROM pag WHERE ref=?').bind('stripe:' + cust).first() : null; return r && r.sub; };
+      try {
+        if (ev.type === 'checkout.session.completed' && o.mode === 'subscription') {
+          const sub = o.client_reference_id || (o.metadata && o.metadata.sub);
+          if (sub && o.customer) {
+            await D.prepare('INSERT INTO pag (ref,sub,prov,tok,ct) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(ref) DO UPDATE SET sub=?2, tok=?4').bind('stripe:' + o.customer, String(sub), 'stripe', String(o.subscription || ''), Date.now()).run();
+            if (o.subscription) { const s = await stripe(env, 'subscriptions/' + o.subscription, null, 'GET'); if (stripeAtiva(s)) await assAte(D, String(sub), stripeFim(s) + FOLGA, 'Stripe'); }
+          }
+        } else if (ev.type === 'invoice.paid') {
+          const sub = await contaDe(o.customer), fim = Math.max(0, ...((o.lines && o.lines.data) || []).map(l => (l.period && l.period.end) || 0)) * 1000;
+          if (sub && fim) await assAte(D, sub, fim + FOLGA, 'Stripe');
+        } else if (ev.type === 'customer.subscription.updated' || ev.type === 'customer.subscription.deleted') {
+          const sub = await contaDe(o.customer);
+          if (sub) {
+            if (ev.type === 'customer.subscription.deleted' || ['canceled', 'unpaid', 'incomplete_expired'].includes(o.status)) await assAte(D, sub, Date.now(), 'Stripe cancelada', true);
+            else if (stripeAtiva(o)) await assAte(D, sub, stripeFim(o) + FOLGA, 'Stripe');
+          }
+        }
+      } catch (e) { return json({ erro: 'falha ao processar: ' + e.message }, 500); }
+      return json({ ok: true });
+    }
+    // pagamento no web: cria a página de pagamento do Stripe para a conta logada
+    if (req.method === 'POST' && p === '/pay/stripe') {
+      const b = await body(req);
+      const D = await db(env), sub = b ? await sesOf(D, b.tk) : null;
+      if (!sub) return json({ erro: 'Entre com sua conta Google para assinar: a assinatura fica na sua conta.' }, 401);
+      if (!stripeOn(env)) return json({ erro: 'O pagamento ainda não foi ligado. Volte em breve!' }, 503);
+      const plano = b.plano === 'anual' ? 'anual' : 'mensal', ac = await D.prepare('SELECT em FROM acct WHERE sub=?').bind(sub).first();
+      try {
+        const s = await stripe(env, 'checkout/sessions', {
+          mode: 'subscription', 'line_items[0][price]': plano === 'anual' ? env.STRIPE_PRICE_ANUAL : env.STRIPE_PRICE_MENSAL, 'line_items[0][quantity]': '1',
+          client_reference_id: sub, 'metadata[sub]': sub, 'subscription_data[metadata][sub]': sub, ...(ac && ac.em ? { customer_email: ac.em } : {}),
+          locale: 'pt-BR', allow_promotion_codes: 'true',
+          success_url: SITE + '?assinatura=ok', cancel_url: SITE + '?assinatura=cancelada'
+        });
+        return json({ url: s.url });
+      } catch (e) { return json({ erro: 'Não consegui abrir o pagamento agora (' + e.message + ').' }, 502); }
+    }
+    // pagamento no Android: confere a compra na Play Store e libera a assinatura da conta
+    if (req.method === 'POST' && p === '/pay/play') {
+      const b = await body(req);
+      const D = await db(env), sub = b ? await sesOf(D, b.tk) : null;
+      if (!sub) return json({ erro: 'Entre com sua conta Google para assinar: a assinatura fica na sua conta.' }, 401);
+      if (!env.PLAY_SA) return json({ erro: 'A conferência da Play Store ainda não foi ligada.' }, 503);
+      const token = String(b.token || '').slice(0, 1000);
+      if (!token) return json({ erro: 'compra' }, 400);
+      const ref = 'play:' + await sha(token), dono = await D.prepare('SELECT sub FROM pag WHERE ref=?').bind(ref).first();
+      if (dono && dono.sub !== sub) return json({ erro: 'Esta compra já está ligada a outra conta.' }, 409);
+      let c; try { c = await playConsulta(env, token); } catch (e) { return json({ erro: 'Não consegui conferir a compra na Play Store (' + e.message + ').' }, 502); }
+      if (!c.ativa) return json({ erro: 'A Play Store não confirmou esta assinatura como ativa.' }, 402);
+      await D.prepare('INSERT INTO pag (ref,sub,prov,tok,ct) VALUES (?1,?2,?3,?4,?5) ON CONFLICT(ref) DO UPDATE SET tok=?4').bind(ref, sub, 'play', token, Date.now()).run();
+      await assAte(D, sub, c.ate + FOLGA, 'Play Store');
+      return json({ ok: true, ate: await assDe(D, sub) });
+    }
     // situação da assinatura de quem está logado (o app pergunta para saber se mostra a IA)
     if (req.method === 'POST' && p === '/ai/status') {
       const b = await body(req);
@@ -175,7 +301,13 @@ export default {
       const b = await body(req);
       if (!b || !/^[a-f0-9]{32}$/.test(String(b.d)) || !b.b || !Array.isArray(b.b.messages)) return aiErr('pedido inválido', 400);
       const D = await db(env), now = Date.now(), hj = dia(now), id = await sha('ai:' + b.d), ipId = await sha('aip:' + ip);
-      if (exigeAss(env) && !(await assDe(D, await sesOf(D, b.tk)))) return json({ error: { message: 'A automação com IA é um recurso da assinatura RC Life.' }, assinatura: true }, 402);
+      let subAss = null;
+      if (exigeAss(env)) {
+        subAss = await sesOf(D, b.tk);
+        if (!(await assDe(D, subAss))) return json({ error: { message: 'A automação com IA é um recurso da assinatura RC Life.' }, assinatura: true }, 402);
+        const mm = await D.prepare('SELECT n FROM aim WHERE sub=? AND mes=?').bind(subAss, hj.slice(0, 7)).first();
+        if (mm && mm.n >= AI_MES) return aiErr('Você usou os ' + AI_MES + ' pedidos de IA deste mês. No dia 1º libera de novo.', 429);
+      }
       const [me, byIp, all] = await Promise.all([
         D.prepare('SELECT n FROM ai WHERE d=? AND dy=?').bind(id, hj).first(),
         D.prepare('SELECT n FROM ai WHERE d=? AND dy=?').bind(ipId, hj).first(),
@@ -190,7 +322,8 @@ export default {
       await D.batch([
         D.prepare('INSERT INTO ai (d,dy,n) VALUES (?,?,1) ON CONFLICT(d,dy) DO UPDATE SET n=n+1').bind(id, hj),
         D.prepare('INSERT INTO ai (d,dy,n) VALUES (?,?,1) ON CONFLICT(d,dy) DO UPDATE SET n=n+1').bind(ipId, hj),
-        D.prepare("INSERT INTO ai (d,dy,n) VALUES ('*',?,1) ON CONFLICT(d,dy) DO UPDATE SET n=n+1").bind(hj)
+        D.prepare("INSERT INTO ai (d,dy,n) VALUES ('*',?,1) ON CONFLICT(d,dy) DO UPDATE SET n=n+1").bind(hj),
+        ...(subAss ? [D.prepare('INSERT INTO aim (sub,mes,n) VALUES (?,?,1) ON CONFLICT(sub,mes) DO UPDATE SET n=n+1').bind(subAss, hj.slice(0, 7))] : [])
       ]);
       try {
         const r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify(q) });
@@ -330,6 +463,13 @@ export default {
       } catch (e) { await D.prepare('UPDATE u SET nxt=? WHERE id=?').bind(t + 6e4, row.id).run(); }
     }));
     // limpeza diária: agendas paradas há mais de 30 dias
-    if (new Date(t).getUTCHours() === 6 && new Date(t).getUTCMinutes() === 0) { await D.prepare('DELETE FROM u WHERE at < ?').bind(t - 30 * 864e5).run(); await D.prepare('DELETE FROM pd WHERE dy < ?').bind(dia(t, 120)).run(); await D.prepare('DELETE FROM ai WHERE dy < ?').bind(dia(t, 7)).run(); }
+    if (new Date(t).getUTCHours() === 6 && new Date(t).getUTCMinutes() === 0) { await D.prepare('DELETE FROM u WHERE at < ?').bind(t - 30 * 864e5).run(); await D.prepare('DELETE FROM pd WHERE dy < ?').bind(dia(t, 120)).run(); await D.prepare('DELETE FROM ai WHERE dy < ?').bind(dia(t, 7)).run(); await D.prepare('DELETE FROM aim WHERE mes < ?').bind(dia(t, 120).slice(0, 7)).run(); }
+    // uma vez por dia: confere na Play Store as assinaturas do Android (renovação ou cancelamento sem o app abrir)
+    if (env.PLAY_SA && new Date(t).getUTCHours() === 7 && new Date(t).getUTCMinutes() === 0) {
+      const { results: ps } = await D.prepare("SELECT sub, tok FROM pag WHERE prov='play'").all();
+      for (const x of (ps || []).slice(0, 500)) {
+        try { const c = await playConsulta(env, x.tok); await assAte(D, x.sub, c.ativa ? c.ate + FOLGA : Math.min(Date.now(), c.ate + FOLGA), c.ativa ? 'Play Store' : 'Play Store encerrada', !c.ativa); } catch (e) { }
+      }
+    }
   }
 };
