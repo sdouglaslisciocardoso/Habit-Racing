@@ -2343,7 +2343,7 @@ ${grp('eu','user','Seu perfil',nmOf()?esc(nmOf())+(S.pf.oc?', '+lb(OCU,S.pf.oc):
 ${grp('conta','lock','Conta e segurança',[V.key?'Cofre ativo':'Sem senha',gon?'conta conectada':'sem conta'].join(', '),conta)}
 ${grp('avisos','bell','Avisos',pon?'Chegam mesmo com o app fechado':'Só com o app aberto',avisos)}
 ${grp('visu','paint','Perfil e aparência',[(S.fam=='f'?'Mulher':'Homem'),thn].join(', '),visu)}
-<p class="ver">RC Life · versão 3.2${V.key?' · dados criptografados':''} · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a> · <a href="termos.html" target="_blank" rel="noopener">Termos de uso</a></p>`);
+<p class="ver">RC Life · versão 3.2${V.key?' · dados criptografados':''} · <a href="privacidade.html" target="_blank" rel="noopener">Privacidade</a> · <a href="termos.html" target="_blank" rel="noopener">Termos de uso</a> · <a href="mailto:sdouglaslisciocardoso@gmail.com?subject=RC%20Life%20-%20suporte">Suporte</a></p>`);
 o.querySelectorAll('details.grp').forEach(d=>d.addEventListener('toggle',()=>{cfgOpen[d.dataset.g]=d.open}));
 if($('#bx'))$('#bx').onclick=async()=>{await bkpFile();closeMd();render()};
 if($('#bi'))$('#bi').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=await bkpRead(f);if(d===0)return;if(!d)throw 0;if(!confirm('Substituir todos os dados deste aparelho pelos do backup?'))return;delete d.k;Object.assign(d,gKeep());S=d;save();await V.idle();location.reload()}catch(x){toast('Este arquivo não é um backup válido do RC Life.')}}}
