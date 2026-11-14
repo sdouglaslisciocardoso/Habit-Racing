@@ -2556,7 +2556,7 @@ async function gApply(r,f,ru){const d=clean(r.d);if(!d)throw new Error('dados da
 /* junta duas versões sem perder nada: itens pelo id, registros por dia, lançamentos sem repetir; o mais recente vence nos ajustes */
 function gMerge(a,b){const cp=o=>JSON.parse(JSON.stringify(o||{})),wa=gW(a).w,wb=gW(b).w,na=Math.abs(wa-wb)>Math.max(wa,wb)*.2?wa>wb:(a.upd||0)>=(b.upd||0),N=cp(na?a:b),O=cp(na?b:a),out=Object.assign(cp(O),cp(N));
   ['h','v','n','bl','sh','yd','cl','rn','rm'].forEach(k=>{const m=new Map();(O[k]||[]).forEach(x=>m.set(String(x.id),x));(N[k]||[]).forEach(x=>m.set(String(x.id),x));out[k]=[...m.values()]});
-  ['x','o','c','md','sl','jd','xt','ag','rx','ps'].forEach(k=>{const r={};[O[k]||{},N[k]||{}].forEach(src=>Object.keys(src).forEach(d=>{const v=src[d];r[d]=v&&typeof v=='object'&&!Array.isArray(v)?Object.assign({},r[d],v):v}));out[k]=r});
+  ['x','o','c','md','sl','jd','xt','ag','rx','ps','hc'].forEach(k=>{const r={};[O[k]||{},N[k]||{}].forEach(src=>Object.keys(src).forEach(d=>{const v=src[d];r[d]=v&&typeof v=='object'&&!Array.isArray(v)?Object.assign({},r[d],v):v}));out[k]=r});
   const f={};[O.f||{},N.f||{}].forEach(src=>Object.keys(src).forEach(m=>{f[m]=f[m]||[];const seen=new Set(f[m].map(t=>JSON.stringify([t.d,t.x,t.v])));(src[m]||[]).forEach(t=>{const k=JSON.stringify([t.d,t.x,t.v]);if(!seen.has(k)){seen.add(k);f[m].push(t)}})}));out.f=f;
   out.bg=Object.assign({},O.bg,N.bg);if(O.cy||N.cy){out.cy=Object.assign({},O.cy,N.cy);out.cy.st=[...new Set([...((O.cy||{}).st||[]),...((N.cy||{}).st||[])])].sort()}
   if(O.pro===1||N.pro===1)out.pro=1;
