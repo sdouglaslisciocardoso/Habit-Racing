@@ -127,6 +127,7 @@ const stripeAtiva = s => ['active', 'trialing', 'past_due'].includes(s.status);
 // confere a assinatura do aviso do Stripe (cabeçalho Stripe-Signature: t=...,v1=...)
 async function stripeSigOk(env, raw, hdr) {
   if (!env.STRIPE_WEBHOOK_SECRET || !hdr) return false;
+  env = { ...env, STRIPE_WEBHOOK_SECRET: String(env.STRIPE_WEBHOOK_SECRET).trim() };
   const it = String(hdr).split(','), t = (it.find(x => x.startsWith('t=')) || '').slice(2), v1 = it.filter(x => x.startsWith('v1=')).map(x => x.slice(3));
   if (!t || !v1.length || Math.abs(Date.now() / 1000 - Number(t)) > 600) return false;
   const k = await crypto.subtle.importKey('raw', te.encode(env.STRIPE_WEBHOOK_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
@@ -230,8 +231,14 @@ export default {
     // aviso do Stripe (webhook): pagamento feito, renovado ou cancelado
     if (req.method === 'POST' && p === '/pay/stripe/webhook') {
       const raw = await req.text();
-      if (raw.length > 200000 || !(await stripeSigOk(env, raw, req.headers.get('Stripe-Signature')))) return json({ erro: 'assinatura do aviso inválida' }, 400);
+      if (raw.length > 200000 || !stripeOn(env)) return json({ erro: 'aviso inválido' }, 400);
       let ev; try { ev = JSON.parse(raw); } catch (e) { return json({ erro: 'aviso inválido' }, 400); }
+      // com a assinatura do aviso certa, usa o aviso como veio; sem ela (STRIPE_WEBHOOK_SECRET ausente ou diferente),
+      // busca o mesmo evento direto no Stripe com a STRIPE_KEY: só vale o que o próprio Stripe confirmar
+      if (!(await stripeSigOk(env, raw, req.headers.get('Stripe-Signature')))) {
+        if (!/^evt_[A-Za-z0-9]+$/.test(String(ev && ev.id))) return json({ erro: 'assinatura do aviso inválida' }, 400);
+        try { ev = await stripe(env, 'events/' + ev.id, null, 'GET'); } catch (e) { return json({ erro: 'aviso não confirmado pelo Stripe' }, 400); }
+      }
       const D = await db(env), o = (ev.data && ev.data.object) || {};
       const contaDe = async cust => { const r = cust ? await D.prepare('SELECT sub FROM pag WHERE ref=?').bind('stripe:' + cust).first() : null; return r && r.sub; };
       try {
