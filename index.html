@@ -1087,7 +1087,7 @@ nav button{font-stretch:86%;font-weight:640}
 .inst-l .in{flex:none;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#111;font-weight:800;display:grid;place-items:center}
 .ic-sh{display:inline-block;border:1.5px solid currentColor;border-radius:4px;padding:0 4px;font-size:12px}
 .pro-cta .b{min-height:54px;font-size:16.5px;background:linear-gradient(90deg,var(--acc),var(--acc2));color:#111;border:0}
-.pro-cta #pgA{flex-direction:column;gap:2px}
+.pro-cta #pgA,.pro-cta #pgT{flex-direction:column;gap:2px}
 .pro-note{text-align:center;color:var(--mu);font-size:12.5px;margin:0}
 @media (prefers-reduced-motion:reduce){.pro,.pro-it{animation:none;opacity:1;transform:none}}
 </style></head><body>
@@ -1899,12 +1899,13 @@ function promoQuero(){S.proQ=Date.now();save();
  if(!ssTk()){promoClose();toast('Entre com sua conta Google: a assinatura fica guardada na sua conta e vale em todos os aparelhos.',6000);try{lsS('gt3pq','1')}catch(e){}setTimeout(()=>{try{gConnect()}catch(e){}},600);return}
  const c=$('#promo .pro-cta');if(!c)return;
  c.innerHTML=`<p class="pro-sub" style="margin:0 0 4px"><b>Escolha seu plano</b></p>
- <button class="b wide" id="pgA" onclick="promoPagar('anual')">Anual · R$ 149,90 por ano<br><small style="font-weight:600;opacity:.8">sai por R$ 12,49 por mês · economize 37%</small></button>
+ <button class="b wide" id="pgT" onclick="promoPagar('mensal',this,0,1)">🏁 Testar 7 dias grátis<br><small style="font-weight:600;opacity:.8">depois R$ 19,90 por mês · cancele quando quiser</small></button>
+ <button class="b t wide" id="pgA" onclick="promoPagar('anual')">Anual · R$ 149,90 por ano<br><small style="font-weight:600;opacity:.8">sai por R$ 12,49 por mês · economize 37%</small></button>
  <button class="b t wide" id="pgM" onclick="promoPagar('mensal')">Mensal · R$ 19,90 por mês</button>
  <button class="lnk" onclick="promoClose()">Agora não</button>`;
  const n=$('#promo .pro-note');if(n)n.textContent='Ganhou um código? Na tela de pagamento, toque em "Adicionar código promocional". Pagamento seguro pelo Stripe: Apple Pay, Google Pay ou cartão. Cancele quando quiser. Renova sozinha até você cancelar. Termos: sdouglaslisciocardoso.github.io/Habit-Racing/termos.html'}
-async function promoPagar(plano,b0,pv){const bs=b0?[b0]:[...document.querySelectorAll('#pgA,#pgM')];bs.forEach(b=>b.disabled=true);const bt=b0||$(plano=='anual'?'#pgA':'#pgM')||document.createElement('button'),t0=bt.innerHTML;bt.textContent='Abrindo o pagamento…';
- let j={};try{const r=await fetch(PXU+'/pay/stripe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tk:ssTk(),plano,pv:!!pv})});j=await r.json().catch(()=>({}));if(r.ok&&j.url&&/^https:\/\/checkout\.stripe\.com\//.test(j.url)){location.href=j.url;return}}catch(e){j={erro:'Sem conexão agora. Tente de novo.'}}
+async function promoPagar(plano,b0,pv,teste){const bs=b0?[b0]:[...document.querySelectorAll('#pgA,#pgM')];bs.forEach(b=>b.disabled=true);const bt=b0||$(plano=='anual'?'#pgA':'#pgM')||document.createElement('button'),t0=bt.innerHTML;bt.textContent='Abrindo o pagamento…';
+ let j={};try{const r=await fetch(PXU+'/pay/stripe',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tk:ssTk(),plano,pv:!!pv,teste:!!teste})});j=await r.json().catch(()=>({}));if(r.ok&&j.url&&/^https:\/\/checkout\.stripe\.com\//.test(j.url)){location.href=j.url;return}}catch(e){j={erro:'Sem conexão agora. Tente de novo.'}}
  bs.forEach(b=>b.disabled=false);bt.innerHTML=t0;toast(j.erro||'Não consegui abrir o pagamento agora. Tente de novo.',6000);
  /* a conta já assina: libera neste aparelho em vez de cobrar de novo */
  if(j.ativa)assChk().then(ok=>{if(ok){promoClose();render();toast('🏁 Assinatura RC Life ativa! Rádio e Engenheiro IA liberados.',6000)}})}

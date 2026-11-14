@@ -295,12 +295,15 @@ const mod = {
       const pc = await D.prepare("SELECT ref FROM pag WHERE sub=? AND prov='stripe' ORDER BY ct DESC LIMIT 1").bind(sub).first();
       // pré-venda: no anual e dentro do prazo, o desconto (código STRIPE_PREVENDA) já vem aplicado
       const pv = b.pv && plano === 'anual' && Date.now() < PV_FIM && /^promo_/.test(String(env.STRIPE_PREVENDA || ''));
+      const teste = !!b.teste && !pv && !pc && plano === 'mensal';
       const sessao = quem => stripe(env, 'checkout/sessions', {
         mode: 'subscription', 'line_items[0][price]': plano === 'anual' ? env.STRIPE_PRICE_ANUAL : env.STRIPE_PRICE_MENSAL, 'line_items[0][quantity]': '1',
         client_reference_id: sub, 'metadata[sub]': sub, 'subscription_data[metadata][sub]': sub, ...quem,
         // código promocional no pagamento; com cupom de 100% não pede cartão (e não cobra sozinho depois)
-        ...(pv ? { 'discounts[0][promotion_code]': env.STRIPE_PREVENDA } : { allow_promotion_codes: 'true' }),
-        locale: 'pt-BR', payment_method_collection: 'if_required',
+        // teste grátis de 7 dias: só na 1ª assinatura da conta, no mensal; pede o cartão, cobra no 8º dia
+        ...(teste ? { 'subscription_data[trial_period_days]': '7', payment_method_collection: 'always' }
+          : { ...(pv ? { 'discounts[0][promotion_code]': env.STRIPE_PREVENDA } : { allow_promotion_codes: 'true' }), payment_method_collection: 'if_required' }),
+        locale: 'pt-BR',
         success_url: SITE + '?assinatura=ok', cancel_url: SITE + '?assinatura=cancelada'
       });
       const porEmail = ac && ac.em ? { customer_email: ac.em } : {};
